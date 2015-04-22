@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="../../js/jquery-1.11.2.min.js"></script>
+  <script src="fx.js"></script>
+  <script src="fx-app.js"></script>
+  <script src="fx-controller.js"></script>
+  <script src="fx-model.js"></script>
+  <script src="fx-template.js"></script>
+</head>
+<body fx-app="exampleApp">
+  <div fx-controller="exampleController">
+    <img fx-model="full-size" class="full-size" fx-src="getSrc"></img>
+    <ul>
+      <li fx-model="list-item">{{item}}</li>
+    </ul>
+  </div>
+<script>
+  fxjs.app('exampleApp')
+    .controller('exampleController')
+    .model('full-size', [
+      'black_white_street',
+      'black_white_alley',
+      'brick_warehouse',
+      'graffiti_shed'
+    ], function(i) {
+      this.define('getSrc', function(str) {
+        return '../fginder/photos/' + str + '.jpg';
+      });
+    })
+    .model('list-item', ['item 1', 'item b', 'item iii']);
+</script>
+</body>
+</html>
