@@ -7,28 +7,14 @@
   <script src="fx-controller.js"></script>
   <script src="fx-model.js"></script>
   <script src="fx-template.js"></script>
+  <script src="example.js"></script>
 </head>
 <body fx-app="exampleApp">
   <div fx-controller="exampleController">
-    <img fx-model="full-size" class="full-size" fx-src="getSrc"></img>
+    <img fx-model="fullSize" class="full-size" fx-src="{{src}}"></img>
     <ul>
-      <li fx-model="list-item">{{item}}</li>
+      <li fx-model="listItem">{{item}}</li>
     </ul>
   </div>
-<script>
-  fxjs.app('exampleApp')
-    .controller('exampleController')
-    .model('full-size', [
-      'black_white_street',
-      'black_white_alley',
-      'brick_warehouse',
-      'graffiti_shed'
-    ], function(i) {
-      this.define('getSrc', function(str) {
-        return '../fginder/photos/' + str + '.jpg';
-      });
-    })
-    .model('list-item', ['item 1', 'item b', 'item iii']);
-</script>
 </body>
 </html>

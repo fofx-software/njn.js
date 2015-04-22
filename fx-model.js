@@ -13,7 +13,14 @@ FXModel.prototype.populate = function(candidates) {
   if(!(candidates instanceof Array)) candidates = [candidates];
 
   candidates.forEach(function(candidate) {
-    if(this.validate(candidate)) this.members.push(candidate);
+    if(this.validate(candidate)) {
+      var newMember = candidate;
+      if(isFunction(this.initialize)) {
+        newMember = {};
+        this.initialize.call(newMember, candidate);
+      }
+      this.members.push(newMember);
+    }
   }, this);
 }
 

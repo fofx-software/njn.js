@@ -1,16 +1,14 @@
 var exampleApp = {
-  fullSize: function fullSize(filename) {
-    this.filename = filename;
-    this.src = '../fginder/photos/' + filename + '.jpg';
+  fullSize: {
+    init: function fullSize(filename) {
+      this.src = '../fginder/photos/' + filename + '.jpg';
+    },
+    members: [
+      'black_white_street',
+      'black_white_alley',
+      'brick_warehouse',
+      'graffiti_shed'
+    ]
   },
-  listItem: function() { }
+  listItem: ['item 1', 'item b', 'item iii']
 }
-
-exampleApp.fullSize.members(
-  'black_white_street',
-  'black_white_alley',
-  'brick_warehouse',
-  'graffiti_shed'
-);
-
-exampleApp.listItem.members('item 1', 'item b', 'item iii');
