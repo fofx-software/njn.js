@@ -23,11 +23,15 @@ $(document).ready(function() {
     var action = controllerActions.find(function(action) {
       return controller.template.attr(action);
     }, this);
+    var collection, methodName;
     if(action) {
-      var collection = window[controller.template.attr(action)];
-      var methodName = fxjs.camelCase(action.replace('fx-',''));
-      controller[methodName](collection);
+      collection = window[controller.template.attr(action)];
+      methodName = fxjs.camelCase(action.replace('fx-',''));
+    } else {
+      collection = new FXCollection([{}]); // <- hacky. how to handle controllers without watched objects?
+      methodName = 'watchObj';
     }
+    controller[methodName](collection);
   });
 });
 

@@ -13,7 +13,7 @@
   <section id="todoapp">
     <header id="header">
       <h1>todos</h1>
-      <input fx-controller="newTodo" type="text" id="new-todo" placeholder="What needs to be done?" fx-on="focusout: createTodo; keypress: acceptOrReject"/>
+      <input fx-controller="newTodo" type="text" id="new-todo" placeholder="What needs to be done?" fx-on="focusout: acceptChanges; keypress: acceptOrReject"/>
     </header>
 
     <section id="main">
@@ -68,11 +68,27 @@
     );
 
     fxjs.controller('newTodo', {
-      createTodo: function(e) {
-
+      acceptChanges: function(e) {
+        var inputVal = $(e.target).val();
+        if(fxjs.isBlank(inputVal)) {
+          this.cancelChanges(e);
+        } else {
+          this.createTodo(e, inputVal);
+        }
+      },
+      cancelChanges: function(e) {
+        $(e.target).val('');
       },
       acceptOrReject: function(e) {
-
+        if(e.which === 13) {
+          this.acceptChanges(e);
+        } else if(e.keyCode === 27) {
+          this.cancelChanges();
+        }
+      },
+      createTodo: function(e, title) {
+        todos.addMembers({ title: title });
+        this.cancelChanges(e);
       }
     });
 

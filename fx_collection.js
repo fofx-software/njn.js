@@ -83,6 +83,7 @@ FXCollection.prototype.addMembers = function() {
   for(var i = 0; i < arguments.length; i++) {
     this.members.push(this.initialize(arguments[i]));
   }
+  this.broadcastChange();
   return this;
 }
 
