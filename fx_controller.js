@@ -7,7 +7,6 @@ function FXController(elementOrId) {
   this.parentElement = this.template.parent();
   this.classesToToggle = this.detectClassesToToggle();
   this.childrenToToggle = this.detectChildrenToToggle();
-  this.template.remove();
   this.renderedTemplates = [];
   this.watching = [];
 }
@@ -65,34 +64,33 @@ FXController.prototype.renderView = function fxctrRenderView() {
     this.toggleClasses(clone, reference);
     this.toggleChildrenDisplay(clone, reference);
     FXController.renderTemplate(clone, reference, this, index);
-    this.parseAttributes(clone, reference, this, index);
+    this.parseAttributes(clone, reference, index);
     return clone[0];
   }, this));
   this.parentElement.append(this.liveElements);
 }
 
 FXController.prototype.loadColl = function(collectionOrArray) {
+  this.renderView();
+}
+
+FXController.prototype.watchColl = function(collectionOrArray) {
+  this.template.remove();
   if(fxjs.isArray(collectionOrArray)) {
     this.watching = collectionOrArray;
   } else if(collectionOrArray instanceof FXCollection) {
     this.watching = collectionOrArray.members;
   }
-  this.renderView();
-}
-
-FXController.prototype.watchColl = function(collection) {
-  this.watching = collection;
-  this.referencedCollection = collection;
-  this.loadColl(collection);
+  this.referencedCollection = collectionOrArray;
+  this.loadColl(collectionOrArray);
 }
 
 FXController.prototype.loadObj = function(collection) {
   this.renderView();
-  //FXController.renderTemplate(clone, collection, this, 0);
-  //this.parentElement.append(clone);
 }
 
 FXController.prototype.watchObj = function(object) {
+  this.template.remove();
   this.watching = [object];
   this.referencedCollection = object;
   this.loadObj(object);
@@ -131,7 +129,7 @@ FXController.prototype.parseAttributes = function(element, object, index) {
       if(trueAttr === 'checked') {
         var prop = this[attr.value] || object[attr.value];
         if(fxjs.isFunction(prop)) prop = prop();
-        element.attr(trueAttr, prop);
+        element.prop(trueAttr, prop);
       } else {
         element.attr(trueAttr, fxjs.interpolateObject(attr.value, object));
       }
@@ -157,8 +155,9 @@ FXController.prototype.parseAttributes = function(element, object, index) {
           } else {
             var objectProp = object[pair[1]];
             if(fxjs.isBoolean(objectProp)) {
-              object.set(pair[1], !object[pair[1]]);
-              template.refreshView();
+              object.set(pair[1], !objectProp);
+            } else if(fxjs.isFunction(objectProp)) {
+              objectProp();
             }
           }
         });

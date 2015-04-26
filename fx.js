@@ -11,8 +11,11 @@ $(document).ready(function() {
   controllers.each(function() {
     var controllerName = $(this).attr('fx-controller');
     if(!controllerName) controllerName = 'controller' + controllerCount;
-    var controller = new FXController($(this));
-    fxjs.controllers[controllerName] = controller;
+    if(!fxjs.controllers[controllerName]) {
+      var controller = new FXController($(this));
+      fxjs.controllers[controllerName] = controller;
+    }
+    controllerCount++;
   });
 
   Object.keys(fxjs.controllers).forEach(function(controllerName) {
@@ -20,10 +23,11 @@ $(document).ready(function() {
     var action = controllerActions.find(function(action) {
       return controller.template.attr(action);
     }, this);
-    var collection = window[controller.template.attr(action)];
-    var methodName = fxjs.camelCase(action.replace('fx-',''));
-    controller[methodName](collection);
-    controllerCount++;
+    if(action) {
+      var collection = window[controller.template.attr(action)];
+      var methodName = fxjs.camelCase(action.replace('fx-',''));
+      controller[methodName](collection);
+    }
   });
 });
 
@@ -98,4 +102,10 @@ fxjs.camelCase = function(string) {
     splitString[i] = firstLetter + splitString[i].slice(1);
   }
   return splitString.join('');
+}
+
+fxjs.isBlank = function(string) {
+  var emptyString = string === '';
+  var whiteSpace = !!string.match(/^\s+$/);
+  return emptyString || whiteSpace;
 }

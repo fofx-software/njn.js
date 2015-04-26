@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>f(x) todo sample app</title>
   <link rel="stylesheet" href="todo.css">
-  <script type="text/javascript" src="../../../js/jquery-1.11.2.min.js"></script>
+  <script type="text/javascript" src="../../js/jquery-1.11.2.min.js"></script>
   <script type="text/javascript" src="fx.js"></script>
   <script type="text/javascript" src="fx_collection.js"></script>
   <script type="text/javascript" src="fx_controller.js"></script>
@@ -13,7 +13,7 @@
   <section id="todoapp">
     <header id="header">
       <h1>todos</h1>
-      <input type="text" id="new-todo" placeholder="What needs to be done?" />
+      <input fx-controller="newTodo" type="text" id="new-todo" placeholder="What needs to be done?" fx-on="focusout: createTodo; keypress: acceptOrReject"/>
     </header>
 
     <section id="main">
@@ -22,12 +22,12 @@
           <div fx-toggle-display="editing"><input class="edit" fx-on="focusout: acceptChanges; keypress: acceptOrReject"></input></div>
           <div fx-toggle-display="!editing">
             <input type="checkbox" class="toggle" fx-on="change:completed" fx-attr-checked="completed">
-            <label fx-on="dblclick:editObject">{{title}}</label><button class="destroy"></button>
+            <label fx-on="dblclick:editObject">{{title}}</label><button class="destroy" fx-on="click:delete"></button>
           </div>
         </li>
       </ul>
 
-      <input fx-controller="toggleCompleteAll" fx-watch-obj="todos" type="checkbox" id="toggle-all" fx-on="change: completeAll" fx-attr-checked="allComplete">
+      <input fx-controller="toggleCompleteAll" fx-watch-obj="todos" type="checkbox" id="toggle-all" fx-on="change:completeAll" fx-attr-checked="allComplete">
     </section>
 
     <footer id="footer">
@@ -67,14 +67,28 @@
       { title: 'Profit!' }
     );
 
+    fxjs.controller('newTodo', {
+      createTodo: function(e) {
+
+      },
+      acceptOrReject: function(e) {
+
+      }
+    });
+
     fxjs.controller('todosEditAndDisplay', {
       editObject: function(e, todo, index) {
         todo.set('editing', true);
         this.get(index).find('input.edit').val(todo.title).focus();
       },
       acceptChanges: function(e, todo) {
-        todo.title = $(e.target).val();
-        todo.set('editing', false);
+        var inputVal = $(e.target).val();
+        if(fxjs.isBlank(inputVal)) {
+          todo.delete();
+        } else {
+          todo.set('title', inputVal);
+          todo.set('editing', false);
+        }
       },
       acceptOrReject: function(e, todo) {
         if(e.which === 13) {
@@ -86,7 +100,7 @@
     });
 
     fxjs.controller('toggleCompleteAll', {
-      completeAll: function(e, todos) {
+      completeAll: function(e) {
         var completeAll = !todos.all('completed');
         todos.setAll('completed', completeAll);
       },

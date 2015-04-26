@@ -1,19 +1,19 @@
 function FXCollection() {
-  var members = [], prototype = null, initialize;
+  var members = [], model = null, initialize;
 
   for(var i = 0; i < arguments.length; i++) {
     if(fxjs.isArray(arguments[i])) {
       members = arguments[i];
     } else if(fxjs.isPlainObject(arguments[i])) {
-      prototype = arguments[i];
+      model = arguments[i];
     } else if(fxjs.isFunction(arguments[i])) {
       initialize = arguments[i];
     }
   }
 
-  if(prototype) {
-    Object.keys(prototype).forEach(function(property) {
-      if(fxjs.isBoolean(prototype[property])) {
+  if(model) {
+    Object.keys(model).forEach(function(property) {
+      if(fxjs.isBoolean(model[property])) {
         this[property] = function() {
           return(this.scope(property));
         }
@@ -26,18 +26,12 @@ function FXCollection() {
     }, this);
   }
 
-  var collection = this;
-
-  this.memberPrototype = prototype || {};
-  this.memberPrototype.set = function(prop, val) {
-    this[prop] = val;
-    collection.broadcastChange();
-  }
+  this.model = this.initializeModel(model || {});
 
   this.initializeMember = initialize || function() { }
 
   this.initialize = function(candidate) {
-    var newObject = Object.create(this.memberPrototype);
+    var newObject = Object.create(this.model);
     Object.keys(candidate).forEach(function(property) {
       newObject[property] = candidate[property];
     });
@@ -48,6 +42,20 @@ function FXCollection() {
   this.members = [];
 
   this.addMembers.apply(this, members);
+}
+
+FXCollection.prototype.initializeModel = function(model) {
+  var collection = this;
+  model.set = function(prop, val) {
+    this[prop] = val;
+    collection.broadcastChange();
+  }
+  model.delete = function() {
+    var index = collection.members.indexOf(this);
+    collection.members.splice(index, 1);
+    collection.broadcastChange();
+  }
+  return model;
 }
 
 FXCollection.prototype.broadcastChange = function() {
@@ -67,7 +75,7 @@ FXCollection.prototype.scope = function(callbackOrMethodName) {
       return callbackOrMethodName.call(member);
     }
   });
-  var newModel = Object.create(this.memberPrototype);
+  var newModel = Object.create(this.model);
   return(new FXCollection(filteredMembers, newModel, this.initializeMember));
 }
 
