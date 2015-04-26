@@ -157,7 +157,7 @@ FXController.prototype.parseAttributes = function(element, object, index) {
             if(fxjs.isBoolean(objectProp)) {
               object.set(pair[1], !objectProp);
             } else if(fxjs.isFunction(objectProp)) {
-              objectProp();
+              objectProp.call(object);
             }
           }
         });

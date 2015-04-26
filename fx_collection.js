@@ -50,7 +50,7 @@ FXCollection.prototype.initializeModel = function(model) {
     this[prop] = val;
     collection.broadcastChange();
   }
-  model.delete = function() {
+  model.remove = function() {
     var index = collection.members.indexOf(this);
     collection.members.splice(index, 1);
     collection.broadcastChange();
