@@ -1,81 +1,101 @@
-var fxjs = { apps: {} };
+var fxjs = { controllers: {} };
 
-Object.defineProperties(fxjs.apps, {
-  detectControllers: {
-    value: function() {
-      Object.keys(this).forEach(function(key) {
-        this[key].detectControllers();
-      }, this);
-    }
-  },
-  initializeControllers: {
-    value: function() {
-      Object.keys(this).forEach(function(key) {
-        var app = this[key];
-        Object.keys(app.controllers).forEach(function(controllerName) {
-          var controller = app.controllers[controllerName];
-          controller.initialize(app);
-          Object.keys(app.models).forEach(function(modelName) {
-            controller.updateModelTemplates(app.models[modelName]);
-          });
-        });
-      }, this);
-    }
-  },
-  detectModels: {
-    value: function() {
-      Object.keys(this).forEach(function(key) {
-        this[key].detectModels();
-      }, this);
-    }
-  },
-  updateControllers: {
-    value: function() {
-      Object.keys(this).forEach(function(key) {
-        var app = this[key];
-        var modelNames = Object.keys(app.models);
-        modelNames.forEach(function(modelName) {
-          app.updateControllers(app.models[modelName]);
-        });
-      });
-    }
-  }
+$(document).ready(function() {
+  var controllerSelectors = ['[fx-watch-coll]', '[fx-watch-obj]', '[fx-load-coll]', '[fx-load-obj]'];
+  var controllerActions = controllerSelectors.map(function(selector) {
+    return selector.replace(/[\[\]]/g,'');
+  });
+  var controllers = $(controllerSelectors.join(', '));
+  var controllerCount = 0;
+
+  controllers.each(function() {
+    var controllerName = $(this).attr('fx-controller');
+    if(!controllerName) controllerName = 'controller' + controllerCount;
+    var controller = new FXController($(this));
+    fxjs.controllers[controllerName] = controller;
+  });
+
+  Object.keys(fxjs.controllers).forEach(function(controllerName) {
+    var controller = fxjs.controllers[controllerName];
+    var action = controllerActions.find(function(action) {
+      return controller.template.attr(action);
+    }, this);
+    var collection = window[controller.template.attr(action)];
+    var methodName = fxjs.camelCase(action.replace('fx-',''));
+    controller[methodName](collection);
+    controllerCount++;
+  });
 });
 
-fxjs.detectApps = function detectApps() {
-  var withAppAttribute = $('[fx-app]');
-  withAppAttribute.get().forEach(function(element) {
-    var appName = $(element).attr('fx-app');
-    if(typeof this.apps[appName] === 'undefined')
-      this.apps[appName] = new FXApp(appName);
+fxjs.controller = function(controllerName, model) {
+  var query = $('[fx-controller="' + controllerName + '"]');
+  var controller = this.controllers[controllerName] = new FXController(query);
+  Object.keys(model).forEach(function(propertyName) {
+    controller[propertyName] = model[propertyName];
+  });
+}
+
+fxjs.broadcastChange = function(collection) {
+  Object.keys(this.controllers).forEach(function(controllerName) {
+    var controller = this.controllers[controllerName];
+    if(controller.referencedCollection === collection) {
+      controller.refreshView();
+    }
   }, this);
 }
 
-$(document).ready(function() {
-  fxjs.detectApps();
-  fxjs.apps.detectModels();
-  //fxjs.apps.initializeModels();
-  fxjs.apps.detectControllers();
-  fxjs.apps.initializeControllers();
-});
+fxjs.interpolateObject = function(string, object) {
+  var interpolator = /{{\w+}}/g;
+  var matches = string.match(interpolator) || [];
+  matches.forEach(function(match) {
+    var innerMatch = match.match(/\w+/) || [];
+    if(this.isDefined(object[innerMatch[0]])) {
+      if(this.isFunction(object[innerMatch[0]])) {
+        string = string.replace(match, object[innerMatch[0]]());
+      } else {
+        string = string.replace(match, object[innerMatch[0]]);
+      }
+    } else {
+      string = string.replace(match, object.toString());
+    }
+  }, this);
+  return string;
+}
 
-// utitlies:
+// utilities:
 
-function isDefined(value) {
+fxjs.isDefined = function(value) {
   return typeof value !== 'undefined';
 }
 
-function isFunction(value) {
+fxjs.isBoolean = function(value) {
+  return value === true || value === false;
+}
+
+fxjs.isString = function(value) {
+  return typeof value === 'string';
+}
+
+fxjs.isFunction = function(value) {
   return typeof value === 'function';
 }
 
-function isObject(value) {
+fxjs.isPlainObject = function(value) {
   var test1 = typeof value === 'object';
   var test2 = !Array.isArray(value);
   var test3 = value !== null;
   return test1 && test2 && test3;
 }
 
-function isArray(value) {
+fxjs.isArray = function(value) {
   return Array.isArray(value);
+}
+
+fxjs.camelCase = function(string) {
+  var splitString = string.split(/[-_]/);
+  for(var i = 1; i < splitString.length; i++) {
+    var firstLetter = splitString[i].slice(0, 1).toUpperCase();
+    splitString[i] = firstLetter + splitString[i].slice(1);
+  }
+  return splitString.join('');
 }
