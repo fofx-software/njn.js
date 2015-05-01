@@ -1,105 +1,127 @@
-function FXCollection() {
-  var members = [], model = null, initialize;
+(function defineFXCollection() {
 
-  for(var i = 0; i < arguments.length; i++) {
-    if(fxjs.isArray(arguments[i])) {
-      members = arguments[i];
-    } else if(fxjs.isPlainObject(arguments[i])) {
-      model = arguments[i];
-    } else if(fxjs.isFunction(arguments[i])) {
-      initialize = arguments[i];
-    }
-  }
-
-  if(model) {
-    Object.keys(model).forEach(function(property) {
-      if(fxjs.isBoolean(model[property])) {
-        this[property] = function() {
-          return(this.scope(property));
-        }
-        this['!' + property] = function() {
-          return(this.scope(function() {
-            return !this[property];
-          }));
-        }
-      }
-    }, this);
-  }
-
-  this.model = this.initializeModel(model || {});
-
-  this.initializeMember = initialize || function() { }
-
-  this.initialize = function(candidate) {
-    var newObject = Object.create(this.model);
-    Object.keys(candidate).forEach(function(property) {
-      newObject[property] = candidate[property];
-    });
-    this.initializeMember.call(newObject);
-    return newObject;
-  }
-
+function FXCollection(name) {
+  this.name = name;
   this.members = [];
-
-  this.addMembers.apply(this, members);
+  this.scopes = {};
 }
 
-FXCollection.prototype.initializeModel = function(model) {
-  var collection = this;
-  model.set = function(prop, val) {
+function FXModel(collection) {
+  this.set = function(prop, val) {
     this[prop] = val;
     collection.broadcastChange();
   }
-  model.remove = function() {
+  this.remove = function() {
     var index = collection.members.indexOf(this);
     collection.members.splice(index, 1);
     collection.broadcastChange();
   }
-  return model;
+}
+
+fxjs.collection = function() {
+  var collectionName = arguments[0];
+  var model = arguments[1];
+  if(model) {
+    var collection = fxjs.collections[collectionName] = new FXCollection(collectionName);
+    if(fxjs.isPlainObject(model)) {
+      collection.model(model);
+    }
+  }
+  return fxjs.collections[collectionName];
 }
 
 FXCollection.prototype.broadcastChange = function() {
-  fxjs.broadcastChange(this);
-}
-
-FXCollection.prototype.scope = function(callbackOrMethodName) {
-  var filteredMembers = this.members.filter(function(member) {
-    if(fxjs.isString(callbackOrMethodName)) {
-      var returnVal = member[callbackOrMethodName];
-      if(fxjs.isFunction(returnVal)) {
-        return returnVal();
-      } else {
-        return returnVal;
-      }
-    } else if(fxjs.isFunction(callbackOrMethodName)) {
-      return callbackOrMethodName.call(member);
-    }
+  fxjs.controllers.watching(fxjs.collections[this.name]).forEach(function(controller) {
+    controller.refreshView();
   });
-  var newModel = Object.create(this.model);
-  return(new FXCollection(filteredMembers, newModel, this.initializeMember));
 }
 
-FXCollection.prototype.addMembers = function() {
-  for(var i = 0; i < arguments.length; i++) {
-    this.members.push(this.initialize(arguments[i]));
-  }
-  this.broadcastChange();
+FXCollection.prototype.model = function(object) {
+  this.memberModel = new FXModel(this);
+  Object.keys(object).forEach(function(property) {
+    if(fxjs.isBoolean(object[property])) {
+      this[property] = function() {
+        return this.members.filter(function(member) {
+          return member[property];
+        });
+      }
+      this['!' + property] = function() {
+        return this.members.filter(function(member) {
+          return !member[property];
+        });
+      }
+    }
+    this.memberModel[property] = object[property];
+  }, this);
   return this;
 }
 
-FXCollection.prototype.count = function() {
-  return this.members.length;
+FXCollection.prototype.addMembers = function() {
+  var candidates = arguments;
+  if(arguments.length === 1 && fxjs.isArray(arguments[0])) {
+    candidates = arguments[0];
+  }
+  for(var i = 0; i < candidates.length; i++) {
+    var newMember = Object.create(this.memberModel);
+    var instance = candidates[i];
+    Object.keys(candidates[i]).forEach(function(property) {
+      newMember[property] = instance[property];
+    });
+    this.members.push(newMember);
+  }
+  return this;
 }
 
-FXCollection.prototype.setAll = function(propName, value) {
-  this.members.forEach(function(member) {
-    member[propName] = value;
-  });
-  this.broadcastChange();
+FXCollection.prototype.defScope = function(scopeName, paramsObject) {
+  this.scopes[scopeName] = paramsObject;
+  var collection = this;
+  paramsObject.set = function(propName, val) {
+    this[propName] = val;
+    collection.broadcastChange();
+  }
+  return this;
 }
 
-FXCollection.prototype.all = function(propName) {
-  return(this.members.reduce(function(prev, curr) {
-    return prev && curr[propName];
-  }, true));
+FXCollection.prototype.scoped = function(scopeName) {
+  if(fxjs.isDefined(this[scopeName])) {
+    var scopedMembers = this.members.filter(function(member) {
+      return member[scopeName];
+    });
+    return scopedMembers;
+  } else if(fxjs.isDefined(this.scopes[scopeName])) {
+    var scope = this.scopes[scopeName];
+    var scopedMembers = this.members;
+    if(scope.filter === 'all') {
+      scopedMembers = this.members;
+    } else if(fxjs.isDefined(scope.filter)) {
+      if(this[scope.filter]) {
+        scopedMembers = this[scope.filter]();
+      } else {
+        scopedMembers = scopedMembers.filter(function(member) {
+          return member[scope.filter];
+        });
+      }
+    }
+    if(fxjs.isDefined(scope.sort)) {
+      scopedMembers = scopedMembers.sort(function(a, b) {
+        if(a[scope.sort] > b[scope.sort]) return 1;
+        if(a[scope.sort] === b[scope.sort]) return 0;
+        if(a[scope.sort] < b[scope.sort]) return -1;
+      });
+    }
+    return scopedMembers;
+  } else {
+    return this.members;
+  }
 }
+
+FXCollection.prototype.defAlias = function(newName, currName) {
+  this[newName] = this[currName];
+  return this;
+}
+
+FXCollection.prototype.forEach = function(callback, thisArg) {
+  this.members.forEach(callback, thisArg);
+}
+
+})();

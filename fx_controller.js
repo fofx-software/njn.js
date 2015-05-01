@@ -1,181 +1,170 @@
-function FXController(elementOrId) {
-  if(fxjs.isString(elementOrId)) {
-    this.template = $('#' + elementOrId);
-  } else {
-    this.template = elementOrId;
-  }
-  this.parentElement = this.template.parent();
-  this.classesToToggle = this.detectClassesToToggle();
-  this.childrenToToggle = this.detectChildrenToToggle();
-  this.renderedTemplates = [];
-  this.watching = [];
-}
+(function defineFXController() {
 
-FXController.prototype.detectClassesToToggle = function() {
-  if(this.template.attr('fx-toggle-class')) {
-    return this.template.attr('fx-toggle-class').split(' ');
-  } else {
-    return [];
-  }
-}
+function FXController() { }
 
-FXController.prototype.toggleClasses = function(element, object) {
-  this.classesToToggle.forEach(function(klass) {
-    if(object[klass]) element.addClass(klass);
-  }, this);
-}
+fxjs.controller = function() {
+  var controllerName = arguments[0];
+  var actions = arguments[1];
+  if(actions) {
+    var controller = new FXController();
+    var query = '[fx-controller="' + controllerName + '"]';
+    controller.template = document.querySelector(query);
 
-FXController.prototype.detectChildrenToToggle = function() {
-  var query = this.template.find('[fx-toggle-display]');
-  var mappedValues = [];
-  if(query.length) {
-    query.each(function() {
-      var toggleDisplay = $(this).attr('fx-toggle-display');
-      if(mappedValues.indexOf(toggleDisplay) === -1 && toggleDisplay.slice(0,1) !== '!') {
-        mappedValues.push(toggleDisplay);
-      }
-    });
-  }
-  return mappedValues;
-}
-
-FXController.prototype.toggleChildrenDisplay = function(element, object) {
-  this.childrenToToggle.forEach(function(childClass) {
-    var trueChildren = element.find('[fx-toggle-display="' + childClass + '"]');
-    var falseChildren = element.find('[fx-toggle-display="!' + childClass + '"]');
-    if(object[childClass]) {
-      trueChildren.show();
-      falseChildren.hide();
-    } else {
-      falseChildren.show();
-      trueChildren.hide();
+    if(controller.template) {
+      fxjs.controllers[controllerName] = controller;
+      Object.keys(actions).forEach(function(action) {
+        controller[action] = actions[action];
+      });
     }
+  }
+  return fxjs.controllers[controllerName];
+}
+
+FXController.prototype.watch = function() {
+  this.watching = arguments[0];
+}
+
+FXController.prototype.list = function() {
+  var list = arguments[0];
+  if(fxjs.isString(list)) {
+    this.watching = this.listing = fxjs.collections[list];
+    if(arguments[1]) {
+      this.listScope = arguments[1];
+    }
+  }
+  this.parentNode = this.template.parentNode;
+  this.parentNode.removeChild(this.template);
+  this.buildList(this.listing.scoped(this.listScope));
+}
+
+FXController.prototype.buildList = function(list) {
+  this.liveNodes = list.map(function(item, listIndex) {
+    var cloneNode = this.template.cloneNode(true);
+    this.processNode(cloneNode, item, listIndex);
+    this.parentNode.appendChild(cloneNode);
+    return cloneNode;
   }, this);
 }
 
-FXController.prototype.refreshView = function fxctrRefreshView() {
-  this.liveElements.remove();
-  this.renderView();
-}
-
-FXController.prototype.renderView = function fxctrRenderView() {
-  this.liveElements = jQuery(this.watching.map(function(reference, index) {
-    var clone = this.template.clone();
-    this.toggleClasses(clone, reference);
-    this.toggleChildrenDisplay(clone, reference);
-    FXController.renderTemplate(clone, reference, this, index);
-    this.parseAttributes(clone, reference, index);
-    return clone[0];
-  }, this));
-  this.parentElement.append(this.liveElements);
-}
-
-FXController.prototype.loadColl = function(collectionOrArray) {
-  this.renderView();
-}
-
-FXController.prototype.watchColl = function(collectionOrArray) {
-  this.template.remove();
-  if(fxjs.isArray(collectionOrArray)) {
-    this.watching = collectionOrArray;
-  } else if(collectionOrArray instanceof FXCollection) {
-    this.watching = collectionOrArray.members;
+FXController.prototype.refreshView = function() {
+  if(this.listing) {
+    this.liveNodes.forEach(function(node) {
+      node.parentElement.removeChild(node);
+    });
+    this.buildList(this.listing.scoped(this.listScope));
   }
-  this.referencedCollection = collectionOrArray;
-  this.loadColl(collectionOrArray);
 }
 
-FXController.prototype.loadObj = function(collection) {
-  this.renderView();
-}
-
-FXController.prototype.watchObj = function(object) {
-  this.template.remove();
-  this.watching = [object];
-  this.referencedCollection = object;
-  this.loadObj(object);
-}
-
-FXController.prototype.get = function(integer) {
-  return this.liveElements.eq(integer);
-}
-
-FXController.renderTemplate = function(element, object, template, index) {
-  var contents = element.contents().remove();
-  if(element.attr('fx-filter')) {
-    object = object[element.attr('fx-filter')]();
+FXController.prototype.processNode = function(node, object, listIndex) {
+  this.processAttributes(node, object, listIndex);
+  var childNodes = node.childNodes;
+  for(var i = 0; i < childNodes.length; i++) {
+    if(childNodes[i].nodeType === 1) {
+      this.processNode(childNodes[i], object, listIndex);
+    } else if(childNodes[i].nodeType === 3) {
+      var textContent = childNodes[i].textContent;
+      var processedText = this.processText(textContent, object);
+      var processedNode = document.createTextNode(processedText);
+      node.replaceChild(processedNode, childNodes[i]);
+    }
   }
-  contents.each(function() {
-    if(this.nodeType !== 8) {
-      if(this.nodeType === 3) {
-        element.append(fxjs.interpolateObject($(this).text(), object));
+}
+
+FXController.prototype.processAttributes = function(node, object, listIndex) {
+  var attributes = node.attributes;
+  for(var i = 0; i < attributes.length; i++) {
+    switch(attributes[i].name) {
+      case 'fx-toggle-display':
+        this.toggleDisplay(node, object);
+      break;
+      case 'fx-toggle-class':
+        this.toggleClass(node, object);
+      break;
+      case 'fx-on':
+        this.addEventListeners(node, object, listIndex);
+      break;
+      case 'fx-checked':
+        this.checkCheckbox(node, object);
+      break;
+    }
+  }
+}
+
+FXController.prototype.processText = function(text, object) {
+  var interpolator = /{{\w+}}/g;
+  var matches = text.match(interpolator) || [];
+  matches.forEach(function(match) {
+    var innerMatch = match.match(/\w+/) || [];
+    if(fxjs.isDefined(object[innerMatch[0]])) {
+      if(fxjs.isFunction(object[innerMatch[0]])) {
+        text = text.replace(match, object[innerMatch[0]]());
       } else {
-        var rendered = FXController.renderTemplate($(this), object, template, index);
-        template.parseAttributes(rendered, object, index);
-        element.append(rendered);
+        text = text.replace(match, object[innerMatch[0]]);
       }
+    } else {
+      text = text.replace(match, object.toString());
     }
   });
-  return element;
+  return text;
 }
 
-FXController.prototype.parseAttributes = function(element, object, index) {
-  var attributes = element[0].attributes;
-  var template = this;
-  for(var i = 0; i < attributes.length; i++) {
-    var attr = attributes[i];
-    if(/^fx-attr-/.test(attr.name)) {
-      var trueAttr = attr.name.replace('fx-attr-', '');
-      if(trueAttr === 'checked') {
-        var prop = this[attr.value] || object[attr.value];
-        if(fxjs.isFunction(prop)) prop = prop();
-        element.prop(trueAttr, prop);
-      } else {
-        element.attr(trueAttr, fxjs.interpolateObject(attr.value, object));
-      }
-    } else if(attr.name === 'fx-on') {
-      var split = attr.value.split(';');
-      var keyVals = split.map(function(pair) {
-        return pair.split(':');
-      });
-      keyVals.forEach(function(pair) {
-        pair[1] = pair[1].replace(/^ /,'');
-        pair[0] = pair[0].replace(/^ /,'');
-        if(pair[0].match(/,/)) {
-          var split = pair[0].split(',');
-          pair[0] = split[0];
-          keyVals.push([split[1], pair[1]]);
-        }
-      });
-      keyVals.forEach(function(pair) {
-        element.on(pair[0], function(e) {
-          var prop = template[pair[1]];
-          if(fxjs.isFunction(prop)) {
-            template[pair[1]](e, object, index);
-          } else {
-            var objectProp = object[pair[1]];
-            if(fxjs.isBoolean(objectProp)) {
-              object.set(pair[1], !objectProp);
-            } else if(fxjs.isFunction(objectProp)) {
-              objectProp.call(object);
-            }
-          }
-        });
+FXController.prototype.toggleClass = function(node, object) {
+  var classesToToggle = node.getAttribute('fx-toggle-class').split(/, ?| /);
+  var classesToAdd = classesToToggle.filter(function(klass) {
+    return object[klass];
+  });
+  if(classesToAdd.length) { node.className = classesToAdd.join(' '); }
+}
+
+FXController.prototype.toggleDisplay = function(node, object){
+  var testProperty = node.getAttribute('fx-toggle-display');
+  var testValue = object[testProperty.replace(/^!/,'')];
+  if(testProperty.slice(0,1) === '!') { testValue = !testValue; }
+  node.style.display = testValue ? '' : 'none';
+}
+
+FXController.prototype.addEventListeners = function(node, object, index) {
+  var eventsList = node.getAttribute('fx-on').split(/; ?/);
+  var eventsAndHandlers = eventsList.map(function(eventAndHandler) {
+    return eventAndHandler.split(/: ?/);
+  });
+  eventsAndHandlers.forEach(function(eventAndHandler) {
+    if(eventAndHandler[0].match(/,/)) {
+      var multipleEvents = eventAndHandler[0].split(/, ?/);
+      eventAndHandler[0] = multipleEvents.shift();
+      multipleEvents.forEach(function(ev) {
+        eventsAndHandlers.push([ev, eventAndHandler[1]]);
       });
     }
-  }
+  });
+  var controller = this;
+  eventsAndHandlers.forEach(function(eventAndHandler) {
+    var handler = eventAndHandler[1];
+    node.addEventListener(eventAndHandler[0], function(e) {
+      var prop = controller[handler];
+      if(fxjs.isFunction(prop)) {
+        controller[handler](e, object, index);
+      } else {
+        var objectProp = object[handler];
+        if(fxjs.isBoolean(objectProp)) {
+          object.set(handler, !objectProp);
+        } else if(fxjs.isFunction(objectProp)) {
+          objectProp.call(object);
+        }
+      }
+    }, false);
+  });
 }
 
-FXController.prototype.toggleClass = function() {
-  for(var i = 0; i < arguments.length; i++) {
-    this.classesToToggle.push(arguments[i]);
-  }
-  return this;
+FXController.prototype.checkCheckbox = function(node, object) {
+  var checkboxProperty = node.getAttribute('fx-checked');
+  var propertyValue = object[checkboxProperty];
+  node.checked = propertyValue;
 }
 
-FXController.prototype.toggleChildren = function() {
-  for(var i = 0; i < arguments.length; i++) {
-    this.childrenToToggle.push(arguments[i]);
-  }
-  return this;
+FXController.prototype.getNode = function(index) {
+  var node = this.liveNodes[index];
+  return jQuery ? jQuery(node) : node;
 }
+
+})();

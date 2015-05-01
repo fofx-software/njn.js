@@ -8,21 +8,22 @@
   <script type="text/javascript" src="fx.js"></script>
   <script type="text/javascript" src="fx_collection.js"></script>
   <script type="text/javascript" src="fx_controller.js"></script>
+  <script type="text/javascript" src="fx_router.js"></script>
 </head>
 <body>
   <section id="todoapp">
     <header id="header">
       <h1>todos</h1>
-      <input fx-controller="newTodo" type="text" id="new-todo" placeholder="What needs to be done?" fx-on="focusout: acceptChanges; keypress: acceptOrReject"/>
+      <input fx-controller="newTodo" type="text" id="new-todo" placeholder="What needs to be done?" fx-on="keypress: acceptOrReject"/>
     </header>
 
     <section id="main">
       <ul id="todo-list">
-        <li fx-controller="todosEditAndDisplay" fx-watch-coll="todos" fx-toggle-class="completed editing">
-          <div fx-toggle-display="editing"><input class="edit" fx-on="focusout: acceptChanges; keypress: acceptOrReject"></input></div>
+        <li fx-controller="todoList" fx-toggle-class="completed editing">
+          <div fx-toggle-display="editing"><input class="edit" fx-on="blur:acceptChanges; keypress:acceptOrReject"></input></div>
           <div fx-toggle-display="!editing">
-            <input type="checkbox" class="toggle" fx-on="change:completed" fx-attr-checked="completed">
-            <label fx-on="dblclick:editObject">{{title}}</label><button class="destroy" fx-on="click:remove"></button>
+            <input type="checkbox" class="toggle" fx-on="change:completed" fx-checked="completed">
+            <label fx-on="dblclick:editTodo">{{title}}</label><button class="destroy" fx-on="click:remove"></button>
           </div>
         </li>
       </ul>
@@ -57,45 +58,46 @@
     <p>Double-click to edit a todo</p>
   </footer>
   <script>
-    var todos = (new FXCollection({
+    var todos = fxjs.collection('todos', {
       title: '',
       completed: false,
       editing: false
-    })).addMembers(
+    }).addMembers(
       { title: 'Build f(js)', completed: true },
       { title: 'Do something with it' },
       { title: 'Profit!' }
-    );
+    ).defAlias('active', '!completed')
+     .defScope('listScope', { sort: 'completed' });
 
-    fxjs.controller('newTodo', {
-      acceptChanges: function(e) {
-        var inputVal = $(e.target).val();
-        if(fxjs.isBlank(inputVal)) {
-          this.cancelChanges(e);
-        } else {
-          this.createTodo(e, inputVal);
-        }
-      },
-      cancelChanges: function(e) {
-        $(e.target).val('');
-      },
-      acceptOrReject: function(e) {
-        if(e.which === 13) {
-          this.acceptChanges(e);
-        } else if(e.keyCode === 27) {
-          this.cancelChanges();
-        }
-      },
-      createTodo: function(e, title) {
-        todos.addMembers({ title: title });
-        this.cancelChanges(e);
-      }
-    });
+    //fxjs.controller('newTodo', {
+    //  acceptChanges: function(e) {
+    //    var inputVal = $(e.target).val();
+    //    if(fxjs.isBlank(inputVal)) {
+    //      this.cancelChanges(e);
+    //    } else {
+    //      this.createTodo(e, inputVal);
+    //    }
+    //  },
+    //  cancelChanges: function(e) {
+    //    $(e.target).val('');
+    //  },
+    //  acceptOrReject: function(e) {
+    //    if(e.which === 13) {
+    //      this.acceptChanges(e);
+    //    } else if(e.keyCode === 27) {
+    //      this.cancelChanges();
+    //    }
+    //  },
+    //  createTodo: function(e, title) {
+    //    todos.addMembers({ title: title });
+    //    this.cancelChanges(e);
+    //  }
+    //});
 
-    fxjs.controller('todosEditAndDisplay', {
-      editObject: function(e, todo, index) {
+    fxjs.controller('todoList', {
+      editTodo: function(e, todo, index) {
         todo.set('editing', true);
-        this.get(index).find('input.edit').val(todo.title).focus();
+        this.getNode(index).find('input.edit').val(todo.title).focus();
       },
       acceptChanges: function(e, todo) {
         var inputVal = $(e.target).val();
@@ -113,17 +115,19 @@
           todo.set('editing', false);
         }
       },
-    });
+    }).list('todos', 'listScope');
 
-    fxjs.controller('toggleCompleteAll', {
-      completeAll: function(e) {
-        var completeAll = !todos.all('completed');
-        todos.setAll('completed', completeAll);
-      },
-      allComplete: function() {
-        return todos.all('completed');
-      }
-    });
+    fxjs.router.filter(todos.scopes.listScope, ':all', 'active', 'completed');
+
+    //fxjs.controller('toggleCompleteAll', {
+    //  completeAll: function(e) {
+    //    var completeAll = !todos.all('completed');
+    //    todos.setAll('completed', completeAll);
+    //  },
+    //  allComplete: function() {
+    //    return todos.all('completed');
+    //  }
+    //});
   </script>
 </body>
 </html>

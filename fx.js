@@ -1,73 +1,18 @@
-var fxjs = { controllers: {} };
+var fxjs = {
+  controllers: {},
+  collections: {}
+};
 
-$(document).ready(function() {
-  var controllerSelectors = ['[fx-watch-coll]', '[fx-watch-obj]', '[fx-load-coll]', '[fx-load-obj]'];
-  var controllerActions = controllerSelectors.map(function(selector) {
-    return selector.replace(/[\[\]]/g,'');
-  });
-  var controllers = $(controllerSelectors.join(', '));
-  var controllerCount = 0;
-
-  controllers.each(function() {
-    var controllerName = $(this).attr('fx-controller');
-    if(!controllerName) controllerName = 'controller' + controllerCount;
-    if(!fxjs.controllers[controllerName]) {
-      var controller = new FXController($(this));
-      fxjs.controllers[controllerName] = controller;
-    }
-    controllerCount++;
-  });
-
-  Object.keys(fxjs.controllers).forEach(function(controllerName) {
-    var controller = fxjs.controllers[controllerName];
-    var action = controllerActions.find(function(action) {
-      return controller.template.attr(action);
-    }, this);
-    var collection, methodName;
-    if(action) {
-      collection = window[controller.template.attr(action)];
-      methodName = fxjs.camelCase(action.replace('fx-',''));
-    } else {
-      collection = new FXCollection([{}]); // <- hacky. how to handle controllers without watched objects?
-      methodName = 'watchObj';
-    }
-    controller[methodName](collection);
-  });
-});
-
-fxjs.controller = function(controllerName, model) {
-  var query = $('[fx-controller="' + controllerName + '"]');
-  var controller = this.controllers[controllerName] = new FXController(query);
-  Object.keys(model).forEach(function(propertyName) {
-    controller[propertyName] = model[propertyName];
-  });
+fxjs.controllers.asArray = function() {
+  return(Object.keys(this).map(function(controllerName) {
+    return this[controllerName];
+  }, this));
 }
 
-fxjs.broadcastChange = function(collection) {
-  Object.keys(this.controllers).forEach(function(controllerName) {
-    var controller = this.controllers[controllerName];
-    if(controller.referencedCollection === collection) {
-      controller.refreshView();
-    }
-  }, this);
-}
-
-fxjs.interpolateObject = function(string, object) {
-  var interpolator = /{{\w+}}/g;
-  var matches = string.match(interpolator) || [];
-  matches.forEach(function(match) {
-    var innerMatch = match.match(/\w+/) || [];
-    if(this.isDefined(object[innerMatch[0]])) {
-      if(this.isFunction(object[innerMatch[0]])) {
-        string = string.replace(match, object[innerMatch[0]]());
-      } else {
-        string = string.replace(match, object[innerMatch[0]]);
-      }
-    } else {
-      string = string.replace(match, object.toString());
-    }
-  }, this);
-  return string;
+fxjs.controllers.watching = function(collection) {
+  return(fxjs.controllers.asArray().filter(function(controller) {
+    return controller.watching === collection;
+  }));
 }
 
 // utilities:
@@ -112,4 +57,8 @@ fxjs.isBlank = function(string) {
   var emptyString = string === '';
   var whiteSpace = !!string.match(/^\s+$/);
   return emptyString || whiteSpace;
+}
+
+fxjs.isRegExp = function(val) {
+  return val instanceof RegExp;
 }
