@@ -5,17 +5,15 @@ function FXController() { }
 fxjs.controller = function() {
   var controllerName = arguments[0];
   var actions = arguments[1];
-  if(actions) {
-    var controller = new FXController();
-    var query = '[fx-controller="' + controllerName + '"]';
-    controller.template = document.querySelector(query);
+   var controller = new FXController();
+  var query = '[fx-controller="' + controllerName + '"]';
+  controller.template = document.querySelector(query);
 
-    if(controller.template) {
-      fxjs.controllers[controllerName] = controller;
-      Object.keys(actions).forEach(function(action) {
-        controller[action] = actions[action];
-      });
-    }
+  if(controller.template) {
+    fxjs.controllers[controllerName] = controller;
+    Object.keys(actions || {}).forEach(function(action) {
+      controller[action] = actions[action];
+    });
   }
   return fxjs.controllers[controllerName];
 }
@@ -24,9 +22,9 @@ FXController.prototype.watch = function() {
   this.watching = arguments[0];
   this.parentNode = this.template.parentNode;
   this.parentNode.removeChild(this.template);
-  var cloneNode = this.template.cloneNode(true);
-  this.processNode(cloneNode, this.watching, 0);
-  this.parentNode.appendChild(cloneNode);
+  this.liveElement = this.template.cloneNode(true);
+  this.processNode(this.liveElement, this.watching, 0);
+  this.parentNode.appendChild(this.liveElement);
 }
 
 FXController.prototype.list = function() {
@@ -58,13 +56,17 @@ FXController.prototype.refreshView = function() {
     });
     this.buildList(this.listing.scoped(this.listScope));
   } else if(this.watching) {
-    var cloneNode = this.template.cloneNode(true);
-    this.processNode(cloneNode, this.watching, 0);
-    this.parentNode.appendChild(cloneNode);
+    this.liveElement.parentNode.removeChild(this.liveElement);
+    this.liveElement = this.template.cloneNode(true);
+    this.processNode(this.liveElement, this.watching, 0);
+    this.parentNode.appendChild(this.liveElement);
   }
 }
 
 FXController.prototype.processNode = function(node, object, listIndex) {
+  if(node.getAttribute('fx-filter')) {
+    object = object[node.getAttribute('fx-filter')]();
+  }
   this.processAttributes(node, object, listIndex);
   var childNodes = node.childNodes;
   for(var i = 0; i < childNodes.length; i++) {

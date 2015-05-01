@@ -32,19 +32,13 @@
     </section>
 
     <footer id="footer">
-      <span id="todo-count" fx-watch-obj="todos">
-        <strong fx-filter="!completed">{{count}}</strong> of {{count}} todos left
+      <span id="todo-count" fx-controller="countTodos">
+        <strong fx-filter="!completed">{{length}}</strong> of {{count}} todos left
       </span>
       <ul id="filters">
-        <li>
-          <a href="" class="selected">All</a>
-        </li>
-        <li>
-          <a href="#/active">Active</a>
-        </li>
-        <li>
-          <a href="#/completed">Completed</a>
-        </li>
+        <li><a href="#/" class="selected">All</a></li>
+        <li><a href="#/active">Active</a></li>
+        <li><a href="#/completed">Completed</a></li>
       </ul>
 
       <button id="clear-completed">
@@ -57,77 +51,6 @@
   <footer id="info">
     <p>Double-click to edit a todo</p>
   </footer>
-  <script>
-    var todos = fxjs.collection('todos', {
-      title: '',
-      completed: false,
-      editing: false
-    }).addMembers(
-      { title: 'Build f(js)', completed: true },
-      { title: 'Do something with it' },
-      { title: 'Profit!' }
-    ).defAlias('active', '!completed')
-     .defScope('listScope', { sort: 'completed' });
-
-    //fxjs.controller('newTodo', {
-    //  acceptChanges: function(e) {
-    //    var inputVal = $(e.target).val();
-    //    if(fxjs.isBlank(inputVal)) {
-    //      this.cancelChanges(e);
-    //    } else {
-    //      this.createTodo(e, inputVal);
-    //    }
-    //  },
-    //  cancelChanges: function(e) {
-    //    $(e.target).val('');
-    //  },
-    //  acceptOrReject: function(e) {
-    //    if(e.which === 13) {
-    //      this.acceptChanges(e);
-    //    } else if(e.keyCode === 27) {
-    //      this.cancelChanges();
-    //    }
-    //  },
-    //  createTodo: function(e, title) {
-    //    todos.addMembers({ title: title });
-    //    this.cancelChanges(e);
-    //  }
-    //});
-
-    fxjs.controller('todoList', {
-      editTodo: function(e, todo, index) {
-        todo.set('editing', true);
-        this.getNode(index).find('input.edit').val(todo.title).focus();
-      },
-      acceptChanges: function(e, todo) {
-        var inputVal = $(e.target).val();
-        if(fxjs.isBlank(inputVal)) {
-          todo.delete();
-        } else {
-          todo.set('title', inputVal);
-          todo.set('editing', false);
-        }
-      },
-      acceptOrReject: function(e, todo) {
-        if(e.which === 13) {
-          this.acceptChanges(e, todo);
-        } else if(e.keyCode === 27) {
-          todo.set('editing', false);
-        }
-      },
-    }).list('todos', 'listScope');
-
-    fxjs.controller('toggleCompleteAll', {
-      completeAll: function(e) {
-        var completeAll = !todos.areAll('completed');
-        todos.setAll('completed', completeAll);
-      },
-      allComplete: function() {
-        return todos.areAll('completed');
-      }
-    }).watch(todos);
-
-    fxjs.router.filter(todos.scopes.listScope, ':all', 'active', 'completed');
-  </script>
+  <script type="text/javascript" src="todo.js"></script>
 </body>
 </html>

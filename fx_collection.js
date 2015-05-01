@@ -143,4 +143,8 @@ FXCollection.prototype.setAll = function(propName, value) {
   this.broadcastChange();
 }
 
+FXCollection.prototype.count = function() {
+  return this.members.length;
+}
+
 })();
