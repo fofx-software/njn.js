@@ -31,7 +31,7 @@ fxjs.collection = function() {
 }
 
 FXCollection.prototype.broadcastChange = function() {
-  fxjs.controllers.watching(fxjs.collections[this.name]).forEach(function(controller) {
+  fxjs.controllers.watching(this).forEach(function(controller) {
     controller.refreshView();
   });
 }
@@ -122,6 +122,25 @@ FXCollection.prototype.defAlias = function(newName, currName) {
 
 FXCollection.prototype.forEach = function(callback, thisArg) {
   this.members.forEach(callback, thisArg);
+}
+
+FXCollection.prototype.areAll = function(callbackOrMethod) {
+  return(this.members.reduce(function(prev, curr) {
+    var currVal;
+    if(fxjs.isString(callbackOrMethod)) {
+      currVal = curr[callbackOrMethod];
+    } else {
+      currVal = callbackOrMethod.call(curr);
+    }
+    return prev && currVal;
+  }, true));
+}
+
+FXCollection.prototype.setAll = function(propName, value) {
+  this.members.forEach(function(member) {
+    member[propName] = value;
+  });
+  this.broadcastChange();
 }
 
 })();

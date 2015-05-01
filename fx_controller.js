@@ -22,6 +22,11 @@ fxjs.controller = function() {
 
 FXController.prototype.watch = function() {
   this.watching = arguments[0];
+  this.parentNode = this.template.parentNode;
+  this.parentNode.removeChild(this.template);
+  var cloneNode = this.template.cloneNode(true);
+  this.processNode(cloneNode, this.watching, 0);
+  this.parentNode.appendChild(cloneNode);
 }
 
 FXController.prototype.list = function() {
@@ -52,6 +57,10 @@ FXController.prototype.refreshView = function() {
       node.parentElement.removeChild(node);
     });
     this.buildList(this.listing.scoped(this.listScope));
+  } else if(this.watching) {
+    var cloneNode = this.template.cloneNode(true);
+    this.processNode(cloneNode, this.watching, 0);
+    this.parentNode.appendChild(cloneNode);
   }
 }
 
@@ -138,7 +147,7 @@ FXController.prototype.addEventListeners = function(node, object, index) {
     }
   });
   var controller = this;
-  eventsAndHandlers.forEach(function(eventAndHandler) {
+  eventsAndHandlers.forEach(function(eventAndHandler) { // this became an infinite loop
     var handler = eventAndHandler[1];
     node.addEventListener(eventAndHandler[0], function(e) {
       var prop = controller[handler];
@@ -158,7 +167,12 @@ FXController.prototype.addEventListeners = function(node, object, index) {
 
 FXController.prototype.checkCheckbox = function(node, object) {
   var checkboxProperty = node.getAttribute('fx-checked');
-  var propertyValue = object[checkboxProperty];
+  var propertyValue;
+  if(fxjs.isDefined(object[checkboxProperty])) {
+    propertyValue = object[checkboxProperty];
+  } else {
+    propertyValue = this[checkboxProperty]();
+  }
   node.checked = propertyValue;
 }
 
