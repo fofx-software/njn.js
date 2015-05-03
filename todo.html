@@ -14,7 +14,7 @@
   <section id="todoapp">
     <header id="header">
       <h1>todos</h1>
-      <input fx-controller="newTodo" type="text" id="new-todo" placeholder="What needs to be done?" fx-on="keypress: acceptOrReject"/>
+      <input fx-controller="newTodo" type="text" id="new-todo" placeholder="What needs to be done?" fx-on="keyup: acceptOrReject"/>
     </header>
 
     <section id="main">
@@ -35,14 +35,14 @@
       <span id="todo-count" fx-controller="countTodos">
         <strong fx-filter="!completed">{{length}}</strong> of {{count}} todos left
       </span>
-      <ul id="filters">
-        <li><a href="#/" class="selected">All</a></li>
-        <li><a href="#/active">Active</a></li>
-        <li><a href="#/completed">Completed</a></li>
+      <ul id="filters" fx-controller="linkController">
+        <li><a href="#/" fx-attr-class="selected?">All</a></li>
+        <li><a href="#/active" fx-attr-class="selected?">Active</a></li>
+        <li><a href="#/completed" fx-attr-class="selected?">Completed</a></li>
       </ul>
 
-      <button id="clear-completed">
-        Clear completed (1)
+      <button fx-controller="clearCompleted" id="clear-completed" fx-toggle-display="anyCompleted?" fx-on="click:clearAll" fx-filter="completed">
+        Clear completed {{length}}
       </button>
     </footer>
 

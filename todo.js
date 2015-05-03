@@ -9,30 +9,22 @@ var todos = fxjs.collection('todos', {
 ).defAlias('active', '!completed')
  .defScope('listScope', { sort: 'completed' });
 
-//fxjs.controller('newTodo', {
-//  acceptChanges: function(e) {
-//    var inputVal = $(e.target).val();
-//    if(fxjs.isBlank(inputVal)) {
-//      this.cancelChanges(e);
-//    } else {
-//      this.createTodo(e, inputVal);
-//    }
-//  },
-//  cancelChanges: function(e) {
-//    $(e.target).val('');
-//  },
-//  acceptOrReject: function(e) {
-//    if(e.which === 13) {
-//      this.acceptChanges(e);
-//    } else if(e.keyCode === 27) {
-//      this.cancelChanges();
-//    }
-//  },
-//  createTodo: function(e, title) {
-//    todos.addMembers({ title: title });
-//    this.cancelChanges(e);
-//  }
-//});
+fxjs.controller('newTodo', {
+  acceptChanges: function(e) {
+    this.actions.createTodo(e, $(e.target).val());
+  },
+  acceptOrReject: function(e) {
+    if(e.which === 13) {
+      this.actions.acceptChanges.call(this, e);
+    } else if(e.keyCode === 27) {
+      $(e.target).val('');
+    }
+  },
+  createTodo: function(e, title) {
+    todos.addMembers({ title: title });
+    $(e.target).val('');
+  }
+}).init();
 
 fxjs.controller('todoList', {
   editTodo: function(e, todo, index) {
@@ -42,7 +34,7 @@ fxjs.controller('todoList', {
   acceptChanges: function(e, todo) {
     var inputVal = $(e.target).val();
     if(fxjs.isBlank(inputVal)) {
-      todo.delete();
+      todo.remove();
     } else {
       todo.set('title', inputVal);
       todo.set('editing', false);
@@ -50,12 +42,12 @@ fxjs.controller('todoList', {
   },
   acceptOrReject: function(e, todo) {
     if(e.which === 13) {
-      this.acceptChanges(e, todo);
+      this.actions.acceptChanges(e, todo);
     } else if(e.keyCode === 27) {
       todo.set('editing', false);
     }
   },
-}).list('todos', 'listScope');
+}).list(todos, 'listScope');
 
 fxjs.controller('toggleCompleteAll', {
   completeAll: function(e) {
@@ -68,5 +60,23 @@ fxjs.controller('toggleCompleteAll', {
 }).watch(todos);
 
 fxjs.controller('countTodos').watch(todos);
+
+fxjs.controller('linkController', {
+  'selected?': function(a) {
+    var hrefHash = /#\/.*/.exec(a.href)[0].replace(/#\//,'');
+    if(location.hash.replace(/#\//,'') === hrefHash) return 'selected';
+  }
+}).watch(fxjs.router);
+
+fxjs.controller('clearCompleted', {
+  'anyCompleted?': function() {
+    return todos.areAny('completed');
+  },
+  clearAll: function(e, todo, index) {
+    todos.completed().forEach(function(todo) {
+      todo.remove();
+    });
+  }
+}).watch(todos);
 
 fxjs.router.filter(todos.scopes.listScope, ':all', 'active', 'completed');

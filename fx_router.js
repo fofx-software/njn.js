@@ -23,6 +23,9 @@ FXRouter.parseLocation = function() {
   var hash = location.hash.replace(/^#\//,'');
   if(FXRouter.routes[hash]) {
     FXRouter.routes[hash]();
+    fxjs.controllers.watching(FXRouter).forEach(function(controller) {
+      controller.refreshView();
+    });
   } else {
     var matchingPattern = Object.keys(FXRouter.routes).find(function(routeName) {
       if(/^\/.+\//.test(routeName)) {

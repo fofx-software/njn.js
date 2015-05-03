@@ -1,65 +1,83 @@
 (function defineFXController() {
 
-function FXController() { }
+function FXController(name, template, actions) {
+  this.name = name;
+  this.template = template;
+  this.actions = actions;
+}
 
-fxjs.controller = function() {
-  var controllerName = arguments[0];
-  var actions = arguments[1];
-   var controller = new FXController();
-  var query = '[fx-controller="' + controllerName + '"]';
-  controller.template = document.querySelector(query);
+fxjs.controller = function(controllerName, actionsObject) {
+  if(controllerName && !fxjs.controllers[controllerName]) {
+    var query = '[fx-controller="' + controllerName + '"]';
+    var template = document.querySelector(query);
 
-  if(controller.template) {
-    fxjs.controllers[controllerName] = controller;
-    Object.keys(actions || {}).forEach(function(action) {
-      controller[action] = actions[action];
-    });
+    if(template) {
+      var controller = new FXController(controllerName, template, actionsObject);
+      fxjs.controllers[controllerName] = controller;
+    }
   }
+
   return fxjs.controllers[controllerName];
 }
 
-FXController.prototype.watch = function() {
-  this.watching = arguments[0];
-  this.parentNode = this.template.parentNode;
-  this.parentNode.removeChild(this.template);
+FXController.prototype.init = function() {
   this.liveElement = this.template.cloneNode(true);
-  this.processNode(this.liveElement, this.watching, 0);
-  this.parentNode.appendChild(this.liveElement);
+
+  // 'this.watching' given in case called by watch()
+  // if init() was called directly, 'this.watching' is undefined, with no effect
+  this.processNode(this.liveElement, this.watching);
+  this.template.parentNode.replaceChild(this.liveElement, this.template);
 }
 
-FXController.prototype.list = function() {
-  var list = arguments[0];
+FXController.prototype.watch = function(toWatch) {
+  this.watching = toWatch;
+  this.init();
+}
+
+FXController.prototype.list = function(list, scope) {
   if(fxjs.isString(list)) {
     this.watching = this.listing = fxjs.collections[list];
-    if(arguments[1]) {
-      this.listScope = arguments[1];
-    }
+  } else if(list.fxCollection) {
+    this.watching = this.listing = list;
   }
-  this.parentNode = this.template.parentNode;
-  this.parentNode.removeChild(this.template);
-  this.buildList(this.listing.scoped(this.listScope));
+
+  if(this.listing) {
+    this.listScope = scope;
+    var nextSibling = this.template.nextSibling;
+    this.parentNode = this.template.parentNode;
+    this.parentNode.removeChild(this.template);
+    this.buildList(this.listing, nextSibling);
+  }
 }
 
-FXController.prototype.buildList = function(list) {
-  this.liveNodes = list.map(function(item, listIndex) {
+FXController.prototype.buildList = function(list, afterList) {
+  if(list.fxCollection) {
+    list = this.listing.scoped(this.listScope);
+  }
+  this.liveElements = list.map(function(item, listIndex) {
     var cloneNode = this.template.cloneNode(true);
     this.processNode(cloneNode, item, listIndex);
-    this.parentNode.appendChild(cloneNode);
+    this.parentNode.insertBefore(cloneNode, afterList);
     return cloneNode;
   }, this);
 }
 
 FXController.prototype.refreshView = function() {
   if(this.listing) {
-    this.liveNodes.forEach(function(node) {
+    var afterList;
+    this.liveElements.forEach(function(node) {
+      afterList = node.nextSibling;
       node.parentElement.removeChild(node);
     });
-    this.buildList(this.listing.scoped(this.listScope));
-  } else if(this.watching) {
-    this.liveElement.parentNode.removeChild(this.liveElement);
+    this.buildList(this.listing, afterList);
+  } else {
+    var oldElement = this.liveElement;
     this.liveElement = this.template.cloneNode(true);
-    this.processNode(this.liveElement, this.watching, 0);
-    this.parentNode.appendChild(this.liveElement);
+
+    // again, if controller initialized with init(), 'this.watching'
+    // is undefined, with no effect:
+    this.processNode(this.liveElement, this.watching);
+    oldElement.parentNode.replaceChild(this.liveElement, oldElement);
   }
 }
 
@@ -75,8 +93,7 @@ FXController.prototype.processNode = function(node, object, listIndex) {
     } else if(childNodes[i].nodeType === 3) {
       var textContent = childNodes[i].textContent;
       var processedText = this.processText(textContent, object);
-      var processedNode = document.createTextNode(processedText);
-      node.replaceChild(processedNode, childNodes[i]);
+      childNodes[i].textContent = processedText;
     }
   }
 }
@@ -84,19 +101,35 @@ FXController.prototype.processNode = function(node, object, listIndex) {
 FXController.prototype.processAttributes = function(node, object, listIndex) {
   var attributes = node.attributes;
   for(var i = 0; i < attributes.length; i++) {
-    switch(attributes[i].name) {
-      case 'fx-toggle-display':
-        this.toggleDisplay(node, object);
-      break;
-      case 'fx-toggle-class':
-        this.toggleClass(node, object);
-      break;
-      case 'fx-on':
-        this.addEventListeners(node, object, listIndex);
-      break;
-      case 'fx-checked':
-        this.checkCheckbox(node, object);
-      break;
+    var currAttr = attributes[i].name;
+    if(currAttr.match(/^fx-attr/)) {
+      this.configureAttribute(node, currAttr, object, listIndex);
+    } else {
+      switch(attributes[i].name) {
+        case 'fx-toggle-display':
+          this.toggleDisplay(node, object);
+        break;
+        case 'fx-toggle-class':
+          this.toggleClass(node, object);
+        break;
+        case 'fx-on':
+          this.addEventListeners(node, object, listIndex);
+        break;
+        case 'fx-checked':
+          this.checkCheckbox(node, object);
+        break;
+      }
+    }
+  }
+}
+
+FXController.prototype.configureAttribute = function(node, attr, object, index) {
+  var propertyName = node.getAttribute(attr);
+  var trueAttribute = attr.replace(/^fx-attr-/,'');
+  if(fxjs.isFunction(this.actions[propertyName])) {
+    var returnValue = this.actions[propertyName].call(this, node, object, index);
+    if(returnValue) {
+      node.setAttribute(trueAttribute, returnValue);
     }
   }
 }
@@ -108,7 +141,7 @@ FXController.prototype.processText = function(text, object) {
     var innerMatch = match.match(/\w+/) || [];
     if(fxjs.isDefined(object[innerMatch[0]])) {
       if(fxjs.isFunction(object[innerMatch[0]])) {
-        text = text.replace(match, object[innerMatch[0]]());
+        text = text.replace(match, object[innerMatch[0]].call(object));
       } else {
         text = text.replace(match, object[innerMatch[0]]);
       }
@@ -128,9 +161,17 @@ FXController.prototype.toggleClass = function(node, object) {
 }
 
 FXController.prototype.toggleDisplay = function(node, object){
-  var testProperty = node.getAttribute('fx-toggle-display');
-  var testValue = object[testProperty.replace(/^!/,'')];
-  if(testProperty.slice(0,1) === '!') { testValue = !testValue; }
+  var testPropertyRaw = node.getAttribute('fx-toggle-display');
+  var testProperty = testPropertyRaw.replace(/^!/,'');
+  var testValue;
+  if(testProperty in object) {
+    testValue = object[testProperty];
+  } else if(this.actions.hasOwnProperty(testProperty)) {
+    if(fxjs.isFunction(this.actions[testProperty])) {
+      testValue = this.actions[testProperty].call(this);
+    }
+  }
+  if(/^!/.exec(testPropertyRaw)) { testValue = !testValue; }
   node.style.display = testValue ? '' : 'none';
 }
 
@@ -149,12 +190,12 @@ FXController.prototype.addEventListeners = function(node, object, index) {
     }
   });
   var controller = this;
-  eventsAndHandlers.forEach(function(eventAndHandler) { // this became an infinite loop
+  eventsAndHandlers.forEach(function(eventAndHandler) {
     var handler = eventAndHandler[1];
     node.addEventListener(eventAndHandler[0], function(e) {
-      var prop = controller[handler];
+      var prop = controller.actions[handler];
       if(fxjs.isFunction(prop)) {
-        controller[handler](e, object, index);
+        controller.actions[handler].call(controller, e, object, index);
       } else {
         var objectProp = object[handler];
         if(fxjs.isBoolean(objectProp)) {
@@ -173,14 +214,13 @@ FXController.prototype.checkCheckbox = function(node, object) {
   if(fxjs.isDefined(object[checkboxProperty])) {
     propertyValue = object[checkboxProperty];
   } else {
-    propertyValue = this[checkboxProperty]();
+    propertyValue = this.actions[checkboxProperty].call(this);
   }
   node.checked = propertyValue;
 }
 
 FXController.prototype.getNode = function(index) {
-  var node = this.liveNodes[index];
-  return jQuery ? jQuery(node) : node;
+  return this.liveElements[index];
 }
 
 })();

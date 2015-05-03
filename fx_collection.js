@@ -30,6 +30,8 @@ fxjs.collection = function() {
   return fxjs.collections[collectionName];
 }
 
+FXCollection.prototype.fxCollection = true;
+
 FXCollection.prototype.broadcastChange = function() {
   fxjs.controllers.watching(this).forEach(function(controller) {
     controller.refreshView();
@@ -69,6 +71,7 @@ FXCollection.prototype.addMembers = function() {
     });
     this.members.push(newMember);
   }
+  this.broadcastChange();
   return this;
 }
 
@@ -134,6 +137,16 @@ FXCollection.prototype.areAll = function(callbackOrMethod) {
     }
     return prev && currVal;
   }, true));
+}
+
+FXCollection.prototype.areAny = function(callbackOrMethod) {
+  return(!!this.members.find(function(member) {
+    if(fxjs.isString(callbackOrMethod)) {
+      return member[callbackOrMethod];
+    } else {
+      return callbackOrMethod.call(member);
+    }
+  }));
 }
 
 FXCollection.prototype.setAll = function(propName, value) {
