@@ -58,6 +58,7 @@ FXController.prototype.buildList = function(list, afterList) {
     var cloneNode = this.template.cloneNode(true);
     this.processNode(cloneNode, item, listIndex);
     this.parentNode.insertBefore(cloneNode, afterList);
+    this[listIndex] = cloneNode;
     return cloneNode;
   }, this);
 }
@@ -65,9 +66,10 @@ FXController.prototype.buildList = function(list, afterList) {
 FXController.prototype.refreshView = function() {
   if(this.listing) {
     var afterList;
-    this.liveElements.forEach(function(node) {
+    this.liveElements.forEach(function(node, index) {
       afterList = node.nextSibling;
       node.parentElement.removeChild(node);
+      delete this[index];
     });
     this.buildList(this.listing, afterList);
   } else {
@@ -217,10 +219,6 @@ FXController.prototype.checkCheckbox = function(node, object) {
     propertyValue = this.actions[checkboxProperty].call(this);
   }
   node.checked = propertyValue;
-}
-
-FXController.prototype.getNode = function(index) {
-  return this.liveElements[index];
 }
 
 })();

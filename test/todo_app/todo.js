@@ -29,7 +29,7 @@ fxjs.controller('newTodo', {
 fxjs.controller('todoList', {
   editTodo: function(e, todo, index) {
     todo.set('editing', true);
-    this.getNode(index).find('input.edit').val(todo.title).focus();
+    $(this[index]).find('input.edit').val(todo.title).focus();
   },
   acceptChanges: function(e, todo) {
     var inputVal = $(e.target).val();
