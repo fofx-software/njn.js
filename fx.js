@@ -5,8 +5,8 @@ var fxjs = {
 
 fxjs.controllers.asArray = function() {
   return(Object.keys(this).map(function(controllerName) {
-    return this[controllerName];
-  }, this));
+    return fxjs.controllers[controllerName];
+  }));
 }
 
 fxjs.controllers.watching = function(collection) {
@@ -22,7 +22,7 @@ fxjs.isDefined = function(value) {
 }
 
 fxjs.isBoolean = function(value) {
-  return value === true || value === false;
+  return typeof value === 'boolean';
 }
 
 fxjs.isString = function(value) {
@@ -34,18 +34,22 @@ fxjs.isFunction = function(value) {
 }
 
 fxjs.isPlainObject = function(value) {
-  var test1 = typeof value === 'object';
-  var test2 = !Array.isArray(value);
-  var test3 = value !== null;
-  return test1 && test2 && test3;
+  if(typeof value !== 'object') return false;
+  if(Array.isArray(value)) return false;
+  if(value === null) return false;
+  return true;
 }
 
 fxjs.isArray = function(value) {
-  return Array.isArray(value);
+  if(Array.isArray) {
+    return Array.isArray(value);
+  } else {
+    return Object.prototype.toString.call(value) === '[object Array]';
+  }
 }
 
 fxjs.camelCase = function(string) {
-  var splitString = string.split(/[-_]/);
+  var splitString = string.split(/[-_ ]/);
   for(var i = 1; i < splitString.length; i++) {
     var firstLetter = splitString[i].slice(0, 1).toUpperCase();
     splitString[i] = firstLetter + splitString[i].slice(1);
