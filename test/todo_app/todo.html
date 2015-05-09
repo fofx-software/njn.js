@@ -26,9 +26,9 @@
 
     <section id="main">
       <ul id="todo-list">
-        <li fx-controller="todoList" fx-toggle-class="completed editing">
-          <div fx-toggle-display="editing"><input class="edit" fx-on="blur:acceptChanges; keypress:acceptOrReject"></input></div>
-          <div fx-toggle-display="!editing">
+        <li fx-controller="todoList" fx-toggle-class="completed editing" class="todo-li">
+          <div fx-toggle-display="editing" class="editing-subdiv"><input class="edit" fx-on="blur:acceptChanges; keypress:acceptOrReject"></input></div>
+          <div fx-toggle-display="!editing" class="!editing-subdiv">
             <input type="checkbox" class="toggle" fx-on="change:completed" fx-checked="completed">
             <label fx-on="dblclick:editTodo">{{title}}</label><button class="destroy" fx-on="click:remove"></button>
           </div>
@@ -44,9 +44,9 @@
       </span>
 
       <ul id="filters" fx-controller="linkController">
-        <li><a href="#/" fx-attr-class="selected?">All</a></li>
-        <li><a href="#/active" fx-attr-class="selected?">Active</a></li>
-        <li><a href="#/completed" fx-attr-class="selected?">Completed</a></li>
+        <li><a href="#/"          id="show-all"       fx-attr-class="selected?">All</a></li>
+        <li><a href="#/active"    id="show-active"    fx-attr-class="selected?">Active</a></li>
+        <li><a href="#/completed" id="show-completed" fx-attr-class="selected?">Completed</a></li>
       </ul>
 
       <button fx-controller="clearCompleted" id="clear-completed" fx-toggle-display="anyCompleted?" fx-on="click:clearAll" fx-filter="completed">
@@ -60,11 +60,14 @@
     <p>Double-click to edit a todo</p>
   </footer>
   <script type="text/javascript" src="todo.js"></script>
-  <script type="text/javascript" src="onload_test.js"></script>
-  <script type="text/javascript" src="new_todo_test.js"></script>
-  <script type="text/javascript" src="complete_all_test.js"></script>
-  <script type="text/javascript" src="complete_each_test.js"></script>
-<!--still working on this:-->
-  <script type="text/javascript" src="edit_todo_test.js"></script>
+  <script type="text/javascript" src="onload.js"></script>
+  <script type="text/javascript" src="new_todo.js"></script>
+  <script type="text/javascript" src="complete_all.js"></script>
+  <script type="text/javascript" src="complete_each.js"></script>
+  <script type="text/javascript" src="edit_todo.js"></script>
+  <script type="text/javascript" src="delete_button.js"></script>
+  <script type="text/javascript" src="todo_count.js"></script>
+  <script type="text/javascript" src="clear_completed.js"></script>
+  <script type="text/javascript" src="filter_links.js"></script>
 </body>
 </html>

@@ -159,7 +159,11 @@ FXController.prototype.toggleClass = function(node, object) {
   var classesToAdd = classesToToggle.filter(function(klass) {
     return object[klass];
   });
-  if(classesToAdd.length) { node.className = classesToAdd.join(' '); }
+  if(classesToAdd.length) {
+    var oldClassName = node.className;
+    var newClassName = classesToAdd.join(' ');
+    node.className = oldClassName ? oldClassName + ' ' + newClassName : newClassName;
+  }
 }
 
 FXController.prototype.toggleDisplay = function(node, object){
