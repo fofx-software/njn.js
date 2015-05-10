@@ -6,8 +6,8 @@ var todos = fxjs.collection('todos', {
   { title: 'Do something with it' },
   { title: 'Build fxjs', completed: true },
   { title: 'Profit!' }
-).defAlias('active', '!completed')
- .defScope('listScope', { sort: 'completed' });
+).defineScope('listScope', { sort: 'completed' })
+ .aliasScope('active', '!completed');
 
 fxjs.controller('newTodo', {
   acceptChanges: function(e) {
@@ -73,7 +73,7 @@ fxjs.controller('clearCompleted', {
     return todos.areAny('completed');
   },
   clearAll: function(e, todo, index) {
-    todos.completed().forEach(function(todo) {
+    todos.scoped('completed').forEach(function(todo) {
       todo.remove();
     });
   }

@@ -1,19 +1,36 @@
-var fxjs = {
-  controllers: {},
-  collections: {}
-};
+var fxjs = {};
 
-fxjs.controllers.asArray = function() {
-  return(Object.keys(this).map(function(controllerName) {
-    return fxjs.controllers[controllerName];
-  }));
-}
+(function() {
+  var controllersPrototype = {
+    asArray: function() {
+      return(Object.getOwnPropertyNames(fxjs.controllers).map(function(controllerName) {
+        return fxjs.controllers[controllerName];
+      }));
+    },
+    
+    watching: function(collection) {
+      return(fxjs.controllers.asArray().filter(function(controller) {
+        return controller.watching === collection;
+      }));
+    },
+  
+    reset: function() {
+      fxjs.controllers = Object.create(controllersPrototype);
+    }
+  };
+  
+  fxjs.controllers = Object.create(controllersPrototype);
+})();
 
-fxjs.controllers.watching = function(collection) {
-  return(fxjs.controllers.asArray().filter(function(controller) {
-    return controller.watching === collection;
-  }));
-}
+(function() {
+  var collectionsPrototype = {
+    reset: function() {
+      fxjs.collections = Object.create(collectionsPrototype);
+    }
+  };
+
+  fxjs.collections = Object.create(collectionsPrototype);
+})();
 
 // utilities:
 
@@ -48,6 +65,10 @@ fxjs.isArray = function(value) {
   }
 }
 
+fxjs.isRegExp = function(val) {
+  return val instanceof RegExp;
+}
+
 fxjs.camelCase = function(string) {
   var splitString = string.split(/[-_ ]/);
   for(var i = 1; i < splitString.length; i++) {
@@ -61,8 +82,4 @@ fxjs.isBlank = function(string) {
   var emptyString = string === '';
   var whiteSpace = !!string.match(/^\s+$/);
   return emptyString || whiteSpace;
-}
-
-fxjs.isRegExp = function(val) {
-  return val instanceof RegExp;
 }

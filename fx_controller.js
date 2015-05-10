@@ -37,7 +37,7 @@ FXController.prototype.watch = function(toWatch) {
 FXController.prototype.list = function(list, scope) {
   if(fxjs.isString(list)) {
     this.watching = this.listing = fxjs.collections[list];
-  } else if(list.fxCollection) {
+  } else if(list.isFXCollection) {
     this.watching = this.listing = list;
   }
 
@@ -51,7 +51,7 @@ FXController.prototype.list = function(list, scope) {
 }
 
 FXController.prototype.buildList = function(list, afterList) {
-  if(list.fxCollection) {
+  if(list.isFXCollection) {
     list = this.listing.scoped(this.listScope);
   }
   this.liveElements = list.map(function(item, listIndex) {
@@ -85,7 +85,7 @@ FXController.prototype.refreshView = function() {
 
 FXController.prototype.processNode = function(node, object, listIndex) {
   if(node.getAttribute('fx-filter')) {
-    object = object[node.getAttribute('fx-filter')]();
+    object = object.scoped(node.getAttribute('fx-filter'));
   }
   this.processAttributes(node, object, listIndex);
   var childNodes = node.childNodes;

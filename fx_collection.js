@@ -4,33 +4,42 @@ function FXCollection(name) {
   this.name = name;
   this.members = [];
   this.scopes = {};
+  this.aliases = {};
 }
 
-function FXModel(collection) {
-  this.set = function(prop, val) {
+fxjs.Collection = FXCollection;
+
+// FXModel:
+  function FXModel(collection) {
+    this.collection = collection;
+  }
+
+  FXModel.prototype.set = function(prop, val) {
     this[prop] = val;
-    collection.broadcastChange();
+    this.collection.broadcastChange();
   }
-  this.remove = function() {
-    var index = collection.members.indexOf(this);
-    collection.members.splice(index, 1);
-    collection.broadcastChange();
-  }
-}
 
-fxjs.collection = function() {
-  var collectionName = arguments[0];
-  var model = arguments[1];
-  if(model) {
-    var collection = fxjs.collections[collectionName] = new FXCollection(collectionName);
-    if(fxjs.isPlainObject(model)) {
-      collection.model(model);
+  FXModel.prototype.remove = function() {
+    var index = this.collection.members.indexOf(this);
+    this.collection.members.splice(index, 1);
+    this.collection.broadcastChange();
+  }
+
+  FXModel.prototype.isFXModel = true;
+// FXModel done
+
+fxjs.collection = function(collectionName, model) {
+  if(fxjs.isString(collectionName)) {
+    if(fxjs.collections.hasOwnProperty(collectionName)) {
+      throw new Error('FXCollection "' + collectionName + '" already registered');
+    } else {
+      fxjs.collections[collectionName] = (new FXCollection(collectionName)).defineModel(model);
+      return fxjs.collections[collectionName];
     }
   }
-  return fxjs.collections[collectionName];
 }
 
-FXCollection.prototype.fxCollection = true;
+FXCollection.prototype.isFXCollection = true;
 
 FXCollection.prototype.broadcastChange = function() {
   fxjs.controllers.watching(this).forEach(function(controller) {
@@ -38,24 +47,31 @@ FXCollection.prototype.broadcastChange = function() {
   });
 }
 
-FXCollection.prototype.model = function(object) {
+FXCollection.prototype.defineModel = function(object) {
   this.memberModel = new FXModel(this);
-  Object.keys(object).forEach(function(property) {
-    if(fxjs.isBoolean(object[property])) {
-      this[property] = function() {
-        return this.members.filter(function(member) {
-          return member[property];
-        });
+
+  if(fxjs.isPlainObject(object)) {
+    Object.keys(object).forEach(function(property) {
+      if(fxjs.isBoolean(object[property])) {
+        this.scopeByMemberBoolean(property);
       }
-      this['!' + property] = function() {
-        return this.members.filter(function(member) {
-          return !member[property];
-        });
-      }
-    }
-    this.memberModel[property] = object[property];
-  }, this);
+      this.memberModel[property] = object[property];
+    }, this);
+  }
+
   return this;
+}
+
+FXCollection.prototype.scopeByMemberBoolean = function(propertyName) {
+  this.scopes[propertyName] = {
+    filter: propertyName
+  };
+
+  this.scopes['!' + propertyName] = {
+    filter: function() {
+      return !this[propertyName];
+    }
+  };
 }
 
 FXCollection.prototype.addMembers = function() {
@@ -75,7 +91,7 @@ FXCollection.prototype.addMembers = function() {
   return this;
 }
 
-FXCollection.prototype.defScope = function(scopeName, paramsObject) {
+FXCollection.prototype.defineScope = function(scopeName, paramsObject) {
   this.scopes[scopeName] = paramsObject;
   var collection = this;
   paramsObject.set = function(propName, val) {
@@ -101,8 +117,20 @@ FXCollection.prototype.scoped = function(scopeName) {
         scopedMembers = this[scope.filter]();
       } else {
         scopedMembers = scopedMembers.filter(function(member) {
-          return member[scope.filter];
-        });
+          var filter = scope.filter;
+          if(this.aliases[filter]) {
+            filter = this.aliases[filter];
+          }
+          if(fxjs.isFunction(filter)) {
+            return filter.call(member);
+          } else {
+            var result = member[filter];
+            if(/^!/.test(filter)) {
+              result = !member[filter.replace(/^!/,'')];
+            }
+            return result;
+          }
+        }, this);
       }
     }
     if(fxjs.isDefined(scope.sort)) {
@@ -118,8 +146,8 @@ FXCollection.prototype.scoped = function(scopeName) {
   }
 }
 
-FXCollection.prototype.defAlias = function(newName, currName) {
-  this[newName] = this[currName];
+FXCollection.prototype.aliasScope = function(newName, currName) {
+  this.aliases[newName] = currName;
   return this;
 }
 
