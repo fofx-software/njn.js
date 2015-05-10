@@ -79,4 +79,4 @@ fxjs.controller('clearCompleted', {
   }
 }).watch(todos);
 
-fxjs.router.filter(todos.scopes.listScope, ':all', 'active', 'completed');
+fxjs.router.filter(todos.scopes.listScope, '/:all', 'active', 'completed');

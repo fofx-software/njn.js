@@ -53,7 +53,7 @@ FXCollection.prototype.defineModel = function(object) {
   if(fxjs.isPlainObject(object)) {
     Object.keys(object).forEach(function(property) {
       if(fxjs.isBoolean(object[property])) {
-        this.scopeByMemberBoolean(property);
+        this.defineScope(property, { filter: property });
       }
       this.memberModel[property] = object[property];
     }, this);
@@ -62,29 +62,22 @@ FXCollection.prototype.defineModel = function(object) {
   return this;
 }
 
-FXCollection.prototype.scopeByMemberBoolean = function(propertyName) {
-  this.scopes[propertyName] = {
-    filter: propertyName
-  };
-
-  this.scopes['!' + propertyName] = {
-    filter: function() {
-      return !this[propertyName];
-    }
-  };
-}
-
 FXCollection.prototype.addMembers = function() {
   var candidates = arguments;
-  if(arguments.length === 1 && fxjs.isArray(arguments[0])) {
-    candidates = arguments[0];
-  }
   for(var i = 0; i < candidates.length; i++) {
-    var newMember = Object.create(this.memberModel);
-    var instance = candidates[i];
-    Object.keys(candidates[i]).forEach(function(property) {
-      newMember[property] = instance[property];
-    });
+    var newMember = candidates[i];
+
+    if(this.memberModel) {
+      var candidate = newMember;
+      newMember = Object.create(this.memberModel);
+
+      Object.keys(candidate).forEach(function(property) {
+        if(this.memberModel.hasOwnProperty(property)) {
+          newMember[property] = candidate[property];
+        }
+      }, this);
+    }
+
     this.members.push(newMember);
   }
   this.broadcastChange();
@@ -92,16 +85,29 @@ FXCollection.prototype.addMembers = function() {
 }
 
 FXCollection.prototype.defineScope = function(scopeName, paramsObject) {
-  this.scopes[scopeName] = paramsObject;
-  var collection = this;
-  paramsObject.set = function(propName, val) {
-    this[propName] = val;
-    collection.broadcastChange();
-  }
+  this.scopes[scopeName] = new FXCollectionScope(this, paramsObject);
   return this;
 }
 
+// FXCollectionScope:
+
+  function FXCollectionScope(collection, propertyDescriptors) {
+    this.collection = collection;
+    this.filter = propertyDescriptors.filter;
+    this.sort = propertyDescriptors.sort;
+  }
+
+  FXCollectionScope.prototype.set = function(propName, val) {
+    this[propName] = val;
+    this.collection.broadcastChange();
+  }
+
+// FXCollectionScope done
+
 FXCollection.prototype.scoped = function(scopeName) {
+  var negated = /^!/.test(scopeName);
+  scopeName = scopeName.replace(/^!/,'');
+
   if(fxjs.isDefined(this[scopeName])) {
     var scopedMembers = this.members.filter(function(member) {
       return member[scopeName];
@@ -125,7 +131,7 @@ FXCollection.prototype.scoped = function(scopeName) {
             return filter.call(member);
           } else {
             var result = member[filter];
-            if(/^!/.test(filter)) {
+            if(/^!/.test(filter) || negated) {
               result = !member[filter.replace(/^!/,'')];
             }
             return result;

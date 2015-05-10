@@ -63,10 +63,6 @@ describe('fxjs.collection()', function() {
   afterAll(fxjs.collections.reset);
 });
 
-describe('collection without model', function() {
-  //var collectionWithoutModel = fxjs.collection('collectionWithoutModel');
-});
-
 describe('.defineModel()', function() {
   var newCollection;
 
@@ -98,14 +94,53 @@ describe('.defineModel()', function() {
       expect(withCustomModel.memberModel).toHaveProperty('prop1');
     });
 
-    // next two also test .scopeByMemberBoolean():
-
-    it('translates given object\'s boolean properties into collection scopes', function() {
+    it('translates given object\'s boolean properties into a collection scope', function() {
       expect(withCustomModel.scopes).toHaveProperty('boolProp');
     });
 
-    it('translates the inverse of the given object\'s boolean properties into collection scopes', function() {
-       expect(withCustomModel.scopes).toHaveProperty('!boolProp');
+    describe('the generated collection scope', function() {
+      it('has a filter property which is just the name of the property', function() {
+        expect(withCustomModel.scopes.boolProp.filter).toBe('boolProp');
+      });
+    });
+  });
+});
+
+describe('.addMembers()', function() {
+  var withModel, withoutModel;
+
+  beforeAll(function() {
+    withModel = (new fxjs.Collection).defineModel({ prop: 'someVal', boolProp: true });
+    withoutModel = new fxjs.Collection;
+  });
+
+  describe('when called on a collection without a memberModel', function() {
+    it('simply adds the given candidates to collection\'s members array', function() {
+      withoutModel.addMembers(1, 'a', false);
+      expect(withoutModel.members).toEqual([1,'a',false]);
+    });
+  });
+
+  describe('when called on a collection with a memberModel', function() {
+    beforeAll(function() {
+      withModel.addMembers({ prop: 'myVal', prop1: 'otherVal' });
+    });
+
+    it('does not add properties of the candidates that are not in the memberModel', function() {
+      expect('prop1' in withModel.members[0]).toBe(false);
+    });
+
+    describe('for properties defined in a candidate', function() {
+      it('applies the values of provided in the candidate to the new member', function() {
+        expect(withModel.members[0].prop).toBe('myVal');
+      });
+    });
+
+    describe('for properties not defined in a candidate', function() {
+      it('does not define the property on the new member, as it inherits from memberModel', function() {
+        expect(withModel.members[0].hasOwnProperty('boolProp')).toBe(false);
+        expect('boolProp' in withModel.members[0]).toBe(true);
+      });
     });
   });
 });
