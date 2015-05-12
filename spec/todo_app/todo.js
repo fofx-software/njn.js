@@ -73,7 +73,7 @@ fxjs.controller('clearCompleted', {
     return todos.areAny('completed');
   },
   clearAll: function(e, todo, index) {
-    todos.scoped('completed').forEach(function(todo) {
+    todos.scope('completed').forEach(function(todo) {
       todo.remove();
     });
   }

@@ -85,7 +85,13 @@ FXCollection.prototype.addMembers = function() {
 }
 
 FXCollection.prototype.defineScope = function(scopeName, paramsObject) {
-  this.scopes[scopeName] = new FXCollectionScope(this, paramsObject);
+  if(fxjs.isPlainObject(scopeName)) {
+    Object.keys(scopeName).forEach(function(innerScopeName) {
+      this.defineScope(innerScopeName, scopeName[innerScopeName]);
+    }, this);
+  } else {
+    this.scopes[scopeName] = new FXCollectionScope(this, paramsObject);
+  }
   return this;
 }
 
@@ -104,51 +110,49 @@ FXCollection.prototype.defineScope = function(scopeName, paramsObject) {
 
 // FXCollectionScope done
 
-FXCollection.prototype.scoped = function(scopeName) {
-  var negated = /^!/.test(scopeName);
-  scopeName = scopeName.replace(/^!/,'');
-
-  if(fxjs.isDefined(this[scopeName])) {
-    var scopedMembers = this.members.filter(function(member) {
-      return member[scopeName];
-    });
-    return scopedMembers;
-  } else if(fxjs.isDefined(this.scopes[scopeName])) {
-    var scope = this.scopes[scopeName];
-    var scopedMembers = this.members;
-    if(scope.filter === 'all') {
-      scopedMembers = this.members;
-    } else if(fxjs.isDefined(scope.filter)) {
-      if(this[scope.filter]) {
-        scopedMembers = this[scope.filter]();
-      } else {
-        scopedMembers = scopedMembers.filter(function(member) {
-          var filter = scope.filter;
-          if(this.aliases[filter]) {
-            filter = this.aliases[filter];
-          }
-          if(fxjs.isFunction(filter)) {
-            return filter.call(member);
-          } else {
-            var result = member[filter];
-            if(/^!/.test(filter) || negated) {
-              result = !member[filter.replace(/^!/,'')];
-            }
-            return result;
-          }
-        }, this);
-      }
+FXCollection.prototype.scope = function(scopeName) {
+  var scope, negated, collection = this;
+  if(fxjs.isString(scopeName)) {
+    negated = /^!/.test(scopeName);
+    scopeName = scopeName.replace(/^!/,'');
+    scope = this.scopes[scopeName];
+  } else if(fxjs.isPlainObject(scopeName)) {
+    scope = scopeName;
+  }
+  if(scope) {
+    var scopedMembers = Array.prototype.slice.call(this.members);
+    if(fxjs.isDefined(scope.filter) && scope.filter !== 'all') {
+      scopedMembers = scopedMembers.filter(function(member) {
+        var filter = scope.filter;
+        if(this.aliases[filter]) {
+          filter = this.aliases[filter];
+        }
+        if(fxjs.isFunction(filter)) {
+          return filter.call(member);
+        } else if(filter.replace(/^!/,'') in member) {
+          var result = member[filter.replace(/^!/,'')];
+          if(/^!/.test(filter) || negated) { result = !result; }
+          return result;
+        }
+      }, this);
     }
     if(fxjs.isDefined(scope.sort)) {
+// difficult without model:
       scopedMembers = scopedMembers.sort(function(a, b) {
-        if(a[scope.sort] > b[scope.sort]) return 1;
-        if(a[scope.sort] === b[scope.sort]) return 0;
-        if(a[scope.sort] < b[scope.sort]) return -1;
+        if(fxjs.isString(scope.sort)) {
+          var trueProp = scope.sort.replace(/^!/,'');
+          var aVal = a[trueProp], bVal = b[trueProp];
+          if(/^!/.test(scope.sort)) {
+            aVal = !aVal;
+            bVal = !bVal;
+          }
+          if(aVal >   bVal) return 1;
+          if(aVal === bVal) return 0;
+          if(aVal <   bVal) return -1;
+        }
       });
     }
     return scopedMembers;
-  } else {
-    return this.members;
   }
 }
 

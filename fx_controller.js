@@ -52,7 +52,7 @@ FXController.prototype.list = function(list, scope) {
 
 FXController.prototype.buildList = function(list, afterList) {
   if(list.isFXCollection) {
-    list = this.listing.scoped(this.listScope);
+    list = this.listing.scope(this.listScope);
   }
   this.liveElements = list.map(function(item, listIndex) {
     var cloneNode = this.template.cloneNode(true);
@@ -85,7 +85,7 @@ FXController.prototype.refreshView = function() {
 
 FXController.prototype.processNode = function(node, object, listIndex) {
   if(node.getAttribute('fx-filter')) {
-    object = object.scoped(node.getAttribute('fx-filter'));
+    object = object.scope(node.getAttribute('fx-filter'));
   }
   this.processAttributes(node, object, listIndex);
   var childNodes = node.childNodes;
