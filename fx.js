@@ -38,6 +38,10 @@ fxjs.isDefined = function(value) {
   return typeof value !== 'undefined';
 }
 
+fxjs.isNull = function(value) {
+  return value === null;
+}
+
 fxjs.isBoolean = function(value) {
   return typeof value === 'boolean';
 }
@@ -52,8 +56,8 @@ fxjs.isFunction = function(value) {
 
 fxjs.isPlainObject = function(value) {
   if(typeof value !== 'object') return false;
-  if(Array.isArray(value)) return false;
-  if(value === null) return false;
+  if(fxjs.isArray(value)) return false;
+  if(fxjs.isNull(value)) return false;
   return true;
 }
 
@@ -67,6 +71,14 @@ fxjs.isArray = function(value) {
 
 fxjs.isRegExp = function(val) {
   return val instanceof RegExp;
+}
+
+fxjs.typeOf = function(val) {
+  if(fxjs.isPlainObject(val)) return 'object';
+  if(fxjs.isArray(val))       return 'array';
+  if(fxjs.isRegExp(val))      return 'regexp';
+  if(fxjs.isNull(val))        return 'null';
+  return typeof val;
 }
 
 fxjs.camelCase = function(string) {

@@ -14,6 +14,8 @@ fxjs.Collection = FXCollection;
     this.collection = collection;
   }
 
+  FXCollection.Model = FXModel;
+
   FXModel.prototype.set = function(prop, val) {
     this[prop] = val;
     this.collection.broadcastChange();
@@ -137,19 +139,29 @@ FXCollection.prototype.scope = function(scopeName) {
       }, this);
     }
     if(fxjs.isDefined(scope.sort)) {
-// difficult without model:
       scopedMembers = scopedMembers.sort(function(a, b) {
+        var aVal, bVal;
         if(fxjs.isString(scope.sort)) {
           var trueProp = scope.sort.replace(/^!/,'');
-          var aVal = a[trueProp], bVal = b[trueProp];
+          aVal = a[trueProp];
+          bVal = b[trueProp];
+          if(fxjs.isFunction(aVal)) aVal = aVal.call(a);
+          if(fxjs.isFunction(bVal)) bVal = bVal.call(b);
           if(/^!/.test(scope.sort)) {
             aVal = !aVal;
             bVal = !bVal;
           }
-          if(aVal >   bVal) return 1;
-          if(aVal === bVal) return 0;
-          if(aVal <   bVal) return -1;
+        } else if(fxjs.isFunction(scope.sort)) {
+          aVal = scope.sort.call(null, a);
+          bVal = scope.sort.call(null, b);
         }
+        if(fxjs.typeOf(aVal) !== fxjs.typeOf(bVal)) {
+          var msg= 'cannot sort collection because member values ' + aVal + ' and ' + bVal + ' are not of same type';
+          throw new TypeError(msg);
+        }
+        if(aVal > bVal) { return 1;  }
+        if(aVal < bVal) { return -1; }
+        return 0;
       });
     }
     return scopedMembers;

@@ -29,10 +29,11 @@ beforeEach(function() {
 describe('fxjs.collection()', function() {
   describe('when only a name is given', function() {
     describe('if a collection has not already been registered with that name', function() {
-      it('initializes and returns a new FXCollection', function() {
+      it('initializes, registers and returns a new FXCollection', function() {
         expect(fxjs.collections['newCollection']).toBeUndefined();
         var newCollection = fxjs.collection('newCollection');
         expect(fxjs.collections['newCollection']).toBe(newCollection);
+        expect(newCollection).toEqual(jasmine.any(fxjs.Collection));
       });
     });
 
@@ -45,10 +46,11 @@ describe('fxjs.collection()', function() {
 
   describe('when a name and model are given', function() {
     describe('if a collection has not already been registered with that name', function() {
-      it('initializes and returns a new FXCollection', function() {
+      it('initializes, registers and returns a new FXCollection', function() {
         expect(fxjs.collections['collectionWithModel']).toBeUndefined();
         newCollection = fxjs.collection('collectionWithModel', {});
         expect(fxjs.collections['collectionWithModel']).toBe(newCollection);
+        expect(newCollection).toEqual(jasmine.any(fxjs.Collection));
       });
     });
 
@@ -67,41 +69,45 @@ describe('.defineModel()', function() {
   it('gives the collection a memberModel', function() {
     expect(newCollection.memberModel).toBeUndefined();
     newCollection.defineModel();
-    expect(newCollection.memberModel).toEqual(jasmine.any(Object));
+    expect(newCollection.memberModel).toBeDefined();
   });
 
   describe('the memberModel', function() {
     it('is an instance of FXModel', function() {
-      expect(newCollection.memberModel.isFXModel).toBe(true);
+      expect(newCollection.memberModel).toEqual(jasmine.any(fxjs.Collection.Model));
     });
   });
 
   describe('when given an object argument', function() {
-    var withCustomModel;
+    var withCustomModel = new fxjs.Collection;
+    withCustomModel.defineModel({ prop1: 'someVal', boolProp: true });
 
-    beforeAll(function() {
-      withCustomModel = new fxjs.Collection;
-      withCustomModel.defineModel({ prop1: 'someVal', boolProp: true });
-    });
+    describe('each property of the given object', function() {
+      it('is copied to the memberModel', function() {
+        expect(withCustomModel.memberModel).toHaveProperty('prop1');
+      });
 
-    it('merges the given object with memberModel', function() {
-      expect(withCustomModel.memberModel).toHaveProperty('prop1');
-    });
+      describe('when its initial value is a boolean', function() {
+        it('is translated into a new collection scope', function() {
+          expect(withCustomModel.scopes).toHaveProperty('boolProp');
+        });
 
-    it('translates given object\'s boolean properties into a collection scope', function() {
-      expect(withCustomModel.scopes).toHaveProperty('boolProp');
-    });
-
-    describe('the generated collection scope', function() {
-      it('has a filter property which is just the name of the property', function() {
-        expect(withCustomModel.scopes.boolProp.filter).toBe('boolProp');
+        describe('the generated collection scope', function() {
+          it('has a filter property which is just the name of the property', function() {
+            expect(withCustomModel.scopes.boolProp.filter).toBe('boolProp');
+          });
+        });
       });
     });
   });
 });
 
 describe('.addMembers()', function() {
-  var withModel = (new fxjs.Collection).defineModel({ prop: 'someVal', boolProp: true });
+  var withModel = (new fxjs.Collection).defineModel({
+    prop: 'someVal',
+    boolProp: true
+  });
+
   var withoutModel = new fxjs.Collection;
 
   describe('when called on a collection without a memberModel', function() {
@@ -112,24 +118,26 @@ describe('.addMembers()', function() {
   });
 
   describe('when called on a collection with a memberModel', function() {
-    beforeAll(function() {
-      withModel.addMembers({ prop: 'myVal', prop1: 'otherVal' });
+    withModel.addMembers({ prop: 'myVal', prop1: 'otherVal' });
+
+    describe('any property of a candidate that is not in the memberModel', function() {
+      it('is ignored', function() {
+        expect('prop1' in withModel.members[0]).toBe(false);
+      });
     });
 
-    it('does not add properties of the candidates that are not in the memberModel', function() {
-      expect('prop1' in withModel.members[0]).toBe(false);
-    });
-
-    describe('for properties defined in a candidate', function() {
-      it('applies the values of provided in the candidate to the new member', function() {
+    describe('the value of any property of a candidate that is in the memberModel', function() {
+      it('is applied to that property in the new member', function() {
         expect(withModel.members[0].prop).toBe('myVal');
       });
     });
 
-    describe('for properties not defined in a candidate', function() {
-      it('does not define the property on the new member, as it inherits from memberModel', function() {
-        expect(withModel.members[0].hasOwnProperty('boolProp')).toBe(false);
-        expect('boolProp' in withModel.members[0]).toBe(true);
+    describe('when a property defined in the memberModel is not defined in a candidate', function() {
+      describe('the property', function() {
+        it('is not defined on the new member, which inherits from the memberModel', function() {
+          expect(withModel.members[0].hasOwnProperty('boolProp')).toBe(false);
+          expect('boolProp' in withModel.members[0]).toBe(true);
+        });
       });
     });
   });
@@ -139,9 +147,9 @@ describe('.scope()', function() {
   var withScope = new fxjs.Collection;
 
   withScope.addMembers(
-    { found: 0, keepMe: false },
-    { found: -1 },
-    { found: 1, keepMe: true }
+    { rank: 3, keepMe: false, funcProp: function() { return false; }                                       },
+    { rank: 1, keepMe: false, funcProp: function() { return true;  }, varyProp: 'b'                        },
+    { rank: 2, keepMe: true,  funcProp: function() { return false; }, varyProp: function() { return 'a'; } }
   );
 
   var originalMembers = Array.prototype.slice.call(withScope.members);
@@ -150,7 +158,7 @@ describe('.scope()', function() {
     keepers: { filter: 'keepMe' },
     weepers: {
       filter: function() {
-        return this.found < 1;
+        return this.rank > 1;
       }
     }
   });
@@ -158,6 +166,18 @@ describe('.scope()', function() {
   describe('when scope is not defined', function() {
     it('returns nothing', function() {
       expect(withScope.scope('notDefined')).toBeUndefined();
+      expect(withScope.scope()).toBeUndefined();
+    });
+  });
+
+  describe('its single argument', function() {
+    it('can be a pre-registered scope', function() {
+      expect(withScope.scopes.keepers).toBeDefined();
+      expect(withScope.scope('keepers')).toBeDefined();
+    });
+
+    it('can be an object', function() {
+      expect(withScope.scope({})).toBeDefined();
     });
   });
 
@@ -186,7 +206,7 @@ describe('.scope()', function() {
 
       describe('when scope.filter is a function', function() {
         it('filters the members by applying the function to each one', function() {
-          expect(withScope.scope('weepers')).toEqual([withScope.members[0], withScope.members[1]]);
+          expect(withScope.scope('weepers')).toEqual([withScope.members[0], withScope.members[2]]);
         });
       });
     });
@@ -201,10 +221,10 @@ describe('.scope()', function() {
       describe('when scope.sort is a string', function() {
         describe('when the string corresponds to a property in the members', function() {
           it('sorts members according to the property', function() {
-            var sorted = withScope.scope({ sort: 'found' });
+            var sorted = withScope.scope({ sort: 'rank' });
             expect(sorted[0]).toBe(withScope.members[1]);
-            expect(sorted[1]).toBe(withScope.members[0]);
-            expect(sorted[2]).toBe(withScope.members[2]);
+            expect(sorted[1]).toBe(withScope.members[2]);
+            expect(sorted[2]).toBe(withScope.members[0]);
           });
 
           describe('when the property is a boolean value', function() {
@@ -220,19 +240,63 @@ describe('.scope()', function() {
               });
             });
           });
+
+          describe('when the property is a function', function() {
+            it('sorts by the return value', function() {
+              var sortedFunc = withScope.scope({ sort: 'funcProp' });
+              expect(sortedFunc[0]).toBe(withScope.members[0]);
+              expect(sortedFunc[1]).toBe(withScope.members[2]);
+              expect(sortedFunc[2]).toBe(withScope.members[1]);
+            });
+
+            describe('when the property name is banged', function() {
+              it('toggles the truthiness of the return value', function() {
+              var sortedFunc = withScope.scope({ sort: '!funcProp' });
+              expect(sortedFunc[0]).toBe(withScope.members[1]);
+              expect(sortedFunc[1]).toBe(withScope.members[0]);
+              expect(sortedFunc[2]).toBe(withScope.members[2]);
+              });
+            });
+          });
+
+          describe('when the property types are mixed among the various members', function() {
+            it('sorts by the values or return values of functions, as applicable', function() {
+              var sortedMixed = function() { withScope.scope({ sort: 'varyProp' }); }
+              expect(sortedMixed).toThrowError(TypeError);
+            });
+          });
         });
 
         describe('when the string does not correspond to a property in the members', function() {
           it('does not affect the sorting of members', function() {
             var sorted = withScope.scope({ sort: 'notDefined' });
-            expect(sorted[0]).toBe(withScope.members[0]);
-            expect(sorted[1]).toBe(withScope.members[1]);
-            expect(sorted[2]).toBe(withScope.members[2]);
-            bangSorted = withScope.scope({ sort: '!defined' });
-            expect(bangSorted[0]).toBe(withScope.members[0]);
-            expect(bangSorted[1]).toBe(withScope.members[1]);
-            expect(bangSorted[2]).toBe(withScope.members[2]);
+            expect(sorted).toEqual(withScope.members);
+
+            var bangSorted = withScope.scope({ sort: '!defined' });
+            expect(bangSorted).toEqual(withScope.members);
           });
+        });
+      });
+
+      describe('when scope.filter is a function', function() {
+        it('sorts by the return value of the function called on each member', function() {
+          var sortedFunc = withScope.scope({
+            sort: function(member) {
+              if(fxjs.isDefined(member.varyProp)) {
+                if(fxjs.isFunction(member.varyProp)) {
+                  return member.varyProp();
+                } else {
+                  return member.varyProp;
+                }
+              } else {
+                return 'zzz';
+              }
+            }
+          });
+
+          expect(sortedFunc[0]).toBe(withScope.members[2]);
+          expect(sortedFunc[1]).toBe(withScope.members[1]);
+          expect(sortedFunc[2]).toBe(withScope.members[0]);
         });
       });
     });

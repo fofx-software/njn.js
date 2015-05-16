@@ -19,7 +19,7 @@ describe('its text', function() {
 
   describe('when you uncomplete a todo', function() {
     it('the count decreases', function() {
-      expect(todoLis[2].getElementsByClassName('toggle')[0].checked)toBe(true);
+      expect(todoLis[2].getElementsByClassName('toggle')[0].checked).toBe(true);
       todoLis[2].getElementsByClassName('toggle')[0].dispatchEvent(new MouseEvent('click'));
       expect(shownCount()).toBe(1);
     });
@@ -28,12 +28,10 @@ describe('its text', function() {
 
 describe('when there are no completed todos', function() {
   it('is hidden', function() {
-    expect(todoLis.length).toBe(5);
+    expect(todoLis.length).toBe(3);
     expect(todoLis[0].getElementsByClassName('toggle')[0].checked).toBe(false);
     expect(todoLis[1].getElementsByClassName('toggle')[0].checked).toBe(false);
     expect(todoLis[2].getElementsByClassName('toggle')[0].checked).toBe(true);
-    expect(todoLis[3].getElementsByClassName('toggle')[0].checked).toBe(false);
-    expect(todoLis[4].getElementsByClassName('toggle')[0].checked).toBe(false);
     todoLis[2].getElementsByClassName('toggle')[0].dispatchEvent(new MouseEvent('click'));
     expect(clearCompleted().style.display).toBe('none');
   });
