@@ -6,8 +6,7 @@ var todos = fxjs.collection('todos', {
   { title: 'Do something with it' },
   { title: 'Build fxjs', completed: true },
   { title: 'Profit!' }
-).defineScope('listScope', { sort: 'completed' })
- .aliasScope('active', '!completed');
+).aliasProperty('active', '!completed');
 
 fxjs.controller('newTodo', {
   acceptChanges: function(e) {
@@ -25,6 +24,8 @@ fxjs.controller('newTodo', {
     $(e.target).val('');
   }
 }).init();
+
+var listScope = { sort: 'completed' };
 
 fxjs.controller('todoList', {
   editTodo: function(e, todo, index) {
@@ -47,7 +48,7 @@ fxjs.controller('todoList', {
       todo.set('editing', false);
     }
   },
-}).list(todos, 'listScope');
+}).list(todos, listScope);
 
 fxjs.controller('toggleCompleteAll', {
   completeAll: function(e) {
@@ -73,10 +74,10 @@ fxjs.controller('clearCompleted', {
     return todos.areAny('completed');
   },
   clearAll: function(e, todo, index) {
-    todos.scope('completed').forEach(function(todo) {
+    todos.scope({ filter: 'completed' }).forEach(function(todo) {
       todo.remove();
     });
   }
 }).watch(todos);
 
-fxjs.router.filter(todos.scopes.listScope, '/:all', 'active', 'completed');
+fxjs.router.filter(listScope, '/:all', 'active', 'completed');

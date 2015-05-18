@@ -3,33 +3,33 @@ var fxjs = {};
 (function() {
   var controllersPrototype = {
     asArray: function() {
-      return(Object.getOwnPropertyNames(fxjs.controllers).map(function(controllerName) {
-        return fxjs.controllers[controllerName];
+      return(Object.getOwnPropertyNames(fxjs.registeredControllers).map(function(controllerName) {
+        return fxjs.registeredControllers[controllerName];
       }));
     },
     
     watching: function(collection) {
-      return(fxjs.controllers.asArray().filter(function(controller) {
+      return(fxjs.registeredControllers.asArray().filter(function(controller) {
         return controller.watching === collection;
       }));
     },
   
     reset: function() {
-      fxjs.controllers = Object.create(controllersPrototype);
+      fxjs.registeredControllers = Object.create(controllersPrototype);
     }
   };
   
-  fxjs.controllers = Object.create(controllersPrototype);
+  fxjs.registeredControllers = Object.create(controllersPrototype);
 })();
 
 (function() {
   var collectionsPrototype = {
     reset: function() {
-      fxjs.collections = Object.create(collectionsPrototype);
+      fxjs.registeredCollections = Object.create(collectionsPrototype);
     }
   };
 
-  fxjs.collections = Object.create(collectionsPrototype);
+  fxjs.registeredCollections = Object.create(collectionsPrototype);
 })();
 
 // utilities:

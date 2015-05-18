@@ -3,7 +3,7 @@
 function FXCollection(name) {
   this.name = name;
   this.members = [];
-  this.scopes = {};
+  this.registeredScopes = {};
   this.aliases = {};
 }
 
@@ -32,11 +32,12 @@ fxjs.Collection = FXCollection;
 
 fxjs.collection = function(collectionName, model) {
   if(fxjs.isString(collectionName)) {
-    if(fxjs.collections.hasOwnProperty(collectionName)) {
+    if(fxjs.registeredCollections[collectionName]) {
       throw new Error('FXCollection "' + collectionName + '" already registered');
     } else {
-      fxjs.collections[collectionName] = (new FXCollection(collectionName)).defineModel(model);
-      return fxjs.collections[collectionName];
+      var collection = (new FXCollection(collectionName)).defineModel(model)
+      fxjs.registeredCollections[collectionName] = collection;
+      return collection;
     }
   }
 }
@@ -44,7 +45,7 @@ fxjs.collection = function(collectionName, model) {
 FXCollection.prototype.isFXCollection = true;
 
 FXCollection.prototype.broadcastChange = function() {
-  fxjs.controllers.watching(this).forEach(function(controller) {
+  fxjs.registeredControllers.watching(this).forEach(function(controller) {
     controller.refreshView();
   });
 }
@@ -55,7 +56,7 @@ FXCollection.prototype.defineModel = function(object) {
   if(fxjs.isPlainObject(object)) {
     Object.keys(object).forEach(function(property) {
       if(fxjs.isBoolean(object[property])) {
-        this.defineScope(property, { filter: property });
+        this.registeredScopes[property] = { filter: property };
       }
       this.memberModel[property] = object[property];
     }, this);
@@ -86,38 +87,12 @@ FXCollection.prototype.addMembers = function() {
   return this;
 }
 
-FXCollection.prototype.defineScope = function(scopeName, paramsObject) {
-  if(fxjs.isPlainObject(scopeName)) {
-    Object.keys(scopeName).forEach(function(innerScopeName) {
-      this.defineScope(innerScopeName, scopeName[innerScopeName]);
-    }, this);
-  } else {
-    this.scopes[scopeName] = new FXCollectionScope(this, paramsObject);
-  }
-  return this;
-}
-
-// FXCollectionScope:
-
-  function FXCollectionScope(collection, propertyDescriptors) {
-    this.collection = collection;
-    this.filter = propertyDescriptors.filter;
-    this.sort = propertyDescriptors.sort;
-  }
-
-  FXCollectionScope.prototype.set = function(propName, val) {
-    this[propName] = val;
-    this.collection.broadcastChange();
-  }
-
-// FXCollectionScope done
-
 FXCollection.prototype.scope = function(scopeName) {
   var scope, negated, collection = this;
   if(fxjs.isString(scopeName)) {
     negated = /^!/.test(scopeName);
     scopeName = scopeName.replace(/^!/,'');
-    scope = this.scopes[scopeName];
+    scope = this.registeredScopes[scopeName];
   } else if(fxjs.isPlainObject(scopeName)) {
     scope = scopeName;
   }
@@ -168,7 +143,7 @@ FXCollection.prototype.scope = function(scopeName) {
   }
 }
 
-FXCollection.prototype.aliasScope = function(newName, currName) {
+FXCollection.prototype.aliasProperty = function(newName, currName) {
   this.aliases[newName] = currName;
   return this;
 }
@@ -177,24 +152,24 @@ FXCollection.prototype.forEach = function(callback, thisArg) {
   this.members.forEach(callback, thisArg);
 }
 
-FXCollection.prototype.areAll = function(callbackOrMethod) {
+FXCollection.prototype.areAll = function(callbackOrProp) {
   return(this.members.reduce(function(prev, curr) {
     var currVal;
-    if(fxjs.isString(callbackOrMethod)) {
-      currVal = curr[callbackOrMethod];
+    if(fxjs.isString(callbackOrProp)) {
+      currVal = curr[callbackOrProp];
     } else {
-      currVal = callbackOrMethod.call(curr);
+      currVal = callbackOrProp.call(curr);
     }
     return prev && currVal;
   }, true));
 }
 
-FXCollection.prototype.areAny = function(callbackOrMethod) {
+FXCollection.prototype.areAny = function(callbackOrProp) {
   return(!!this.members.find(function(member) {
-    if(fxjs.isString(callbackOrMethod)) {
-      return member[callbackOrMethod];
+    if(fxjs.isString(callbackOrProp)) {
+      return member[callbackOrProp];
     } else {
-      return callbackOrMethod.call(member);
+      return callbackOrProp.call(member);
     }
   }));
 }

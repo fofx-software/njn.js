@@ -30,9 +30,9 @@ describe('fxjs.collection()', function() {
   describe('when only a name is given', function() {
     describe('if a collection has not already been registered with that name', function() {
       it('initializes, registers and returns a new FXCollection', function() {
-        expect(fxjs.collections['newCollection']).toBeUndefined();
+        expect(fxjs.registeredCollections['newCollection']).toBeUndefined();
         var newCollection = fxjs.collection('newCollection');
-        expect(fxjs.collections['newCollection']).toBe(newCollection);
+        expect(fxjs.registeredCollections['newCollection']).toBe(newCollection);
         expect(newCollection).toEqual(jasmine.any(fxjs.Collection));
       });
     });
@@ -47,9 +47,9 @@ describe('fxjs.collection()', function() {
   describe('when a name and model are given', function() {
     describe('if a collection has not already been registered with that name', function() {
       it('initializes, registers and returns a new FXCollection', function() {
-        expect(fxjs.collections['collectionWithModel']).toBeUndefined();
+        expect(fxjs.registeredCollections['collectionWithModel']).toBeUndefined();
         newCollection = fxjs.collection('collectionWithModel', {});
-        expect(fxjs.collections['collectionWithModel']).toBe(newCollection);
+        expect(fxjs.registeredCollections['collectionWithModel']).toBe(newCollection);
         expect(newCollection).toEqual(jasmine.any(fxjs.Collection));
       });
     });
@@ -89,12 +89,12 @@ describe('.defineModel()', function() {
 
       describe('when its initial value is a boolean', function() {
         it('is translated into a new collection scope', function() {
-          expect(withCustomModel.scopes).toHaveProperty('boolProp');
+          expect(withCustomModel.registeredScopes).toHaveProperty('boolProp');
         });
 
         describe('the generated collection scope', function() {
           it('has a filter property which is just the name of the property', function() {
-            expect(withCustomModel.scopes.boolProp.filter).toBe('boolProp');
+            expect(withCustomModel.registeredScopes.boolProp.filter).toBe('boolProp');
           });
         });
       });
@@ -154,14 +154,10 @@ describe('.scope()', function() {
 
   var originalMembers = Array.prototype.slice.call(withScope.members);
 
-  withScope.defineScope({
-    keepers: { filter: 'keepMe' },
-    weepers: {
-      filter: function() {
-        return this.rank > 1;
-      }
-    }
-  });
+  withScope.registeredScopes.keepers = { filter: 'keepMe' };
+  withScope.registeredScopes.weepers = {
+    filter: function() { return this.rank > 1; }
+  };
 
   describe('when scope is not defined', function() {
     it('returns nothing', function() {
@@ -172,8 +168,8 @@ describe('.scope()', function() {
 
   describe('its single argument', function() {
     it('can be a pre-registered scope', function() {
-      expect(withScope.scopes.keepers).toBeDefined();
-      expect(withScope.scope('keepers')).toBeDefined();
+      expect(withScope.registeredScopes.keepers).toBeDefined();
+      expect(withScope.scope('keepers')).toEqual(jasmine.any(Array));
     });
 
     it('can be an object', function() {

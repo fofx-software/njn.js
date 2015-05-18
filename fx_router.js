@@ -23,7 +23,7 @@ FXRouter.parseLocation = function() {
   var hash = location.hash.replace(/^#\//,'');
   if(FXRouter.routes[hash]) {
     FXRouter.routes[hash]();
-    fxjs.controllers.watching(FXRouter).forEach(function(controller) {
+    fxjs.registeredControllers.watching(FXRouter).forEach(function(controller) {
       controller.refreshView();
     });
     FXRouter.currentLocation = hash;

@@ -6,18 +6,17 @@ function FXController(name, template, actions) {
   this.actions = actions;
 }
 
+fxjs.Controller = FXController;
+
 fxjs.controller = function(controllerName, actionsObject) {
-  if(controllerName && !fxjs.controllers[controllerName]) {
+  if(fxjs.isString(controllerName)) {
     var query = '[fx-controller="' + controllerName + '"]';
     var template = document.querySelector(query);
 
-    if(template) {
-      var controller = new FXController(controllerName, template, actionsObject);
-      fxjs.controllers[controllerName] = controller;
-    }
+    var controller = new FXController(controllerName, template, actionsObject);
+    fxjs.registeredControllers[controllerName] = controller;
+    return controller;
   }
-
-  return fxjs.controllers[controllerName];
 }
 
 FXController.prototype.init = function() {
@@ -26,7 +25,7 @@ FXController.prototype.init = function() {
   // 'this.watching' given in case called by watch()
   // if init() was called directly, 'this.watching' is undefined, with no effect
   this.processNode(this.liveElement, this.watching);
-  this.template.parentNode.replaceChild(this.liveElement, this.template);
+  this.template.parentElement.replaceChild(this.liveElement, this.template);
 }
 
 FXController.prototype.watch = function(toWatch) {
@@ -43,6 +42,14 @@ FXController.prototype.list = function(list, scope) {
 
   if(this.listing) {
     this.listScope = scope;
+    var controller = this;
+
+    this.listScope.set = function(propertyName, value) {
+      this[propertyName] = value;
+      controller.refreshView();
+    }
+
+    //this.listScope.registeredControllers.push(this);
     var nextSibling = this.template.nextSibling;
     this.parentNode = this.template.parentNode;
     this.parentNode.removeChild(this.template);
@@ -52,7 +59,7 @@ FXController.prototype.list = function(list, scope) {
 
 FXController.prototype.buildList = function(list, afterList) {
   if(list.isFXCollection) {
-    list = this.listing.scope(this.listScope);
+    list = list.scope(this.listScope);
   }
   this.liveElements = list.map(function(item, listIndex) {
     var cloneNode = this.template.cloneNode(true);
@@ -85,7 +92,7 @@ FXController.prototype.refreshView = function() {
 
 FXController.prototype.processNode = function(node, object, listIndex) {
   if(node.getAttribute('fx-filter')) {
-    object = object.scope(node.getAttribute('fx-filter'));
+    object = object.scope({ filter: node.getAttribute('fx-filter') });
   }
   this.processAttributes(node, object, listIndex);
   var childNodes = node.childNodes;
