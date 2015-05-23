@@ -34,33 +34,6 @@ var fxjs = {};
 
 // utilities:
 
-fxjs.isDefined = function(value) {
-  return typeof value !== 'undefined';
-}
-
-fxjs.isNull = function(value) {
-  return value === null;
-}
-
-fxjs.isBoolean = function(value) {
-  return typeof value === 'boolean';
-}
-
-fxjs.isString = function(value) {
-  return typeof value === 'string';
-}
-
-fxjs.isFunction = function(value) {
-  return typeof value === 'function';
-}
-
-fxjs.isPlainObject = function(value) {
-  if(typeof value !== 'object') return false;
-  if(fxjs.isArray(value)) return false;
-  if(fxjs.isNull(value)) return false;
-  return true;
-}
-
 fxjs.isArray = function(value) {
   if(Array.isArray) {
     return Array.isArray(value);
@@ -69,16 +42,51 @@ fxjs.isArray = function(value) {
   }
 }
 
+fxjs.isBoolean = function(value) {
+  return typeof value === 'boolean';
+}
+
+fxjs.isDefined = function(value) {
+  return typeof value !== 'undefined';
+}
+
+fxjs.isFunction = function(value) {
+  return typeof value === 'function';
+}
+
+fxjs.isNull = function(value) {
+  return value === null;
+}
+
+fxjs.isNumber = function(value) {
+  return typeof value === "number" && value === value;
+}
+
+fxjs.isObject = function(value) {
+  if(typeof value !== 'object') return false;
+  if(fxjs.isArray(value)) return false;
+  if(fxjs.isNull(value)) return false;
+  return true;
+}
+
 fxjs.isRegExp = function(val) {
   return val instanceof RegExp;
 }
 
+fxjs.isString = function(value) {
+  return typeof value === 'string';
+}
+
 fxjs.typeOf = function(val) {
-  if(fxjs.isPlainObject(val)) return 'object';
-  if(fxjs.isArray(val))       return 'array';
-  if(fxjs.isRegExp(val))      return 'regexp';
-  if(fxjs.isNull(val))        return 'null';
-  return typeof val;
+  if(fxjs.isArray(val))       return Array;
+  if(fxjs.isBoolean(val))     return Boolean;
+  if(!fxjs.isDefined(val))    return undefined;
+  if(fxjs.isFunction(val))    return Function;
+  if(fxjs.isNull(val))        return null;
+  if(fxjs.isNumber(val))      return Number;
+  if(fxjs.isObject(val))      return Object;
+  if(fxjs.isRegExp(val))      return RegExp;
+  if(fxjs.isString(val))      return String;
 }
 
 fxjs.camelCase = function(string) {
@@ -94,4 +102,32 @@ fxjs.isBlank = function(string) {
   var emptyString = string === '';
   var whiteSpace = !!string.match(/^\s+$/);
   return emptyString || whiteSpace;
+}
+
+// mock classes:
+
+fxjs.Object = {
+  clone: function(original, deep) {
+    if(fxjs.isArray(original)) {
+      return original.slice();
+    } else {
+      var newObj = Object.create(Object.getPrototypeOf(original));
+      Object.keys(original).forEach(function(propertyName) {
+        newObj[propertyName] = original[propertyName];
+      });
+      return newObj;
+    }
+  },
+  isCloneable: function(object) {
+    return fxjs.isObject(object) || fxjs.isArray(object);
+  },
+  values: function(object) {
+    var values = [];
+    for(var property in object) {
+      if(object.hasOwnProperty(property) && object.propertyIsEnumerable(property)) {
+        values.push(object[property]);
+      }
+    }
+    return values;
+  }
 }

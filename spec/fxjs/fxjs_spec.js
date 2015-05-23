@@ -1,33 +1,33 @@
 describe('fxjs', function() {
 
-describe('.isPlainObject()', function() {
+describe('.isObject()', function() {
   describe('when given an object literal', function() {
     it('returns true', function() {
-      expect(fxjs.isPlainObject({})).toBe(true);
+      expect(fxjs.isObject({})).toBe(true);
     });
   });
 
   describe('when given an array', function() {
     it('returns false', function() {
-      expect(fxjs.isPlainObject([])).toBe(false);
+      expect(fxjs.isObject([])).toBe(false);
     });
   });
 
   describe('when given null', function() {
     it('returns false', function() {
-      expect(fxjs.isPlainObject(null)).toBe(false);
+      expect(fxjs.isObject(null)).toBe(false);
     });
   });
 
   describe('when given a string', function() {
     it('returns false', function() {
-      expect(fxjs.isPlainObject('string')).toBe(false);
+      expect(fxjs.isObject('string')).toBe(false);
     });
   });
 
   describe('when given a number', function() {
     it('returns false', function() {
-      expect(fxjs.isPlainObject(3)).toBe(false);
+      expect(fxjs.isObject(3)).toBe(false);
     });
   });
 
@@ -35,7 +35,7 @@ describe('.isPlainObject()', function() {
     it('returns true', function() {
       var customConstructor = function() { }
       var customObject = new customConstructor;
-      expect(fxjs.isPlainObject(customObject)).toBe(true);
+      expect(fxjs.isObject(customObject)).toBe(true);
     });
   });
 });
@@ -70,6 +70,34 @@ describe('.isBlank()', function() {
   describe('when given a string consisting only of whitesapce', function() {
     it('returns true', function() {
       expect(fxjs.isBlank('   ')).toBe(true);
+    });
+  });
+});
+
+describe('fxjs.Object', function() {
+  describe('.clone()', function() {
+    var original = { a: 1, b: { d: 'e' }, c: ['a'] };
+
+    describe('shallow clone', function() {
+      var shallowClone = fxjs.Object.clone(original);
+
+      describe('its keys', function() {
+        it('are the same as the original\'s', function() {
+          expect(Object.keys(shallowClone)).toEqual(Object.keys(original));
+        });
+ 
+        describe('their values', function() {
+          it('are the same as the original\'s', function() {
+            expect(shallowClone.a).toBe(original.a);
+            expect(shallowClone.b).toBe(original.b);
+            expect(shallowClone.c).toBe(original.c);
+          });
+        });
+      });
+    });
+
+    describe('deep clone', function() {
+      var deepClone = fxjs.Object.clone(original, true);
     });
   });
 });

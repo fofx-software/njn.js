@@ -1,0 +1,92 @@
+<table fx-controller="tableController">
+  <tr>
+    <td>Shift</td>
+    <td fx-foreach="days">{{dayName}}<br/>{{date}}</td>
+  </tr>
+  <tr fx-foreach="shiftWeeks">
+    <td>{{shiftName}}</td>
+    <td fx-foreach="shiftDays">
+      <div fx-foreach="daySegments">
+        <div fx-toggle-display="!editing">{{driverName}}</div>
+        <div fx-toggle-display="editing"><input fx-on="keypress:acceptOrReject"></div>
+        <div>{{vehicleName}}</div>
+        <div>{{startTime}}</div>
+        <div>{{endTime}}</div>
+      </div>
+    </td>
+  </tr>
+</div>
+
+<script>
+  var Day = {
+    weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    create: function(day) {
+      newDay.dayName = Day.weekdays[day.getDay()];
+      newDay.dateStr = (day.getMonth() + 1) + '/' + day.getDate();
+      return newDay;
+    }
+  };
+
+  var Driver = fxjs.model({
+    name: '',
+    age: function() { return fxjs.time.now.minus(this.birthday); }
+  }).defineInitializer(function(driverName) {
+    var fromData = data.drivers[driverName];
+    this.birthday = fromData.birthday;
+  });
+
+
+  var Shift = fxjs.model({
+    name: String,
+    contract: String,
+    vehicle: Vehicle,
+    driver: Driver,
+    startTime: fxjs.Time,
+    endTime: fxjs.Time
+  }).defineInitializer(function(shiftName) {
+    return data[shiftName];
+  });
+
+  var shifts = fxjs.collection('shifts', Shift).addMembers(
+    {
+      name: 'Accenture AM',
+      contract: 'Accenture',
+      vehicle: 'JD',
+      driver: 'Michael McClure',
+      startTime: 7,
+      endTime: 15.5
+    }
+  );
+
+  var ShiftDay = {
+    daySegments: fxjs.collection(Assignment);
+  };
+
+  var shiftWeeks = fxjs.collection({
+    shiftName: String,
+    shiftDays: fxjs.collection(ShiftDay),
+    editing: false,
+  });
+
+  shifts.forEach(function(shift) {
+    var shiftDays = days.map(function(day, i) {
+      return assignments[shift.name][i];
+    });
+    shiftWeeks.addMember({
+      shiftName: shift.name,
+      shiftDays: shiftDays,
+      editing: false
+    });
+  });
+
+  fxjs.controller('tableController', {
+    days: function(i) {
+      var monday = fxjs.Date.last('Monday');
+      var friday = fxjs.Date.next('Friday');
+      var dateRange = fxjs.Date.range(monday, friday);
+      return Day.create(dateRange[i]);
+    },
+    shifts: shifts,
+    shiftWeeks: shiftWeeks
+  });
+</script>

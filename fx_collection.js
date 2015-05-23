@@ -32,13 +32,9 @@ fxjs.Collection = FXCollection;
 
 fxjs.collection = function(collectionName, model) {
   if(fxjs.isString(collectionName)) {
-    if(fxjs.registeredCollections[collectionName]) {
-      throw new Error('FXCollection "' + collectionName + '" already registered');
-    } else {
-      var collection = (new FXCollection(collectionName)).defineModel(model)
-      fxjs.registeredCollections[collectionName] = collection;
-      return collection;
-    }
+    var collection = (new FXCollection(collectionName)).defineModel(model)
+    fxjs.registeredCollections[collectionName] = collection;
+    return collection;
   }
 }
 
@@ -53,7 +49,7 @@ FXCollection.prototype.broadcastChange = function() {
 FXCollection.prototype.defineModel = function(object) {
   this.memberModel = new FXModel(this);
 
-  if(fxjs.isPlainObject(object)) {
+  if(fxjs.isObject(object)) {
     Object.keys(object).forEach(function(property) {
       if(fxjs.isBoolean(object[property])) {
         this.registeredScopes[property] = { filter: property };
@@ -93,7 +89,7 @@ FXCollection.prototype.scope = function(scopeName) {
     negated = /^!/.test(scopeName);
     scopeName = scopeName.replace(/^!/,'');
     scope = this.registeredScopes[scopeName];
-  } else if(fxjs.isPlainObject(scopeName)) {
+  } else if(fxjs.isObject(scopeName)) {
     scope = scopeName;
   }
   if(scope) {

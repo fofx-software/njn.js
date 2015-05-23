@@ -36,12 +36,6 @@ describe('fxjs.collection()', function() {
         expect(newCollection).toEqual(jasmine.any(fxjs.Collection));
       });
     });
-
-    describe('if a collection has been registered with that name', function() {
-      it('throws an error', function() {
-        expect(function() { fxjs.collection('newCollection'); }).toThrow();
-      });
-    });
   });
 
   describe('when a name and model are given', function() {
@@ -51,13 +45,6 @@ describe('fxjs.collection()', function() {
         newCollection = fxjs.collection('collectionWithModel', {});
         expect(fxjs.registeredCollections['collectionWithModel']).toBe(newCollection);
         expect(newCollection).toEqual(jasmine.any(fxjs.Collection));
-      });
-    });
-
-    describe('if a collection has been registered with that name', function() {
-      it('throws an error', function() {
-        var collectionWithModel = function() { fxjs.collection('collectionWithModel', {}); }
-        expect(collectionWithModel).toThrow();
       });
     });
   });
