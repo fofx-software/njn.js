@@ -28,9 +28,16 @@ beforeEach(function() {
 
 describe('fxjs.collection()', function() {
   describe('when no argument is given', function() {
+    var newCollection = fxjs.collection();
+
     it('initializes and returns a new FXCollection', function() {
-      var newCollection = fxjs.collection();
       expect(newCollection).toEqual(jasmine.any(fxjs.Collection));
+    });
+
+    describe('the new FXCollection', function() {
+      it('does not have a memberModel', function() {
+        expect(newCollection.memberModel).toBeUndefined();
+      });
     });
   });
 
@@ -78,6 +85,10 @@ describe('.addMembers()', function() {
 
   var withoutModel = new fxjs.Collection;
 
+  it('returns the FXCollection', function() {
+    expect(withModel.addMembers()).toBe(withModel);
+  });
+
   describe('when called on a collection without a memberModel', function() {
     it('simply adds the given candidates to collection\'s members array', function() {
       withoutModel.addMembers(1, 'a', false);
@@ -104,6 +115,13 @@ describe('.addMembers()', function() {
       it('is also defined in the new member, with the default value from the memberModel', function() {
         expect(withModel.members[0].hasOwnProperty('boolProp')).toBe(true);
         expect(withModel.members[0].boolProp).toBe(true);
+      });
+    });
+
+    describe('when a candidate does not fit the model', function() {
+      it('throws an exception', function() {
+        var badAdd = function() { withModel.addMembers({ prop: 1 }); };
+        expect(badAdd).toThrowError('Value of prop must be instance of String');
       });
     });
   });
@@ -281,6 +299,63 @@ describe('.scope()', function() {
 
   it('does not alter the members array', function() {
     expect(withScope.members).toEqual(originalMembers);
+  });
+});
+
+describe('.areAny()', function() {
+  var collection = (new fxjs.Collection).addMembers(
+    { boolProp: true,  funcProp: function() { return 0; } },
+    { boolProp: false, funcProp: function() { return 0; } },
+    { boolProp: false, funcProp: function() { return 0; } }
+  );
+
+  describe('with a string argument', function() {
+    describe('when the string argument corresponds to a property that is not a function', function() {
+      it('returns true if that property of any member is truthy', function() {
+        expect(collection.areAny('boolProp')).toBe(true);
+      });
+    });
+
+    describe('when the string argument corresponds to a property that is a function', function() {
+      it('returns true if the return value of that method of any member is truthy', function() {
+        expect(collection.areAny('funcProp')).toBe(false);
+      });
+    });
+  });
+
+  describe('with a function argument', function() {
+    it('returns true if the return value of the given function is truthy when called on any member', function() {
+      expect(collection.areAny(function(member) { return member.boolProp; })).toBe(true);
+    });
+  });
+});
+
+describe('.areAll()', function() {
+  var collection = (new fxjs.Collection).addMembers(
+    { boolProp: true,  funcProp: function() { return 1; } },
+    { boolProp: false, funcProp: function() { return 1; } },
+    { boolProp: false, funcProp: function() { return 13; } }
+  );
+
+  describe('with a string argument', function() {
+    describe('when the string argument corresponds to a property that is not a function', function() {
+      it('returns true if that property in all members is truthy', function() {
+        expect(collection.areAll('boolProp')).toBe(false);
+      });
+    });
+
+    describe('when the string argument corresponds to a property that is a function', function() {
+      it('returns true if the return value of that method in all members is truthy', function() {
+        expect(collection.areAll('funcProp')).toBe(true);
+      });
+    });
+  });
+
+  describe('with a function argument', function() {
+    it('returns true if the return value of the given function is truthy when called on all members', function() {
+      expect(collection.areAll(function(member) { return member.funcProp(); })).toBe(true);
+      expect(collection.areAll(function(member) { return member.funcProp() > 1; })).toBe(false);
+    });
   });
 });
 

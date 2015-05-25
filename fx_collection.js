@@ -7,7 +7,8 @@ function FXCollection() {
 fxjs.Collection = FXCollection;
 
 fxjs.collection = function(model) {
-  var collection = (new FXCollection).defineModel(model)
+  var collection = new FXCollection;
+  if(model) { collection.defineModel(model); }
   return collection;
 }
 
@@ -35,6 +36,41 @@ FXCollection.prototype.addMembers = function() {
 
     this.members.push(newMember);
   }
+}
+
+fxjs.Collection = FXCollection;
+
+fxjs.collection = function(model) {
+  var collection = new FXCollection;
+  if(model) { collection.defineModel(model); }
+  return collection;
+}
+
+FXCollection.prototype.isFXCollection = true;
+
+FXCollection.prototype.broadcastChange = function() {
+  fxjs.registeredControllers.watching(this).forEach(function(controller) {
+    controller.refreshView();
+  });
+}
+
+FXCollection.prototype.defineModel = function(object) {
+  this.memberModel = fxjs.model(object);
+  return this;
+}
+
+FXCollection.prototype.addMembers = function() {
+  var candidates = arguments;
+  for(var i = 0; i < candidates.length; i++) {
+    var newMember = candidates[i];
+
+    if(this.memberModel) {
+      newMember = this.memberModel.create(newMember);
+    }
+
+    this.members.push(newMember);
+  }
+
   this.broadcastChange();
   return this;
 }
@@ -107,27 +143,34 @@ FXCollection.prototype.forEach = function(callback, thisArg) {
 FXCollection.prototype.remove = function(member) {
   var index = this.members.indexOf(member);
   this.members.splice(index, 1);
-  this.broadcastChange();
 }
 
 FXCollection.prototype.areAll = function(callbackOrProp) {
-  return(this.members.reduce(function(prev, curr) {
-    var currVal;
+  return(this.members.every(function(member) {
     if(fxjs.isString(callbackOrProp)) {
-      currVal = curr[callbackOrProp];
+      var val = member[callbackOrProp];
+      if(fxjs.isFunction(val)) {
+        return val.call(member);
+      } else {
+        return val;
+      }
     } else {
-      currVal = callbackOrProp.call(curr);
+      return callbackOrProp.call(null, member);
     }
-    return prev && currVal;
   }, true));
 }
 
 FXCollection.prototype.areAny = function(callbackOrProp) {
-  return(!!this.members.find(function(member) {
+  return(this.members.some(function(member) {
     if(fxjs.isString(callbackOrProp)) {
-      return member[callbackOrProp];
+      var val = member[callbackOrProp];
+      if(fxjs.isFunction(val)) {
+        return val.call(member);
+      } else {
+        return val;
+      }
     } else {
-      return callbackOrProp.call(member);
+      return callbackOrProp.call(null, member);
     }
   }));
 }
@@ -136,7 +179,6 @@ FXCollection.prototype.setAll = function(propName, value) {
   this.members.forEach(function(member) {
     member[propName] = value;
   });
-  this.broadcastChange();
 }
 
 FXCollection.prototype.count = function() {

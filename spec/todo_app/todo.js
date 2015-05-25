@@ -39,6 +39,7 @@ fxjs.controller('todoList', {
     var inputVal = $(e.target).val();
     if(fxjs.isBlank(inputVal)) {
       todos.remove(todo);
+      todos.broadcastChange();
     } else {
       todo.title = inputVal;
       todo.editing = false;
@@ -59,6 +60,7 @@ fxjs.controller('todoList', {
   },
   removeTodo: function(e, todo) {
     todos.remove(todo);
+    todos.broadcastChange();
   }
 }).list(todos, listScope);
 
@@ -66,6 +68,7 @@ fxjs.controller('toggleCompleteAll', {
   completeAll: function(e) {
     var completeAll = !todos.areAll('completed');
     todos.setAll('completed', completeAll);
+    todos.broadcastChange();
   },
   allComplete: function() {
     return todos.areAll('completed');
@@ -88,6 +91,7 @@ fxjs.controller('clearCompleted', {
   clearAll: function(e, todo, index) {
     todos.scope({ filter: 'completed' }).forEach(function(todo) {
       todos.remove(todo);
+      todos.broadcastChange();
     });
   }
 }).watch(todos);
