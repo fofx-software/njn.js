@@ -1,4 +1,4 @@
-var todos = fxjs.collection('todos', {
+var todos = fxjs.collection({
   title: '',
   completed: false,
   editing: false
@@ -6,7 +6,9 @@ var todos = fxjs.collection('todos', {
   { title: 'Do something with it' },
   { title: 'Build fxjs', completed: true },
   { title: 'Profit!' }
-).aliasProperty('active', '!completed');
+)
+
+todos.memberModel.aliasProperty('!completed', 'active');
 
 fxjs.controller('newTodo', {
   acceptChanges: function(e) {
@@ -29,25 +31,35 @@ var listScope = { sort: 'completed' };
 
 fxjs.controller('todoList', {
   editTodo: function(e, todo, index) {
-    todo.set('editing', true);
+    todo.editing = true;
     $(this[index]).find('input.edit').val(todo.title).focus();
+    todos.broadcastChange();
   },
   acceptChanges: function(e, todo) {
     var inputVal = $(e.target).val();
     if(fxjs.isBlank(inputVal)) {
-      todo.remove();
+      todos.remove(todo);
     } else {
-      todo.set('title', inputVal);
-      todo.set('editing', false);
+      todo.title = inputVal;
+      todo.editing = false;
+      todos.broadcastChange();
     }
   },
   acceptOrReject: function(e, todo) {
     if(e.which === 13) {
       this.actions.acceptChanges(e, todo);
     } else if(e.keyCode === 27) {
-      todo.set('editing', false);
+      todo.editing = false;
+      todos.broadcastChange();
     }
   },
+  completeTodo: function(e, todo) {
+    todo.completed = !todo.completed;
+    todos.broadcastChange();
+  },
+  removeTodo: function(e, todo) {
+    todos.remove(todo);
+  }
 }).list(todos, listScope);
 
 fxjs.controller('toggleCompleteAll', {
@@ -75,7 +87,7 @@ fxjs.controller('clearCompleted', {
   },
   clearAll: function(e, todo, index) {
     todos.scope({ filter: 'completed' }).forEach(function(todo) {
-      todo.remove();
+      todos.remove(todo);
     });
   }
 }).watch(todos);

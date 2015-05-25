@@ -10,6 +10,7 @@
 
   <!--fxjs:-->
   <script type="text/javascript" src="../../fx.js"></script>
+  <script type="text/javascript" src="../../fx_model.js"></script>
   <script type="text/javascript" src="../../fx_collection.js"></script>
   <script type="text/javascript" src="../../fx_controller.js"></script>
   <script type="text/javascript" src="../../fx_router.js"></script>
@@ -33,8 +34,8 @@
         <li fx-controller="todoList" fx-toggle-class="completed editing" class="todo-li">
           <div fx-toggle-display="editing" class="editing-subdiv"><input class="edit" fx-on="blur:acceptChanges; keypress:acceptOrReject"></input></div>
           <div fx-toggle-display="!editing" class="!editing-subdiv">
-            <input type="checkbox" class="toggle" fx-on="change:completed" fx-checked="completed">
-            <label fx-on="dblclick:editTodo">{{title}}</label><button class="destroy" fx-on="click:remove"></button>
+            <input type="checkbox" class="toggle" fx-on="change:completeTodo" fx-checked="completed">
+            <label fx-on="dblclick:editTodo">{{title}}</label><button class="destroy" fx-on="click:removeTodo"></button>
           </div>
         </li>
       </ul>

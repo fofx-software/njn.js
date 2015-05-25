@@ -212,7 +212,8 @@ FXController.prototype.addEventListeners = function(node, object, index) {
       } else {
         var objectProp = object[handler];
         if(fxjs.isBoolean(objectProp)) {
-          object.set(handler, !objectProp);
+          object[handler] = !objectProp;
+          // used to be .set() how to fix?
         } else if(fxjs.isFunction(objectProp)) {
           objectProp.call(object);
         }

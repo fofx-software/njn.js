@@ -22,16 +22,6 @@ var fxjs = {};
   fxjs.registeredControllers = Object.create(controllersPrototype);
 })();
 
-(function() {
-  var collectionsPrototype = {
-    reset: function() {
-      fxjs.registeredCollections = Object.create(collectionsPrototype);
-    }
-  };
-
-  fxjs.registeredCollections = Object.create(collectionsPrototype);
-})();
-
 // utilities:
 
 fxjs.isArray = function(value) {
@@ -44,6 +34,10 @@ fxjs.isArray = function(value) {
 
 fxjs.isBoolean = function(value) {
   return typeof value === 'boolean';
+}
+
+fxjs.isDate = function(value) {
+  return value instanceof Date;
 }
 
 fxjs.isDefined = function(value) {
@@ -64,6 +58,7 @@ fxjs.isNumber = function(value) {
 
 fxjs.isObject = function(value) {
   if(typeof value !== 'object') return false;
+  if(fxjs.isDate(value)) return false;
   if(fxjs.isArray(value)) return false;
   if(fxjs.isNull(value)) return false;
   return true;
@@ -80,6 +75,7 @@ fxjs.isString = function(value) {
 fxjs.typeOf = function(val) {
   if(fxjs.isArray(val))       return Array;
   if(fxjs.isBoolean(val))     return Boolean;
+  if(fxjs.isDate(val))        return Date;
   if(!fxjs.isDefined(val))    return undefined;
   if(fxjs.isFunction(val))    return Function;
   if(fxjs.isNull(val))        return null;

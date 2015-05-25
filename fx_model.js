@@ -1,57 +1,114 @@
-fxjs.Model = {
-  propertyDescriptors: {
-    isFXModel: { value: true },
-    initialize: {
-      value: function() {
-        var newObject = {};
-        Object.keys(this).forEach(function(propertyName) {
-          fxjs.Model.transferProperty(newObject, this, propertyName);
-        }, this);
-        if(this.innerInitializer) {
-          this.innerInitializer.apply(newObject, arguments);
-        }
-        Object.defineProperties(newObject, {
-          fxModel: { value: this }
-        });
-        return newObject;
-      }
-    },
-    defineInitializer: {
-      value: function(initializer) {
-        Object.defineProperty(this, 'innerInitializer', { value: initializer });
-        return this;
-      }
+(function defineFXModel() {
+
+function FXModel() {
+  this.model = {};
+  Object.defineProperty(this.model, 'fxModel', { value: this });
+}
+
+fxjs.Model = FXModel;
+
+fxjs.model = function(modelObject) {
+  modelObject = modelObject || {};
+  if(modelObject.isFXModel) return modelObject;
+
+  var newModel = new FXModel;
+
+  Object.keys(modelObject).forEach(function(propertyName) {
+    var propertyDescriptor = Object.getOwnPropertyDescriptor(modelObject, propertyName);
+    Object.defineProperty(newModel.model, propertyName, propertyDescriptor);
+  });
+
+  return newModel;
+}
+
+FXModel.prototype.initialize = function() {
+  // put inner model in newObject's prototype chain so convenience methods and properties
+  // eg aliases can be added to inner model and accessed by newObject later:
+  var newObject = Object.create(this.model);
+
+  // although inner model is newObject's prototype, all ownProperties are added explicitly
+  // and made enumerable ownProperties of newObject:
+  Object.keys(this.model).forEach(function(propertyName) {
+    FXModel.transferProperty(newObject, this.model, propertyName);
+  }, this);
+
+  if(fxjs.isFunction(this.innerInitializer)) {
+    this.innerInitializer.apply(newObject, arguments);
+  }
+
+  Object.freeze(newObject);
+
+  return newObject;
+}
+
+FXModel.prototype.defineInitializer = function(initializer) {
+  Object.defineProperty(this, 'innerInitializer', { value: initializer });
+  return this;
+}
+
+FXModel.prototype.create = function(newObject) {
+  var newModel = this.initialize();
+  newObject = newObject || {};
+
+  Object.keys(this.model).forEach(function(propertyName) {
+    if(newObject.hasOwnProperty(propertyName)) {
+      newModel[propertyName] = newObject[propertyName];
     }
-  },
-  transferProperty: function(receiver, model, property) {
-    var nativeClasses = [Array, Boolean, Function, Number, Object, String];
-    var isNativeClass = nativeClasses.indexOf(model[property]) > -1;
-    var isNativeInstance = nativeClasses.find(function(klass) {
-      var found = fxjs.typeOf(model[property]) === klass;
-      return found && (klass !== Function || !isNativeClass);
+  });
+
+  return newModel;
+}
+
+FXModel.prototype.aliasProperty = function(currName, newName) {
+  var negated = /^!/.test(currName);
+  var trueName = currName.replace(/^!/,'');
+  var getFunc = function() {
+    var currVal = this[trueName];
+    return negated ? !currVal : currVal;
+  }
+  getFunc.isAlias = true;
+  var setFunc = function(newVal) {
+    this[trueName] = negated ? !newVal : newVal;
+  }
+  setFunc.isAlias = true;
+  Object.defineProperty(this.model, newName, {
+    get: getFunc,
+    set: setFunc
+  });
+}
+
+FXModel.prototype.isAlias = function(propertyName) {
+  if(this.model.hasOwnProperty(propertyName)) {
+    var propertyDescriptor = Object.getOwnPropertyDescriptor(this.model, propertyName);
+    if(propertyDescriptor.get) { return propertyDescriptor.get.isAlias; }
+  }
+  return false;
+}
+
+FXModel.transferProperty = function(receiver, model, property) {
+  var nativeClasses = [Array, Boolean, Date, Function, Number, Object, String];
+  var isNativeClass = nativeClasses.indexOf(model[property]) > -1;
+  var isNativeInstance = nativeClasses.find(function(klass) {
+    var found = fxjs.typeOf(model[property]) === klass;
+    return found && (klass !== Function || !isNativeClass);
+  });
+  if(isNativeClass || isNativeInstance) {
+    var underlyingValue = isNativeInstance ? model[property] : undefined;
+    if(fxjs.Object.isCloneable(underlyingValue)) {
+      underlyingValue = fxjs.Object.clone(underlyingValue);
+    }
+    var mustBeClass = isNativeInstance || model[property];
+    Object.defineProperty(receiver, property, {
+      enumerable: true,
+      get: function() { return underlyingValue; },
+      set: function(newValue) {
+        if(fxjs.typeOf(newValue) !== mustBeClass) {
+          throw new Error('Value of ' + property + ' must be instance of ' + mustBeClass.name);
+        }
+        underlyingValue = newValue;
+      }
     });
-    if(isNativeClass || isNativeInstance) {
-      var underlyingValue = isNativeInstance ? model[property] : undefined;
-      if(fxjs.Object.isCloneable(underlyingValue)) {
-        underlyingValue = fxjs.Object.clone(underlyingValue);
-      }
-      var mustBeClass = isNativeInstance || model[property];
-      Object.defineProperty(receiver, property, {
-        enumerable: true,
-        get: function() { return underlyingValue; },
-        set: function(newValue) {
-          if(fxjs.typeOf(newValue) !== mustBeClass) {
-            throw new Error('Value of ' + property + ' must be instance of ' + mustBeClass.name);
-          }
-          underlyingValue = newValue;
-        }
-      });
-    }
   }
 }
 
-fxjs.model = function(modelObject) {
-  modelObject = fxjs.Object.clone(modelObject || {});
-  Object.defineProperties(modelObject, fxjs.Model.propertyDescriptors);
-  return modelObject;
-}
+})();
