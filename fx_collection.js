@@ -70,8 +70,6 @@ FXCollection.prototype.addMembers = function() {
 
     this.members.push(newMember);
   }
-
-  this.broadcastChange();
   return this;
 }
 
@@ -124,7 +122,16 @@ FXCollection.prototype.scope = function(scope) {
         return 0;
       });
     }
-    return scopedMembers;
+
+    var scopedCollection;
+    if(fxjs.isDefined(this.memberModel)) {
+      scopedCollection = fxjs.collection(collection.memberModel.model);
+    } else {
+      scopedCollection = fxjs.collection();
+    }
+    // transfer members directly so they are the same objects:
+    scopedCollection.members = scopedMembers;
+    return scopedCollection;
   }
 }
 

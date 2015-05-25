@@ -33,47 +33,14 @@ FXController.prototype.watch = function(toWatch) {
   this.init();
 }
 
-//FXController.prototype.list = function(list, scope) {
-//  if(fxjs.isString(list)) {
-//    this.watching = this.listing = fxjs.collections[list];
-//  } else if(list.isFXCollection) {
-//    this.watching = this.listing = list;
-//  }
-//
-//  if(this.listing) {
-//    this.listScope = scope;
-//    var controller = this;
-//
-//    this.listScope.set = function(propertyName, value) {
-//      this[propertyName] = value;
-//      controller.refreshView();
-//    }
-//
-//    this.nextSibling = this.template.nextSibling;
-//    this.parentElement = this.template.parentElement;
-//    this.parentElement.removeChild(this.template);
-//    this.buildList(this.listing, nextSibling);
-//  }
-//}
-
 FXController.prototype.refreshView = function() {
-  if(this.listing) {
-    var afterList;
-    this.liveElements.forEach(function(element, index) {
-      afterList = element.nextSibling;
-      element.parentElement.removeChild(element);
-      delete this[index];
-    });
-    this.buildList(this.listing, afterList);
-  } else {
-    var oldElement = this.liveElement;
-    this.liveElement = this.template.cloneNode(true);
+  var oldElement = this.liveElement;
+  this.liveElement = this.template.cloneNode(true);
 
-    // again, if controller initialized with init(), 'this.watching'
-    // is undefined, with no effect:
-    this.processElement(this.liveElement, this.watching);
-    oldElement.parentElement.replaceChild(this.liveElement, oldElement);
-  }
+  // again, if controller initialized with init(), 'this.watching'
+  // is undefined, with no effect:
+  this.processElement(this.liveElement, this.watching);
+  oldElement.parentElement.replaceChild(this.liveElement, oldElement);
 }
 
 FXController.prototype.processElement = function(element, object, listIndex) {
@@ -111,7 +78,7 @@ FXController.prototype.buildList = function(element, list) {
       scope[propertyName] = value;
       collection.broadcastChange();
     }
-    list = list.scope(scope);
+    list = list.scope(scope).members;
   }
 
   var nextSibling = element.nextSibling;

@@ -45,7 +45,7 @@
 
     <footer id="footer">
       <span id="todo-count" fx-controller="countTodos">
-        <strong fx-filter="!completed">{{length}}</strong> of {{count}} todos left
+        <strong fx-filter="!completed">{{count}}</strong> of {{count}} todos left
       </span>
 
       <ul id="filters" fx-controller="linkController">
@@ -55,7 +55,7 @@
       </ul>
 
       <button fx-controller="clearCompleted" id="clear-completed" fx-toggle-display="anyCompleted?" fx-on="click:clearAll" fx-filter="completed">
-        Clear completed {{length}}
+        Clear completed {{count}}
       </button>
     </footer>
 

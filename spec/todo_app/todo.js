@@ -23,6 +23,7 @@ fxjs.controller('newTodo', {
   },
   createTodo: function(e, title) {
     todos.addMembers({ title: title });
+    todos.broadcastChange();
     $(e.target).val('');
   }
 }).init();
