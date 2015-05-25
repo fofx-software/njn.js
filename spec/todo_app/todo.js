@@ -30,10 +30,15 @@ fxjs.controller('newTodo', {
 var listScope = { sort: 'completed' };
 
 fxjs.controller('todoList', {
+  todos: todos,
+  listScope: listScope,
   editTodo: function(e, todo, index) {
     todo.editing = true;
-    $(this[index]).find('input.edit').val(todo.title).focus();
     todos.broadcastChange();
+    $(this[index]).find('input.edit').val(todo.title).focus();
+    // return function() {
+    //   $(this[index]).find('input.edit').val(todo.title).focus();
+    // }
   },
   acceptChanges: function(e, todo) {
     var inputVal = $(e.target).val();
@@ -62,7 +67,7 @@ fxjs.controller('todoList', {
     todos.remove(todo);
     todos.broadcastChange();
   }
-}).list(todos, listScope);
+}).watch(todos);
 
 fxjs.controller('toggleCompleteAll', {
   completeAll: function(e) {

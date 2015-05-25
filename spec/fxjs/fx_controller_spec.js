@@ -84,6 +84,8 @@ describe('init()', function() {
       });
     });
   });
+
+  // more on .init() under processElement
 });
 
 });

@@ -30,8 +30,8 @@
     </header>
 
     <section id="main">
-      <ul id="todo-list">
-        <li fx-controller="todoList" fx-toggle-class="completed editing" class="todo-li">
+      <ul id="todo-list" fx-controller="todoList">
+        <li fx-foreach="todos" fx-scope="listScope" fx-toggle-class="completed editing" class="todo-li">
           <div fx-toggle-display="editing" class="editing-subdiv"><input class="edit" fx-on="blur:acceptChanges; keypress:acceptOrReject"></input></div>
           <div fx-toggle-display="!editing" class="!editing-subdiv">
             <input type="checkbox" class="toggle" fx-on="change:completeTodo" fx-checked="completed">
