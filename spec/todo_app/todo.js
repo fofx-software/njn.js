@@ -12,11 +12,11 @@ todos.memberModel.aliasProperty('!completed', 'active');
 
 fxjs.controller('newTodo', {
   acceptChanges: function(e) {
-    this.actions.createTodo(e, $(e.target).val());
+    this.viewInterface.createTodo(e, $(e.target).val());
   },
   acceptOrReject: function(e) {
     if(e.keyCode === 13) {
-      this.actions.acceptChanges.call(this, e);
+      this.viewInterface.acceptChanges.call(this, e);
     } else if(e.keyCode === 27) {
       $(e.target).val('');
     }
@@ -54,7 +54,7 @@ fxjs.controller('todoList', {
   },
   acceptOrReject: function(e, todo) {
     if(e.which === 13) {
-      this.actions.acceptChanges(e, todo);
+      this.viewInterface.acceptChanges(e, todo);
     } else if(e.keyCode === 27) {
       todo.editing = false;
       todos.broadcastChange();

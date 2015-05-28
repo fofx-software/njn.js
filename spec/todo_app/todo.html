@@ -44,14 +44,14 @@
     </section>
 
     <footer id="footer">
-      <span id="todo-count" fx-controller="countTodos">
+      <span id="todo-count" fx-controller="countTodos" fx-context="todos">
         <strong fx-filter="!completed">{{count}}</strong> of {{count}} todos left
       </span>
 
       <ul id="filters" fx-controller="linkController">
-        <li><a href="#/"          id="show-all"       fx-attr-class="selected?">All</a></li>
-        <li><a href="#/active"    id="show-active"    fx-attr-class="selected?">Active</a></li>
-        <li><a href="#/completed" id="show-completed" fx-attr-class="selected?">Completed</a></li>
+        <li><a href="#/"          id="show-all"       fx-attr-class="{{selected?}}">All</a></li>
+        <li><a href="#/active"    id="show-active"    fx-attr-class="{{selected?}}">Active</a></li>
+        <li><a href="#/completed" id="show-completed" fx-attr-class="{{selected?}}">Completed</a></li>
       </ul>
 
       <button fx-controller="clearCompleted" id="clear-completed" fx-toggle-display="anyCompleted?" fx-on="click:clearAll" fx-filter="completed">
