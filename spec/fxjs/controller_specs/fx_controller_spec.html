@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>fxjs controller acceptance tests</title>
+
+  <!--fxjs-->
+  <script type="text/javascript" src="../../../fx.js"></script>
+  <script type="text/javascript" src="../../../fx_model.js"></script>
+  <script type="text/javascript" src="../../../fx_collection.js"></script>
+  <script type="text/javascript" src="../../../fx_controller.js"></script>
+  <script type="text/javascript" src="../../../fx_router.js"></script>
+
+  <!--jasmine-->
+  <link rel="shortcut icon" type="image/png" href="../../jasmine/lib/jasmine-2.2.0/jasmine_favicon.png">
+  <link rel="stylesheet" type="text/css" href="../../jasmine/lib/jasmine-2.2.0/jasmine.css">
+  <script type="text/javascript" src="../../jasmine/lib/jasmine-2.2.0/jasmine.js"></script>
+  <script type="text/javascript" src="../../jasmine/lib/jasmine-2.2.0/jasmine-html.js"></script>
+  <script type="text/javascript" src="../../jasmine/lib/jasmine-2.2.0/boot.js"></script>
+</head>
+<body>
+  <div fx-controller="processText" id="process-text">
+    {{ownText1}}
+    <p>{{textString}}</p>
+    <p>{{textFromFunction}}</p>
+    <p>{{testArguments}}</p>
+    <p>this text is {{embeddedIn}} other text</p>
+    <p>this text {{contains}} multiple {{interpolated}} segments</p>
+    <p class="curr-element">{{testCurrElement}}</p>
+    {{ownTextInner}}
+    <p>{{propertyWithQuestionMark?}}</p>
+    <p>{{!propertyWithBang}}</p>
+    <p><span><span>{{grandchildText}}</span></span></p>
+    <p>{{ withLeadingSpace}}</p>
+    <p>{{withTrailingSpace }}</p>
+    {{ownText2}}
+  </div>
+  <div fx-controller="configureAttribute" id="configure-attribute" fx-attr-name="result of {{ownName}}">
+    <div fx-attr-class="{{testArguments}}"></div>
+    <div class="hide-me" fx-attr-style="{{useCurrElement}}"></div>
+    <div class="overridden" fx-attr-class="{{overrideClass}}"></div>
+    <div fx-attr-class="{{firstTwoClasses}} {{thirdClass}}"></div>
+    <div>{{processText1}}<span fx-attr-name="in the {{position}}">{{processInnerText}}</span>{{processText2}}</div>
+  </div>
+  <div fx-controller="toggleClasses">
+
+  </div>
+  <script type="text/javascript" src="controller_spec_setup.js"></script>
+  <script type="text/javascript" src="fx_controller_spec.js"></script>
+</body>
+</html>

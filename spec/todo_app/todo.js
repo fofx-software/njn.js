@@ -6,24 +6,23 @@ var todos = fxjs.collection({
   { title: 'Do something with it' },
   { title: 'Build fxjs', completed: true },
   { title: 'Profit!' }
-)
+);
 
 todos.memberModel.aliasProperty('!completed', 'active');
 
 fxjs.controller('newTodo', {
   acceptChanges: function(e) {
-    this.viewInterface.createTodo(e, $(e.target).val());
+    this.createTodo(e, $(e.target).val());
   },
   acceptOrReject: function(e) {
     if(e.keyCode === 13) {
-      this.viewInterface.acceptChanges.call(this, e);
+      this.acceptChanges.call(this, e);
     } else if(e.keyCode === 27) {
       $(e.target).val('');
     }
   },
   createTodo: function(e, title) {
     todos.addMembers({ title: title });
-    todos.broadcastChange();
     $(e.target).val('');
   }
 }).init();
@@ -34,39 +33,29 @@ fxjs.controller('todoList', {
   todos: todos,
   listScope: listScope,
   editTodo: function(e, todo, index) {
-    todo.editing = true;
-    todos.broadcastChange();
+    todo.set('editing', true);
     $(this[index]).find('input.edit').val(todo.title).focus();
-    // return function() {
-    //   $(this[index]).find('input.edit').val(todo.title).focus();
-    // }
   },
   acceptChanges: function(e, todo) {
     var inputVal = $(e.target).val();
     if(fxjs.isBlank(inputVal)) {
       todos.remove(todo);
-      todos.broadcastChange();
     } else {
-      todo.title = inputVal;
-      todo.editing = false;
-      todos.broadcastChange();
+      todo.set({ title: inputVal, editing: false });
     }
   },
   acceptOrReject: function(e, todo) {
     if(e.which === 13) {
-      this.viewInterface.acceptChanges(e, todo);
+      this.acceptChanges(e, todo);
     } else if(e.keyCode === 27) {
-      todo.editing = false;
-      todos.broadcastChange();
+      todo.set('editing', false);
     }
   },
   completeTodo: function(e, todo) {
-    todo.completed = !todo.completed;
-    todos.broadcastChange();
+    todo.set('completed', !todo.completed);
   },
   removeTodo: function(e, todo) {
     todos.remove(todo);
-    todos.broadcastChange();
   }
 }).watch(todos);
 
@@ -74,7 +63,6 @@ fxjs.controller('toggleCompleteAll', {
   completeAll: function(e) {
     var completeAll = !todos.areAll('completed');
     todos.setAll('completed', completeAll);
-    todos.broadcastChange();
   },
   allComplete: function() {
     return todos.areAll('completed');
@@ -84,7 +72,8 @@ fxjs.controller('toggleCompleteAll', {
 fxjs.controller('countTodos').watch(todos);
 
 fxjs.controller('linkController', {
-  'selected?': function(a) {
+  'selected?': function() {
+    var a = this.currElement;
     var hrefHash = /#\/.*/.exec(a.href)[0].replace(/#\//,'');
     if(location.hash.replace(/#\//,'') === hrefHash) return 'selected';
   }
@@ -97,7 +86,6 @@ fxjs.controller('clearCompleted', {
   clearAll: function(e, todo, index) {
     todos.scope({ filter: 'completed' }).forEach(function(todo) {
       todos.remove(todo);
-      todos.broadcastChange();
     });
   }
 }).watch(todos);

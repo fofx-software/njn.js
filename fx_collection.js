@@ -22,40 +22,18 @@ FXCollection.prototype.broadcastChange = function() {
 
 FXCollection.prototype.defineModel = function(object) {
   this.memberModel = fxjs.model(object);
-  return this;
-}
-
-FXCollection.prototype.addMembers = function() {
-  var candidates = arguments;
-  for(var i = 0; i < candidates.length; i++) {
-    var newMember = candidates[i];
-
-    if(this.memberModel) {
-      newMember = this.memberModel.create(newMember);
+  var collection = this;
+  this.memberModel.define('set', function(property, value) {
+    if(fxjs.isObject(property)) {
+      Object.keys(property).forEach(function(key) {
+        this[key] = property[key];
+      }, this);
+      collection.broadcastChange();
+    } else {
+      this[property] = value;
+      collection.broadcastChange();
     }
-
-    this.members.push(newMember);
-  }
-}
-
-fxjs.Collection = FXCollection;
-
-fxjs.collection = function(model) {
-  var collection = new FXCollection;
-  if(model) { collection.defineModel(model); }
-  return collection;
-}
-
-FXCollection.prototype.isFXCollection = true;
-
-FXCollection.prototype.broadcastChange = function() {
-  fxjs.registeredControllers.watching(this).forEach(function(controller) {
-    controller.refreshView();
   });
-}
-
-FXCollection.prototype.defineModel = function(object) {
-  this.memberModel = fxjs.model(object);
   return this;
 }
 
@@ -70,6 +48,8 @@ FXCollection.prototype.addMembers = function() {
 
     this.members.push(newMember);
   }
+
+  this.broadcastChange();
   return this;
 }
 
@@ -150,6 +130,7 @@ FXCollection.prototype.forEach = function(callback, thisArg) {
 FXCollection.prototype.remove = function(member) {
   var index = this.members.indexOf(member);
   this.members.splice(index, 1);
+  this.broadcastChange();
 }
 
 FXCollection.prototype.areAll = function(callbackOrProp) {
@@ -186,6 +167,7 @@ FXCollection.prototype.setAll = function(propName, value) {
   this.members.forEach(function(member) {
     member[propName] = value;
   });
+  this.broadcastChange();
 }
 
 FXCollection.prototype.count = function() {

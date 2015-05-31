@@ -46,6 +46,12 @@ FXModel.prototype.defineInitializer = function(initializer) {
   return this;
 }
 
+// test this:
+
+FXModel.prototype.define = function(propertyName, value) {
+  Object.defineProperty(this.model, propertyName, { value: value });
+}
+
 FXModel.prototype.create = function(newObject) {
   var newModel = this.initialize();
   newObject = newObject || {};
