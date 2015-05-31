@@ -39,11 +39,28 @@
     <div fx-attr-class="{{testArguments}}"></div>
     <div class="hide-me" fx-attr-style="{{useCurrElement}}"></div>
     <div class="overridden" fx-attr-class="{{overrideClass}}"></div>
+    <div fx-attr-class="{{overrideClass}}" class="overridden"></div>
     <div fx-attr-class="{{firstTwoClasses}} {{thirdClass}}"></div>
     <div>{{processText1}}<span fx-attr-name="in the {{position}}">{{processInnerText}}</span>{{processText2}}</div>
   </div>
-  <div fx-controller="toggleClasses">
-
+  <div fx-controller="toggleClasses" fx-toggle-class="trueClass" id="toggle-classes">
+    <ul fx-toggle-class="trueClass">
+      <li fx-toggle-class="falseClass"></li>
+      <li fx-toggle-class="undefinedClass"></li>
+      <li fx-toggle-class="noArgs"></li>
+      <li fx-toggle-class="getTrue"></li>
+      <li fx-toggle-class="useCurrElem" name="use-curr-elem"></li>
+      <li class="prior-class" fx-toggle-class="trueClass"></li>
+      <li fx-toggle-class="trueClass" class="prior-class"></li>
+      <li class="prior-class" fx-toggle-class="falseClass"></li>
+      <li fx-toggle-class="trueClass getTrue"></li>
+      <li class="prior-class" fx-toggle-class="trueClass getTrue"></li>
+      <li fx-toggle-class="trueClass noArgs getTrue"></li>
+      <li class="prior-class" fx-toggle-class="trueClass noArgs getTrue"></li>
+      <li class="prior-class" fx-toggle-class="noArgs falseClass"></li>
+      <li fx-toggle-class="getObject"></li>
+      <li fx-attr-name="my name is {{getName}}" fx-toggle-class="trueClass falseClass">{{myText}}</li>
+    </ul>
   </div>
   <script type="text/javascript" src="controller_spec_setup.js"></script>
   <script type="text/javascript" src="fx_controller_spec.js"></script>

@@ -191,9 +191,8 @@ FXController.prototype.toggleClasses = function(element, lookupChain, indices) {
       return this.getFromLookupChain(element, className, lookupChain, indices);
     }, this);
     if(classesToAdd.length) {
-      var oldClassName = element.className;
       var newClassName = classesToAdd.join(' ');
-      element.className = oldClassName ? oldClassName + ' ' + newClassName : newClassName;
+      element.className = (element.className ? element.className + ' ' : '') + newClassName;
     }
     element.removeAttribute('fx-toggle-class');
   }

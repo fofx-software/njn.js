@@ -46,3 +46,18 @@ fxjs.controller('configureAttribute', {
   processInnerText: 'in the middle',
   processText2: 'end text'
 });
+
+fxjs.controller('toggleClasses', {
+  trueClass: true,
+  falseClass: false,
+  noArgs: function(arg1) { return arg1; },
+  getTrue: function() { return this.trueClass; },
+  useCurrElem: function() {
+    return this.currElement.getAttribute('name') === 'use-curr-elem';
+  },
+  getObject: {},
+  class1: 'first-class',
+  class2: 'second-class',
+  getName: 'bob',
+  myText: 'hi!'
+});

@@ -25,7 +25,7 @@ fxjs.controller('newTodo', {
     todos.addMembers({ title: title });
     $(e.target).val('');
   }
-}).init();
+});
 
 var listScope = { sort: 'completed' };
 
@@ -57,7 +57,7 @@ fxjs.controller('todoList', {
   removeTodo: function(e, todo) {
     todos.remove(todo);
   }
-}).watch(todos);
+}, todos);
 
 fxjs.controller('toggleCompleteAll', {
   completeAll: function(e) {
@@ -67,7 +67,7 @@ fxjs.controller('toggleCompleteAll', {
   allComplete: function() {
     return todos.areAll('completed');
   }
-}).watch(todos);
+}, todos);
 
 fxjs.controller('countTodos').watch(todos);
 
@@ -77,7 +77,7 @@ fxjs.controller('linkController', {
     var hrefHash = /#\/.*/.exec(a.href)[0].replace(/#\//,'');
     if(location.hash.replace(/#\//,'') === hrefHash) return 'selected';
   }
-}).watch(fxjs.router);
+}, fxjs.router);
 
 fxjs.controller('clearCompleted', {
   'anyCompleted?': function() {
@@ -88,6 +88,6 @@ fxjs.controller('clearCompleted', {
       todos.remove(todo);
     });
   }
-}).watch(todos);
+}, todos);
 
 fxjs.router.filter(listScope, '/:all', 'active', 'completed');
