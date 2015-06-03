@@ -62,6 +62,33 @@
       <li fx-attr-name="my name is {{getName}}" fx-toggle-class="trueClass falseClass">{{myText}}</li>
     </ul>
   </div>
+  <div fx-controller="toggleDisplay" id="toggle-display">
+    <div fx-toggle-display="trueProperty"></div>
+    <div fx-toggle-display="truthyProperty"></div>
+    <div fx-toggle-display="falseProperty"></div>
+    <div fx-toggle-display="falseyProperty"></div>
+    <div fx-toggle-display="callThis"></div>
+    <div fx-toggle-display="noArgs"></div>
+    <div id="use-curr-element" fx-toggle-display="useCurrElement"></div>
+    <div fx-toggle-display="notFound"></div>
+    <div fx-toggle-display="!falseProperty"></div>
+    <div fx-toggle-display="falseProperty falseyProperty trueProperty"></div>
+    <div fx-toggle-display="falseProperty falseyProperrty !trueProperty"></div>
+    <div fx-toggle-display="falseProperty falseyProperty" fx-toggle-class="trueProperty noArgs" fx-attr-name='{{myName}}'>{{myText}}</div>
+  </div>
+  <div fx-controller="addEventListeners" id="add-event-listeners">
+    <p fx-on="click:handleClick"></p>
+    <p fx-on="click: handleClick"></p>
+    <p fx-on="click:handleClick;"></p>
+    <p fx-on="click:boolProp"></p>
+    <p fx-on="keypress: noArgs"></p>
+    <p fx-on="keypress:setCurrElement" id="curr-element"></p>
+    <p fx-on="click:handleClick;keypress:setCurrElement" id="abc"></p>
+    <p fx-on="click:handleClick, setCurrElement" id="123"></p>
+    <p fx-on="click,keypress:boolProp;"></p>
+    <p fx-on="click, keypress: boolProp, increment;"></p>
+    <p fx-on="click:setCurrElement; keypress: handleClick, increment;mouseover,mouseout:increment; keydown, keyup:boolProp, increment" id="combineAll"></p>
+  </div>
   <script type="text/javascript" src="controller_spec_setup.js"></script>
   <script type="text/javascript" src="fx_controller_spec.js"></script>
 </body>

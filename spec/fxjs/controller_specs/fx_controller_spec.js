@@ -262,3 +262,208 @@ describe('toggleClasses', function() {
 
   afterAll(function() { document.body.removeChild(toggleClasses); });
 });
+
+describe('toggleDisplay', function() {
+  var toggleDisplay = document.getElementById('toggle-display');
+  var divs = toggleDisplay.getElementsByTagName('div');
+
+  describe('when the referenced property resolves to true', function() {
+    it('shows the element', function() {
+      expect(divs[0].style.display).toBe('');
+    });
+
+    it('removes the fx-toggle-display attribute', function() {
+      expect(divs[0].hasAttribute('fx-toggle-display')).toBe(false);
+    });
+  });
+
+  describe('when the referenced property resolves truthy', function() {
+    it('shows the element', function() {
+      expect(divs[1].style.display).toBe('');
+    });
+
+    it('removes the fx-toggle-display attribute', function() {
+      expect(divs[1].hasAttribute('fx-toggle-display')).toBe(false);
+    });
+  });
+
+  describe('when the referenced property resolves to false', function() {
+    it('hides the element', function() {
+      expect(divs[2].style.display).toBe('none');
+    });
+
+    it('removes the fx-toggle-display attribute', function() {
+      expect(divs[2].hasAttribute('fx-toggle-display')).toBe(false);
+    });
+  });
+
+  describe('when the referenced property resolves to falsey', function() {
+    it('hides the element', function() {
+      expect(divs[3].style.display).toBe('none');
+    });
+
+    it('removes the fx-toggle-display attribute', function() {
+      expect(divs[3].hasAttribute('fx-toggle-display')).toBe(false);
+    });
+  });
+
+  describe('when the referenced property is a function', function() {
+    it('calls the method on viewInterface', function() {
+      expect(divs[4].style.display).toBe('none');
+    });
+
+    it('calls the method without arguments', function() {
+      expect(divs[5].style.display).toBe('none');
+    });
+
+    it('sets currElement to the element being processed', function() {
+      expect(divs[6].style.display).toBe('none');
+    });
+  });
+
+  describe('when the referenced property is not found', function() {
+    it('hides the element', function() {
+      expect(divs[7].style.display).toBe('none');
+    });
+  });
+
+  describe('when the referenced property is negated', function() {
+    it('uses the negation of the property', function() {
+      expect(divs[8].style.display).toBe('');
+    });
+  });
+
+  describe('when multiple properties are given', function() {
+    describe('when any are true', function() {
+      it('shows the element', function() {
+        expect(divs[9].style.display).toBe('');
+      });
+    });
+
+    describe('when all are false', function() {
+      it('hides the element', function() {
+        expect(divs[10].style.display).toBe('none');
+      });
+    });
+  });
+
+  describe('when combined with fx-attr-*, fx-toggle-class and processText', function() {
+    it('processes each', function() {
+      expect(divs[11].style.display).toBe('none');
+      expect(divs[11].className).toBe('trueProperty');
+      expect(divs[11].getAttribute('name')).toBe('bob');
+      expect(divs[11].textContent.trim()).toBe('bob');
+    });
+  });
+
+  afterAll(function() { document.body.removeChild(toggleDisplay); });
+});
+
+describe('addEventListeners', function() {
+  var addEventListeners = document.getElementById('add-event-listeners');
+  var ps = addEventListeners.getElementsByTagName('p');
+  var controller = fxjs.registeredControllers['addEventListeners'];
+
+  describe('when given one event type and one handler', function() {
+    it('attaches the handler to that event', function() {
+      ps[0].dispatchEvent(new MouseEvent('click'));
+      expect(controller.viewInterface.boolProp).toBe(true);
+    });
+
+    describe('when there is a space between the event type and the handler name', function() {
+      it('works the same', function() {
+        ps[1].dispatchEvent(new MouseEvent('click'));
+        expect(controller.viewInterface.boolProp).toBe(false);
+      });
+    });
+
+    describe('when there is a semicolon after the handler name', function() {
+      it('works the same', function() {
+        ps[2].dispatchEvent(new MouseEvent('click'));
+        expect(controller.viewInterface.boolProp).toBe(true);
+      });
+    });
+
+    it('removes the fx-on attribute', function() {
+      expect(ps[0].hasAttribute('fx-on')).toBe(false);
+    });
+  });
+
+  describe('when the referenced handler is a boolean property', function() {
+    it('toggles the truthiness of it', function() {
+      ps[3].dispatchEvent(new MouseEvent('click'));
+      expect(controller.viewInterface.boolProp).toBe(false);
+    });
+  });
+
+  describe('when the referenced handler is a function', function() {
+    it('is called on the viewInterface without any arguments', function() {
+      ps[4].dispatchEvent(new KeyboardEvent('keypress'));
+      expect(controller.argProp).toBeUndefined();
+    });
+
+    it('sets currElement to the element being processed', function() {
+      ps[5].dispatchEvent(new KeyboardEvent('keypress'));
+      expect(controller.viewInterface.argProp).toBe('curr-element');
+    });
+  });
+
+  describe('when multiple events are referenced, each with one handler', function() {
+    it('attaches the handler to each event', function() {
+      ps[6].dispatchEvent(new MouseEvent('click'));
+      expect(controller.viewInterface.boolProp).toBe(true);
+      ps[6].dispatchEvent(new KeyboardEvent('keypress'));
+      expect(controller.viewInterface.argProp).toBe('abc');
+    });
+  });
+
+  describe('when multiple handlers are attached to one event', function() {
+    it('fires each handler when the event is triggered', function() {
+      ps[7].dispatchEvent(new MouseEvent('click'));
+      expect(controller.viewInterface.boolProp).toBe(false);
+      expect(controller.viewInterface.argProp).toBe('123');
+    });
+  });
+
+  describe('when one handler is attached to multiple events', function() {
+    it('attaches the handler to all events', function() {
+      ps[8].dispatchEvent(new MouseEvent('click'));
+      expect(controller.viewInterface.boolProp).toBe(true);
+      ps[8].dispatchEvent(new KeyboardEvent('keypress'));
+      expect(controller.viewInterface.boolProp).toBe(false);
+    });
+  });
+
+  describe('when multiple handlers are attached to multiple events', function() {
+    it('calls all the handlers whenever any of the events is triggered', function() {
+      ps[9].dispatchEvent(new MouseEvent('click'));
+      expect(controller.viewInterface.boolProp).toBe(true);
+      expect(controller.viewInterface.count).toBe(1);
+      ps[9].dispatchEvent(new KeyboardEvent('keypress'));
+      expect(controller.viewInterface.boolProp).toBe(false);
+      expect(controller.viewInterface.count).toBe(2);
+    });
+  });
+
+  describe('when many varieties of assignments are combine', function() {
+    it('handles them all correctly', function() {
+      ps[10].dispatchEvent(new MouseEvent('click'));
+      expect(controller.viewInterface.argProp).toBe('combineAll');
+      ps[10].dispatchEvent(new KeyboardEvent('keypress'));
+      expect(controller.viewInterface.boolProp).toBe(true);
+      expect(controller.viewInterface.count).toBe(3);
+      ps[10].dispatchEvent(new Event('mouseover'));
+      expect(controller.viewInterface.count).toBe(4);
+      ps[10].dispatchEvent(new Event('mouseout'));
+      expect(controller.viewInterface.count).toBe(5);
+      ps[10].dispatchEvent(new KeyboardEvent('keydown'));
+      expect(controller.viewInterface.boolProp).toBe(false);
+      expect(controller.viewInterface.count).toBe(6);
+      ps[10].dispatchEvent(new KeyboardEvent('keyup'));
+      expect(controller.viewInterface.boolProp).toBe(true);
+      expect(controller.viewInterface.count).toBe(7);
+    });
+  });
+
+  afterAll(function() { document.body.removeChild(addEventListeners); });
+});

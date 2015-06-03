@@ -61,3 +61,31 @@ fxjs.controller('toggleClasses', {
   getName: 'bob',
   myText: 'hi!'
 });
+
+fxjs.controller('toggleDisplay', {
+  trueProperty: true,
+  truthyProperty: 'string',
+  falseProperty: false,
+  falseyProperty: undefined,
+  callThis: function() { return this.falseProperty; },
+  noArgs: function(arg1) { return arg1; },
+  useCurrElement: function() {
+    return this.currElement.id !== 'use-curr-element';
+  },
+  myName: 'bob',
+  myText: function() { return this.myName; }
+});
+
+fxjs.controller('addEventListeners', {
+  boolProp: false,
+  argProp: {},
+  count: 0,
+  handleClick: function() { this.boolProp = !this.boolProp; },
+  noArgs: function(arg1) { this.argProp = arg1; },
+  setCurrElement: function() { this.argProp = this.currElement.id; },
+  increment: function() { this.count++; }
+});
+
+fxjs.controller('checkbox', {
+  checkMe: false
+});

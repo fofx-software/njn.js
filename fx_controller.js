@@ -224,16 +224,18 @@ FXController.prototype.addEventListeners = function(element, lookupChain, indice
     }
   });
   eventsAndHandlers.forEach(function(eventAndHandler) {
-    var handlers = eventAndHandler[1].split(/, */);
-    element.addEventListener(eventAndHandler[0], function(e) {
-      handlers.forEach(function(handler) {
-        var result = this.getFromLookupChain(element, handler, lookupChain, indices, e);
-        if(fxjs.isBoolean(result)) {
-          var hasProperty = this.findInLookupChain(handler, lookupChain);
-          hasProperty[handler] = !result;
-        }
-      }, this);
-    }.bind(this), false);
+    if(eventAndHandler[0]) {
+      var handlers = eventAndHandler[1].split(/, */);
+      element.addEventListener(eventAndHandler[0], function(e) {
+        handlers.forEach(function(handler) {
+          var result = this.getFromLookupChain(element, handler, lookupChain, indices, e);
+          if(fxjs.isBoolean(result)) {
+            var hasProperty = this.findInLookupChain(handler, lookupChain);
+            hasProperty[handler] = !result;
+          }
+        }, this);
+      }.bind(this), false);
+    }
   }, this);
   element.removeAttribute('fx-on');
 }
