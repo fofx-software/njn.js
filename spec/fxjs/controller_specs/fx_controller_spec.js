@@ -445,7 +445,7 @@ describe('addEventListeners', function() {
     });
   });
 
-  describe('when many varieties of assignments are combine', function() {
+  describe('when many varieties of event/handler attachments are combined', function() {
     it('handles them all correctly', function() {
       ps[10].dispatchEvent(new MouseEvent('click'));
       expect(controller.viewInterface.argProp).toBe('combineAll');

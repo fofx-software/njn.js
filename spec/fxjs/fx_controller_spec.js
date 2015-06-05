@@ -1,20 +1,20 @@
 describe('FXController', function() {
 
-var linkedController, linkedDiv;
-
-beforeAll(function() {
-  linkedDiv = document.createElement('div');
-  linkedDiv.setAttribute('fx-controller', 'linkedController');
-  var innerDiv = document.createElement('div');
-  innerDiv.className = 'inner-div';
-  linkedDiv.appendChild(innerDiv);
-  var innerP = document.createElement('p');
-  innerP.textContent = 'inner p';
-  innerDiv.appendChild(innerP);
-  document.body.appendChild(linkedDiv);
-});
-
 describe('fxjs.controller()', function() {
+  var linkedController, linkedDiv;
+  
+  beforeAll(function() {
+    linkedDiv = document.createElement('div');
+    linkedDiv.setAttribute('fx-controller', 'linkedController');
+    var innerDiv = document.createElement('div');
+    innerDiv.className = 'inner-div';
+    linkedDiv.appendChild(innerDiv);
+    var innerP = document.createElement('p');
+    innerP.textContent = 'inner p';
+    innerDiv.appendChild(innerP);
+    document.body.appendChild(linkedDiv);
+  });
+
   describe('when only a name is given', function() {
     describe('if a controller has not already been registered with that name', function() {
       var newController;
@@ -50,155 +50,138 @@ describe('fxjs.controller()', function() {
         });
       });
 
-      describe('when no name is given', function() {
-        var unregistered;
+      describe('its liveElement\'s fx-controller attribute', function() {
+        it('is removed', function() {
+          expect(linkedController.liveElement.hasAttribute('fx-controller')).toBe(false);
+        });
+      });
+    });
 
-        it('initializes and returns a new FXController, but does not register it', function() {
-          expect(Object.keys(fxjs.registeredControllers).length).toBe(2);
-          unregistered = fxjs.controller();
-          expect(unregistered).toEqual(jasmine.any(fxjs.Controller));
-          expect(Object.keys(fxjs.registeredControllers).length).toBe(2);
+    describe('if a controller has been registered with its name', function() {
+      it('overrides the previous one', function() {
+        expect(fxjs.registeredControllers.newController).toEqual(jasmine.any(fxjs.Controller));
+        var overrider = fxjs.controller('newController');
+        expect(fxjs.registeredControllers.newController).toBe(overrider);
+      });
+    });
+  });
+
+  describe('when no name is given', function() {
+    var unregistered;
+
+    it('initializes and returns a new FXController, but does not register it', function() {
+      expect(Object.keys(fxjs.registeredControllers).length).toBe(2);
+      unregistered = fxjs.controller();
+      expect(unregistered).toEqual(jasmine.any(fxjs.Controller));
+      expect(Object.keys(fxjs.registeredControllers).length).toBe(2);
+    });
+
+    describe('the returned FXController', function() {
+      describe('its name property', function() {
+        it('is an own property', function() {
+          expect(unregistered.hasOwnProperty('name')).toBe(true);
         });
 
-        describe('the returned FXController', function() {
-          describe('its name property', function() {
-            it('is an own property', function() {
-              expect(unregistered.hasOwnProperty('name')).toBe(true);
-            });
+        it('is undefined', function() {
+          expect(unregistered.name).toBeUndefined();
+        });
+      });
 
-            it('is undefined', function() {
-              expect(unregistered.name).toBeUndefined();
-            });
-          });
+      describe('its template property', function() {
+        it('is an own property', function() {
+          expect(unregistered.hasOwnProperty('template')).toBe(true);
+        });
 
-          describe('its template property', function() {
-            it('is an own property', function() {
-              expect(unregistered.hasOwnProperty('template')).toBe(true);
-            });
+        it('is undefined', function() {
+          expect(unregistered.template).toBeUndefined();
+        });
+      });
 
-            it('is undefined', function() {
-              expect(unregistered.template).toBeUndefined();
-            });
-          });
+      it('has an empty viewInterface object', function() {
+        expect(unregistered.viewInterface).toEqual({});
+      });
 
-          it('has a viewInterface object', function() {
-            expect(unregistered.viewInterface).toEqual({});
-          });
+      describe('when a viewInterface object was given', function() {
+        var viewInterface = { prop: 'value' };
+        var withViewInterface = fxjs.controller(viewInterface);
 
-          describe('when a viewInterface object was given', function() {
-            var viewInterface = { prop: 'value' };
-            var withViewInterface = fxjs.controller(viewInterface);
-
-            describe('the returned FXController\'s viewInterface', function() {
-              it('is the given object', function() {
-                expect(withViewInterface.viewInterface).toBe(viewInterface);
-              });
-            });
+        describe('the returned FXController\'s viewInterface', function() {
+          it('is the given object', function() {
+            expect(withViewInterface.viewInterface).toBe(viewInterface);
           });
         });
       });
     });
   });
+
+  afterAll(function() {
+    linkedController.liveElement.parentElement.removeChild(linkedController.liveElement);
+  });
 });
 
 describe('init()', function() {
-  var liveElement;
-
+  var linkedController, linkedDiv, liveElements;
+  
   beforeAll(function() {
+    linkedDiv = document.createElement('div');
+    linkedDiv.setAttribute('fx-controller', 'linkedController');
+    linkedDiv.className = 'linked-div';
+    var innerDiv = document.createElement('div');
+    innerDiv.className = 'inner-div';
+    linkedDiv.appendChild(innerDiv);
+    document.body.appendChild(linkedDiv);
+    linkedController = new fxjs.Controller('linkedController', linkedDiv);
     linkedController.init();
-    liveElement = document.querySelectorAll('[fx-controller=linkedController]');
+    liveElements = document.getElementsByClassName('linked-div');
   });
+
 
   describe('the controller\'s template', function() {
     it('is replaced in the document by a clone', function() {
       // only the clone is in the document:
-      expect(liveElement.length).toBe(1);
+      expect(liveElements.length).toBe(1);
       // the clone is not the template:
-      expect(liveElement[0]).not.toBe(linkedController.template);
+      expect(liveElements[0]).not.toBe(linkedController.template);
       // just to confirm again that the template is not in the document:
       expect(linkedController.template.parentElement).toBeNull();
     });
 
     describe('its live clone', function() {
       it('contains clones of the template\'s child elements', function() {
-        var innerDiv = liveElement[0].querySelector('div.inner-div');
+        var innerDiv = liveElements[0].querySelector('div.inner-div');
           expect(innerDiv).not.toBeNull();
         var templateInnerDiv = linkedController.template.querySelector('div.inner-div');
           expect(innerDiv).not.toBe(templateInnerDiv);
-        var innerP = innerDiv.querySelector('p');
-          expect(innerP.textContent).toBe('inner p');
-        var templateInnerP = templateInnerDiv.querySelector('p');
-          expect(innerP).not.toBe(templateInnerP);
       });
     });
+  });
+
+  afterAll(function() {
+    linkedController.liveElement.parentElement.removeChild(linkedController.liveElement);
   });
 });
 
 describe('.refreshView()', function() {
-  var oldLiveElement;
+  var oldLiveElement, linkedController;
 
   beforeAll(function() {
-    oldLiveElement = document.querySelector('[fx-controller=linkedController]');
+    var linkedDiv = document.body.appendChild(document.createElement('div'));
+    linkedDiv.setAttribute('fx-controller', 'linkedController');
+    linkedController = fxjs.controller('linkedController');
+    oldLiveElement = linkedController.liveElement;
     linkedController.refreshView();
   });
 
   describe('the live element', function() {
     it('is replaced with a new clone of the template', function() {
-      var liveElement = document.querySelector('[fx-controller=linkedController]');
-      expect(liveElement).not.toBeNull();
-      expect(liveElement).not.toBe(oldLiveElement);
+      expect(linkedController.liveElement).not.toBe(oldLiveElement);
     });
   });
-});
 
-//describe('.processElement()', function() {
-//  describe('without a lookupChain or listIndex', function() {
-//    var templateElement = document.createElement('div');
-//    templateElement.setAttribute('fx-controller', 'processorController');
-//    templateElement.setAttribute('fx-attr-name', 'call-me-{{name}}');
-//
-//    var processText = document.createElement('span');
-//    processText.textContent = 'process {{text}}';
-//    templateElement.appendChild(processText);
-//
-//    var divWithChild = document.createElement('div');
-//    var processGrandchild = document.createElement('span');
-//    processGrandchild.textContent = 'process {{text}}, too!';
-//    divWithChild.appendChild(processGrandchild);
-//    templateElement.appendChild(divWithChild);
-//
-//    var withFXAttribute = document.createElement('p');
-//    withFXAttribute.setAttribute('fx-attr-name', 'son-of-{{name}}');
-//    templateElement.appendChild(withFXAttribute);
-//
-//    fxjs.controller('processorController', {
-//      text: 'this',
-//      name: function() { return 'ismael'; }
-//    }).processElement(templateElement);
-//
-//    describe('when the template element itself has an attribute to process', function() {
-//      it('processes any interpolator in the attribute', function() {
-//        expect(templateElement.getAttribute('name')).toBe('call-me-ismael');
-//      });
-//    });
-//
-//    describe('when a child\'s textContent has interpolable text', function() {
-//      describe('when the text corresponds to a non-function property in the controller viewInterface', function() {
-//        it('replaces the interpolable text with the property value', function() {
-//          expect(processText.textContent).toBe('process this');
-//        });
-//      });
-//    });
-//
-//    describe('when an a child of a child\'s textContent has interpolable text', function() {
-//      describe('when the text corresponds to a non-function property in the controller viewInterface', function() {
-//        it('replaces the interpolable text with the property value', function() {
-//          expect(processGrandchild.textContent).toBe('process this, too!');
-//        });
-//      });
-//    });
-//  });
-//});
+  afterAll(function() {
+    linkedController.liveElement.parentElement.removeChild(linkedController.liveElement);
+  });
+});
 
 describe('.processText()', function() {
   var controller = fxjs.controller({
@@ -1064,11 +1047,6 @@ describe('.buildList()', function() {
       expect(divText).toEqual(['Jack', 'Bob']);
     });
   });
-});
-
-afterAll(function() {
-  var linkedElement = document.querySelector('[fx-controller=linkedController]');
-  linkedElement.parentElement.removeChild(linkedElement);
 });
 
 });

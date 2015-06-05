@@ -18,18 +18,16 @@ fxjs.controller = function(controllerName, viewInterface) {
 
   var template;
 
-  if(fxjs.isDefined(controllerName)) {
+  if(fxjs.isString(controllerName)) {
     var query = '[fx-controller="' + controllerName + '"]';
     template = document.querySelector(query);
   }
 
   var controller = new FXController(controllerName, template, viewInterface);
+  if(template) { controller.init(); }
 
-  if(fxjs.isDefined(controllerName)) {
-    fxjs.registeredControllers[controllerName] = controller;
-  }
+  if(fxjs.isString(controllerName)) { fxjs.registeredControllers[controllerName] = controller; }
 
-  controller.init();
   return controller;
 }
 
@@ -53,14 +51,17 @@ FXController.prototype.refreshView = function() {
 }
 
 FXController.prototype.processElement = function(element, lookupChain, indices) {
+  element.removeAttribute('fx-controller');
+
   // copy lookupChain so changes in here don't affect outer scope:
   lookupChain = (lookupChain || []).slice();
+
   if(element.hasAttribute('fx-filter')) {
     lookupChain[0] = lookupChain[0].scope({ filter: element.getAttribute('fx-filter') });
   }
   if(element.hasAttribute('fx-foreach')) {
     var listName = element.getAttribute('fx-foreach');
-    var list = this.getFromLookupChain(element, listName, lookupChain, indices);
+    var list = this.getFromLookupChain(listName, lookupChain, indices), element;
     this.buildList(element, list, lookupChain, indices);
   } else {
     this.processAttributes(element, lookupChain, indices);
@@ -72,7 +73,7 @@ FXController.prototype.processElement = function(element, lookupChain, indices) 
         this.processElement(childNodes[i], lookupChain, indices);
       } else if(childNodes[i].nodeType === 3) {
         var textContent = childNodes[i].textContent;
-        var processedText = this.processText(element, textContent, lookupChain, indices);
+        var processedText = this.processText(textContent, lookupChain, indices, element);
         childNodes[i].textContent = processedText;
       }
     }
@@ -84,7 +85,7 @@ FXController.prototype.buildList = function(element, list, lookupChain, indices)
     var collection = list;
     var scope = { filter: 'all' };
     if(element.hasAttribute('fx-scope')) {
-      scope = this.getFromLookupChain(element, element.getAttribute('fx-scope'), lookupChain, indices);
+      scope = this.getFromLookupChain(element.getAttribute('fx-scope'), lookupChain, indices, element);
     }
     // quick fix, need to change:
     scope.set = function(propertyName, value) {
@@ -134,13 +135,13 @@ FXController.prototype.processAttributes = function(element, lookupChain, indice
   }, this);
 }
 
-FXController.prototype.processText = function(element, text, lookupChain, indices) {
+FXController.prototype.processText = function(text, lookupChain, indices, element) {
   var interpolator = /{{!?\w+\??}}/g;
   var matches = text.match(interpolator) || [];
   matches.forEach(function(match) {
     var negate = /^{{!/.test(match);
     var innerMatch = match.match(/\w+\??/)[0];
-    var replacement = this.getFromLookupChain(element, innerMatch, lookupChain, indices);
+    var replacement = this.getFromLookupChain(innerMatch, lookupChain, indices, element);
     if(negate) { replacement = !replacement; }
     text = text.replace(match, replacement);
   }, this);
@@ -156,7 +157,7 @@ FXController.prototype.findInLookupChain = function(propertyName, lookupChain) {
   }
 }
 
-FXController.prototype.getFromLookupChain = function(currElement, propertyName, lookupChain, indices, eventArg) {
+FXController.prototype.getFromLookupChain = function(propertyName, lookupChain, indices, currElement, eventArg) {
   lookupChain = lookupChain || [];
   indices = indices || [];
   var hasProperty = this.findInLookupChain(propertyName, lookupChain);
@@ -176,7 +177,7 @@ FXController.prototype.getFromLookupChain = function(currElement, propertyName, 
 
 FXController.prototype.configureAttribute = function(element, attr, lookupChain, indices) {
   var originalText = element.getAttribute(attr);
-  var newText = this.processText(element, originalText, lookupChain, indices);
+  var newText = this.processText(originalText, lookupChain, indices, element);
   var trueAttribute = attr.replace(/^fx-attr-/,'');
   element.setAttribute(trueAttribute, newText);
   element.removeAttribute(attr);
@@ -188,7 +189,7 @@ FXController.prototype.toggleClasses = function(element, lookupChain, indices) {
   if(classesToToggle) {
     classesToToggle = classesToToggle.split(/ +/);
     var classesToAdd = classesToToggle.filter(function(className) {
-      return this.getFromLookupChain(element, className, lookupChain, indices);
+      return this.getFromLookupChain(className, lookupChain, indices, element);
     }, this);
     if(classesToAdd.length) {
       var newClassName = classesToAdd.join(' ');
@@ -202,7 +203,7 @@ FXController.prototype.toggleDisplay = function(element, lookupChain, indices){
   var toggleProperties = element.getAttribute('fx-toggle-display').split(/ +/);
   var oneFound = toggleProperties.some(function(property) {
     var trueProperty = property.replace(/^!/,'');
-    var isTrue = this.getFromLookupChain(element, trueProperty, lookupChain, indices);
+    var isTrue = this.getFromLookupChain(trueProperty, lookupChain, indices, element);
     return trueProperty === property ? isTrue : !isTrue;
   }, this);
   element.style.display = oneFound ? '' : 'none';
@@ -228,7 +229,7 @@ FXController.prototype.addEventListeners = function(element, lookupChain, indice
       var handlers = eventAndHandler[1].split(/, */);
       element.addEventListener(eventAndHandler[0], function(e) {
         handlers.forEach(function(handler) {
-          var result = this.getFromLookupChain(element, handler, lookupChain, indices, e);
+          var result = this.getFromLookupChain(handler, lookupChain, indices, element, e);
           if(fxjs.isBoolean(result)) {
             var hasProperty = this.findInLookupChain(handler, lookupChain);
             hasProperty[handler] = !result;
@@ -242,7 +243,7 @@ FXController.prototype.addEventListeners = function(element, lookupChain, indice
 
 FXController.prototype.checkCheckbox = function(element, lookupChain, indices) {
   var checkboxProperty = element.getAttribute('fx-checked');
-  element.checked = this.getFromLookupChain(element, checkboxProperty, lookupChain, indices);
+  element.checked = this.getFromLookupChain(checkboxProperty, lookupChain, indices, element);
   element.removeAttribute('fx-checked');
 }
 
