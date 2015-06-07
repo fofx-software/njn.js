@@ -56,12 +56,15 @@ FXController.prototype.processElement = function(element, lookupChain, indices) 
   // copy lookupChain so changes in here don't affect outer scope:
   lookupChain = (lookupChain || []).slice();
 
-  if(element.hasAttribute('fx-filter')) {
+  // move to processAttributes to avoid confusion with buildList:
+  if(element.hasAttribute('fx-filter') && lookupChain[0] && lookupChain[0].isFXCollection) {
+// need to find in lookup chain, or use as string only
     lookupChain[0] = lookupChain[0].scope({ filter: element.getAttribute('fx-filter') });
   }
+
   if(element.hasAttribute('fx-foreach')) {
     var listName = element.getAttribute('fx-foreach');
-    var list = this.getFromLookupChain(listName, lookupChain, indices), element;
+    var list = this.getFromLookupChain(listName, lookupChain, indices, element);
     this.buildList(element, list, lookupChain, indices);
   } else {
     this.processAttributes(element, lookupChain, indices);
@@ -86,7 +89,20 @@ FXController.prototype.buildList = function(element, list, lookupChain, indices)
     var scope = { filter: 'all' };
     if(element.hasAttribute('fx-scope')) {
       scope = this.getFromLookupChain(element.getAttribute('fx-scope'), lookupChain, indices, element);
+      element.removeAttribute('fx-scope');
     }
+    ['fx-filter', 'fx-sort'].forEach(function(attributeName) {
+// unit test this, maybe separate into own method:
+      if(element.hasAttribute(attributeName)) {
+        var hasIt = this.findInLookupChain(element.getAttribute(attributeName), lookupChain, indices, element);
+        if(hasIt) {
+          scope[attributeName.replace('fx-','')] = hasIt[element.getAttribute(attributeName)];
+        } else {
+          scope[attributeName.replace('fx-','')] = element.getAttribute(attributeName);
+        }
+        element.removeAttribute(attributeName);
+      }
+    }, this);
     // quick fix, need to change:
     scope.set = function(propertyName, value) {
       scope[propertyName] = value;
@@ -102,7 +118,8 @@ FXController.prototype.buildList = function(element, list, lookupChain, indices)
   list.forEach(function(item, listIndex) {
     var cloneElement = element.cloneNode(true);
     cloneElement.removeAttribute('fx-foreach');
-    this.processElement(cloneElement, [item], [listIndex]);
+    this.processElement(cloneElement, [item].concat(lookupChain), [listIndex].concat(indices));
+// need to test lookupChain granularly
     elementParent.insertBefore(cloneElement, nextSibling);
     // quick fix, need to change:
     this.viewInterface[listIndex] = cloneElement;

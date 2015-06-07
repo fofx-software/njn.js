@@ -1047,6 +1047,8 @@ describe('.buildList()', function() {
       expect(divText).toEqual(['Jack', 'Bob']);
     });
   });
+
+  // test lookupChain in loops within loops
 });
 
 });

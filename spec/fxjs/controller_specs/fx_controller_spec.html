@@ -89,6 +89,55 @@
     <p fx-on="click, keypress: boolProp, increment;"></p>
     <p fx-on="click:setCurrElement; keypress: handleClick, increment;mouseover,mouseout:increment; keydown, keyup:boolProp, increment" id="combineAll"></p>
   </div>
+  <div fx-controller="checkCheckbox" id="check-checkbox">
+    <ul>
+      <li><input type="checkbox" fx-checked="trueProp"></li>
+      <li><input type="checkbox" fx-checked="truthyProp"></li>
+      <li><input type="checkbox" fx-checked="funcProp"></li>
+      <li><input type="checkbox" checked fx-checked="funcArgs"></li>
+      <li><input type="checkbox" checked fx-checked="falseProp"></li>
+      <li><input type="checkbox" checked fx-checked="falseyProp"></li>
+    </ul>
+  </div>
+  <div fx-controller="forEach" id="for-each">
+    <ul>
+      <li fx-foreach="arrayProp" class="array-prop"></li>
+    </ul>
+    <div fx-foreach="arrayProp" class="repeat-div" fx-attr-id="repeat-div-{{getCount}}" fx-attr-name="my-name-is-{{name}}">
+      {{name}}
+    </div>
+    <div fx-foreach="arrayProp" name="array-of-arrays" class="array-of-arrays">
+      {{getOuterText}}
+      <div fx-foreach="objects" fx-attr-id="{{name}}'s-object-{{num}}" class="inner-div" fx-attr-name="{{getInnerName}}">
+        {{getInnerText}}
+      </div>
+      {{getOuterText}}
+    </div>
+    <div fx-foreach="collectionProp" name="array-of-arrays" class="collection-of-collections">
+      {{getOuterText}}
+      <div fx-foreach="objects" fx-attr-id="{{name}}'s-object-{{num}}" class="inner-div" fx-attr-name="{{getInnerName}}">
+        {{getInnerText}}
+      </div>
+      {{getOuterText}}
+    </div>
+    <div fx-foreach="collectionProp" class="test-scope" fx-scope="pluralOnly">
+      <p fx-foreach="objects" fx-scope="greaterThan0"></p>
+    </div>
+    <div fx-foreach="collectionProp" class="test-filter" fx-filter="filterPluralOnly">
+      <p fx-foreach="objects" fx-filter="num"></p>
+    </div>
+    <div fx-foreach="collectionProp" class="test-sort" fx-sort="name" fx-attr-name="{{name}}">
+      <p fx-foreach="objects" fx-sort="reverseNum">{{num}}</p>
+    </div>
+    <div fx-foreach="collectionProp" class="filter-sort" fx-filter="filterPluralOnly" fx-sort="name">
+      {{name}}
+    </div>
+    <div fx-foreach="collectionProp" class="scope-filter" fx-scope="pluralOnly" fx-filter="name"></div>
+    <div fx-foreach="collectionProp" class="undefined-filter" fx-filter="noProp"></div>
+    <div fx-foreach="collectionProp" class="negated-filter">
+      <p fx-foreach="objects" fx-filter="!num"></p>
+    </div>
+  </div>
   <script type="text/javascript" src="controller_spec_setup.js"></script>
   <script type="text/javascript" src="fx_controller_spec.js"></script>
 </body>

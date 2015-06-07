@@ -86,6 +86,57 @@ fxjs.controller('addEventListeners', {
   increment: function() { this.count++; }
 });
 
-fxjs.controller('checkbox', {
-  checkMe: false
+fxjs.controller('checkCheckbox', {
+  trueProp: true,
+  truthyProp: {},
+  funcProp: function() { return this.trueProp; },
+  funcArgs: function(arg1) { return arg1; },
+  falseProp: false,
+  falseyProp: undefined
+});
+
+var objet = function(num) {
+  return {
+    num: num,
+    getInnerName: function(arg1) { return this.num + ' ' + arg1; }
+  };
+}
+
+var array = [
+  {
+    name: 'ron',
+    objects: [objet(0)]
+  },
+  {
+    name: 'joe',
+    objects: [objet(0), objet(1)]
+  },
+  {
+    name: 'bob',
+    objects: [objet(0), objet(1), objet(2)]
+  }
+];
+
+var arrayOfCollections = array.map(function(obj) {
+  return {
+    name: obj.name,
+    objects: fxjs.collection().concatMembers(obj.objects)
+  };
+});
+
+fxjs.controller('forEach', {
+  arrayProp: array,
+  collectionProp: fxjs.collection().concatMembers(arrayOfCollections),
+  getOuterText: function(outerMember, outerIndex, arg3) {
+    return this.currElement.getAttribute('name') + outerMember.name + outerIndex + arg3;
+  },
+  getInnerText: function(innerMember, outerMember, innerIndex, outerIndex, arg5) {
+    return this.currElement.className + innerMember.num + outerMember.name + innerIndex + outerIndex + arg5;
+  },
+  count: 0,
+  getCount: function() { return ++this.count; },
+  pluralOnly: { filter: function(obj) { return obj.objects.count() > 1; } },
+  filterPluralOnly: function(obj) { return obj.objects.count() > 1; },
+  greaterThan0: { filter: function(obj) { return obj.num > 0; } },
+  reverseNum: function(obj) { return 5 - obj.num; }
 });

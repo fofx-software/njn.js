@@ -53,6 +53,11 @@ FXCollection.prototype.addMembers = function() {
   return this;
 }
 
+FXCollection.prototype.concatMembers = function(array) {
+// test this
+  return this.addMembers.apply(this, array);
+}
+
 FXCollection.prototype.scope = function(scope) {
   var negated, collection = this;
   if(scope) {
