@@ -817,15 +817,58 @@ describe('fx-foreach', function() {
     });
   });
 
-  // test rebuild after change to watch
-
-  // test fx-context
-
-  // test fx-filter
-
-  // test fx-scope
-
-  // test watch
-
   afterAll(function() { forEach.parentElement.removeChild(forEach); });
 });
+
+describe('fx-context', function() {
+  var context = document.getElementById('context');
+  var spans = context.getElementsByTagName('span');
+
+  describe('when the textContent contains property references', function() {
+    it('puts the context object in the lookup chain', function() {
+      expect(spans[0].textContent.trim()).toBe('george');
+    });
+  });
+
+  describe('when the attributes contain property references', function() {
+    it('puts the context object in the lookup chain', function() {
+      expect(spans[0].getAttribute('name')).toBe('my-name-is-george');
+    });
+  });
+
+  describe('when fx-contexts are nested', function() {
+    var span = context.getElementsByTagName('p')[0].getElementsByTagName('span')[0];
+
+    it('prepends each new fx-context to the lookup chain', function() {
+      expect(span.textContent.trim()).toBe('My name is john and I belong to george');
+    });
+
+    describe('viewInterface methods called from within fx-context', function() {
+      it('take the fx-context objects as arguments, but no indices', function() {
+        expect(span.getAttribute('name')).toBe('johngeorgeundefined');
+      });
+    });
+
+    describe('when called within a foreach loop, viewInterface methods', function() {
+      it('adds the context object to the lookupChain, but does not change the indices', function() {
+        var array1s = context.getElementsByClassName('array-1');
+        var getArray2 = function(array1) { return array1.getElementsByTagName('div')[0].children; }
+        expect(getArray2(array1s[0])[0].textContent.trim()).toBe('john1georgea00undefined');
+        expect(getArray2(array1s[0])[1].textContent.trim()).toBe('john2georgea10undefined');
+        expect(getArray2(array1s[1])[0].textContent.trim()).toBe('john1georgeb01undefined');
+        expect(getArray2(array1s[1])[1].textContent.trim()).toBe('john2georgeb11undefined');
+        expect(getArray2(array1s[2])[0].textContent.trim()).toBe('john1georgec02undefined');
+        expect(getArray2(array1s[2])[1].textContent.trim()).toBe('john2georgec12undefined');
+      });
+    });
+  });
+
+  afterAll(function() { context.parentElement.removeChild(context); });
+});
+
+// test fx-filter
+
+// test fx-scope
+
+// test watch
+// test rebuild after change to watch

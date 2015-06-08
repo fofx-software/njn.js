@@ -149,3 +149,15 @@ fxjs.controller('forEach', {
     return 0;
   }
 });
+
+fxjs.controller('context', {
+  object1: { name: 'george', object2: { name2: 'john' } },
+  getName: function(obj1, obj2, arg3) {
+    return obj1.name2 + obj2.name + arg3;
+  },
+  array1: ['a', 'b', 'c'],
+  array2: [ 1, 2 ],
+  testArgs: function(obj2, arr2mem, obj1, arr1mem, arr2ind, arr1ind, arg7) {
+    return obj2.name2 + arr2mem + obj1.name + arr1mem + arr2ind + arr1ind + arg7;
+  }
+});

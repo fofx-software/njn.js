@@ -154,6 +154,21 @@
       <p fx-foreach="objects" fx-filter="!num"></p>
     </div>
   </div>
+  <div fx-controller="context" id="context">
+    <span fx-context="object1" fx-attr-name="my-name-is-{{name}}">{{name}}</span>
+    <p fx-context="object1">
+      <span fx-context="object2" fx-attr-name="{{getName}}">
+        My name is {{name2}} and I belong to {{name}}
+      </span>
+    </p>
+    <div fx-foreach="array1" class="array-1">
+      <div fx-context="object1">
+        <p fx-foreach="array2" class="array-2">
+          <span fx-context="object2">{{testArgs}}</span>
+        </p>
+      </div>
+    </div>
+  </div>
   <script type="text/javascript" src="controller_spec_setup.js"></script>
   <script type="text/javascript" src="fx_controller_spec.js"></script>
 </body>

@@ -56,6 +56,11 @@ FXController.prototype.processElement = function(element, lookupChain, indices) 
   // copy lookupChain so changes in here don't affect outer scope:
   lookupChain = (lookupChain || []).slice();
 
+  if(element.hasAttribute('fx-context')) {
+    var contextObject = this.getFromLookupChain(element.getAttribute('fx-context'), lookupChain, indices, element);
+    lookupChain = [contextObject].concat(lookupChain);
+  }
+
   // move to processAttributes to avoid confusion with buildList:
   if(element.hasAttribute('fx-filter') && lookupChain[0] && lookupChain[0].isFXCollection) {
 // need to find in lookup chain, or use as string only
