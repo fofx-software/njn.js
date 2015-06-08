@@ -619,6 +619,55 @@ describe('fx-foreach', function() {
         });
       });
     });
+
+    describe('when fx-filter is provided', function() {
+      describe('when the referenced property resolves to a function', function() {
+        it('passes the function as the argument to array.filter', function() {
+          expect(forEach.getElementsByClassName('array-filter-func').length).toBe(2);
+        });
+      });
+
+      describe('when the referenced property does not resolve', function() {
+        it('does not filter', function() {
+          expect(forEach.getElementsByClassName('array-filter-undefined').length).toBe(3);
+        });
+      });
+
+      describe('when the referenced property resolves to a non-function', function() {
+        it('does not filter', function() {
+          expect(forEach.getElementsByClassName('array-filter-nonfunc').length).toBe(3);
+        });
+      });
+    });
+
+    describe('when fx-sort is provided', function() {
+      describe('when the reference resolves to a function', function() {
+        it('passes the function to array.sort', function() {
+          var sortFuncs = forEach.getElementsByClassName('array-sort-func');
+          expect(sortFuncs[2].getElementsByTagName('p')[0].textContent.trim()).toBe('2');
+          expect(sortFuncs[2].getElementsByTagName('p')[1].textContent.trim()).toBe('1');
+          expect(sortFuncs[2].getElementsByTagName('p')[2].textContent.trim()).toBe('0');
+        });
+      });
+
+      describe('when the reference does not resolve', function() {
+        it('does not sort', function() {
+          var sortUndefs = forEach.getElementsByClassName('array-sort-undefined');
+          expect(sortUndefs[2].getElementsByTagName('p')[0].textContent.trim()).toBe('0');
+          expect(sortUndefs[2].getElementsByTagName('p')[1].textContent.trim()).toBe('1');
+          expect(sortUndefs[2].getElementsByTagName('p')[2].textContent.trim()).toBe('2');
+        });
+      });
+
+      describe('when the reference resolves to a non-function', function() {
+        it('does not sort', function() {
+          var sortNonFuncs = forEach.getElementsByClassName('array-sort-nonfunc');
+          expect(sortNonFuncs[2].getElementsByTagName('p')[0].textContent.trim()).toBe('0');
+          expect(sortNonFuncs[2].getElementsByTagName('p')[1].textContent.trim()).toBe('1');
+          expect(sortNonFuncs[2].getElementsByTagName('p')[2].textContent.trim()).toBe('2');
+        });
+      });
+    });
   });
 
   describe('when the referenced property is an FXCollection', function() {
@@ -657,9 +706,25 @@ describe('fx-foreach', function() {
       });
 
       describe('when the referenced property does not resolve', function() {
-        it('uses the string, which will be treated as a boolean property in individual members', function() {
-          expect(testFilters[1].getElementsByTagName('p').length).toBe(2);
-          expect(testFilters[0].getElementsByTagName('p').length).toBe(1);
+        describe('when the property in individual members is not a function', function() {
+          it('treats it as a boolean property', function() {
+            expect(testFilters[0].getElementsByClassName('filter-bool').length).toBe(1);
+            expect(testFilters[1].getElementsByClassName('filter-bool').length).toBe(2);
+          });
+        });
+
+        describe('when the property in individual members is undefined', function() {
+          it('filters the members to none', function() {
+            expect(testFilters[0].getElementsByClassName('filter-undefined').length).toBe(0);
+            expect(testFilters[1].getElementsByClassName('filter-undefined').length).toBe(0);
+          });
+        });
+
+        describe('when the property in individual members is a function', function() {
+          it('uses the function as the filter function in the scope', function() {
+            expect(testFilters[0].getElementsByClassName('filter-func').length).toBe(1);
+            expect(testFilters[1].getElementsByClassName('filter-func').length).toBe(2);
+          });
         });
       });
 
@@ -689,20 +754,42 @@ describe('fx-foreach', function() {
       var testSorts = forEach.getElementsByClassName('test-sort');
 
       describe('when the referenced property does not resolve in the lookup chain', function() {
-        it('uses the string, which will be treated as a boolean property in individual members', function() {
-          expect(testSorts[0].getAttribute('name')).toBe('bob');
-          expect(testSorts[1].getAttribute('name')).toBe('joe');
-          expect(testSorts[2].getAttribute('name')).toBe('ron');
+        describe('when the referenced property is a non-function in the members', function() {
+          it('sorts by the property in each member', function() {
+            expect(testSorts[0].getAttribute('name')).toBe('bob');
+            expect(testSorts[1].getAttribute('name')).toBe('joe');
+            expect(testSorts[2].getAttribute('name')).toBe('ron');
+          });
+        });
+
+        describe('when the referenced property is a function in the members', function() {
+          it('sorts by the return property of the function in each member', function() {
+            expect(testSorts[0].getElementsByClassName('sort-inner-func')[0].textContent.trim()).toBe('2');
+            expect(testSorts[0].getElementsByClassName('sort-inner-func')[1].textContent.trim()).toBe('1');
+            expect(testSorts[0].getElementsByClassName('sort-inner-func')[2].textContent.trim()).toBe('0');
+            expect(testSorts[1].getElementsByClassName('sort-inner-func')[0].textContent.trim()).toBe('1');
+            expect(testSorts[1].getElementsByClassName('sort-inner-func')[1].textContent.trim()).toBe('0');
+          });
+        });
+
+        describe('when the referenced property is undefined in the members', function() {
+          it('does not sort them', function() {
+            expect(testSorts[0].getElementsByClassName('sort-undefined')[0].textContent.trim()).toBe('0');
+            expect(testSorts[0].getElementsByClassName('sort-undefined')[1].textContent.trim()).toBe('1');
+            expect(testSorts[0].getElementsByClassName('sort-undefined')[2].textContent.trim()).toBe('2');
+            expect(testSorts[1].getElementsByClassName('sort-undefined')[0].textContent.trim()).toBe('0');
+            expect(testSorts[1].getElementsByClassName('sort-undefined')[1].textContent.trim()).toBe('1');
+          });
         });
       });
 
       describe('when the referenced property resolves to a function', function() {
         it('sorts the collection before iterating over its members', function() {
-          expect(testSorts[0].getElementsByTagName('p')[0].textContent.trim()).toBe('2');
-          expect(testSorts[0].getElementsByTagName('p')[1].textContent.trim()).toBe('1');
-          expect(testSorts[0].getElementsByTagName('p')[2].textContent.trim()).toBe('0');
-          expect(testSorts[1].getElementsByTagName('p')[0].textContent.trim()).toBe('1');
-          expect(testSorts[1].getElementsByTagName('p')[1].textContent.trim()).toBe('0');
+          expect(testSorts[0].getElementsByClassName('sort-outer-func')[0].textContent.trim()).toBe('2');
+          expect(testSorts[0].getElementsByClassName('sort-outer-func')[1].textContent.trim()).toBe('1');
+          expect(testSorts[0].getElementsByClassName('sort-outer-func')[2].textContent.trim()).toBe('0');
+          expect(testSorts[1].getElementsByClassName('sort-outer-func')[0].textContent.trim()).toBe('1');
+          expect(testSorts[1].getElementsByClassName('sort-outer-func')[1].textContent.trim()).toBe('0');
         });
       });
 

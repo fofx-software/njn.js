@@ -109,6 +109,20 @@ FXController.prototype.buildList = function(element, list, lookupChain, indices)
       collection.broadcastChange();
     }
     list = list.scope(scope).members;
+  } else {
+// unit test this:
+    ['fx-filter', 'fx-sort'].forEach(function(attributeName) {
+      if(element.hasAttribute(attributeName)) {
+        var hasIt = this.findInLookupChain(element.getAttribute(attributeName), lookupChain, indices, element);
+        if(hasIt) {
+          var func = hasIt[element.getAttribute(attributeName)];
+          if(fxjs.isFunction(func)) {
+            // slice to avoid altering array when sorting:
+            list = list.slice()[attributeName.replace('fx-','')](func);
+          }
+        }
+      }
+    }, this);
   }
 
   var nextSibling = element.nextSibling;

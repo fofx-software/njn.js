@@ -66,7 +66,7 @@ FXCollection.prototype.scope = function(scope) {
       scopedMembers = scopedMembers.filter(function(member) {
         var filter = scope.filter;
         if(fxjs.isFunction(filter)) {
-          return filter.call(null, member);
+          return filter.call(member, member);
         } else {
           var trueName = filter.replace(/^!/,'');
           var hasOwnProperty = member.hasOwnProperty(trueName);

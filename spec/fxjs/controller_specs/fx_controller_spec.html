@@ -120,14 +120,30 @@
       </div>
       {{getOuterText}}
     </div>
+    <div fx-foreach="arrayProp" class="array-filter-func" fx-filter="filterArray"></div>
+    <div fx-foreach="arrayProp" class="array-filter-undefined" fx-filter="undefinedFilter"></div>
+    <div fx-foreach="arrayProp" class="array-filter-nonfunc" fx-filter="nonFuncFilter"></div>
+    <div fx-foreach="arrayProp" class="array-sort-func">
+      <p fx-foreach="objects" fx-sort="sortArray">{{num}}</p>
+    </div>
+    <div fx-foreach="arrayProp" class="array-sort-undefined">
+      <p fx-foreach="objects" fx-sort="sortUndefined">{{num}}</p>
+    </div>
+    <div fx-foreach="arrayProp" class="array-sort-nonfunc">
+      <p fx-foreach="objects" fx-sort="sortNonFunc">{{num}}</p>
+    </div>
     <div fx-foreach="collectionProp" class="test-scope" fx-scope="pluralOnly">
       <p fx-foreach="objects" fx-scope="greaterThan0"></p>
     </div>
     <div fx-foreach="collectionProp" class="test-filter" fx-filter="filterPluralOnly">
-      <p fx-foreach="objects" fx-filter="num"></p>
+      <p fx-foreach="objects" class="filter-bool" fx-filter="num"></p>
+      <p fx-foreach="objects" class="filter-func" fx-filter="filterMe"></p>
+      <p fx-foreach="objects" class="filter-undefined" fx-filter="filterNot"></p>
     </div>
     <div fx-foreach="collectionProp" class="test-sort" fx-sort="name" fx-attr-name="{{name}}">
-      <p fx-foreach="objects" fx-sort="reverseNum">{{num}}</p>
+      <p fx-foreach="objects" class="sort-outer-func" fx-sort="reverseNum">{{num}}</p>
+      <p fx-foreach="objects" class="sort-inner-func" fx-sort="sortMe">{{num}}</p>
+      <p fx-foreach="objects" class="sort-undefined" fx-sort="sortNot">{{num}}</p>
     </div>
     <div fx-foreach="collectionProp" class="filter-sort" fx-filter="filterPluralOnly" fx-sort="name">
       {{name}}

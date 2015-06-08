@@ -98,7 +98,9 @@ fxjs.controller('checkCheckbox', {
 var objet = function(num) {
   return {
     num: num,
-    getInnerName: function(arg1) { return this.num + ' ' + arg1; }
+    getInnerName: function(arg1) { return this.num + ' ' + arg1; },
+    filterMe: function() { return this.num; },
+    sortMe: function() { return 5 - this.num; }
   };
 }
 
@@ -138,5 +140,12 @@ fxjs.controller('forEach', {
   pluralOnly: { filter: function(obj) { return obj.objects.count() > 1; } },
   filterPluralOnly: function(obj) { return obj.objects.count() > 1; },
   greaterThan0: { filter: function(obj) { return obj.num > 0; } },
-  reverseNum: function(obj) { return 5 - obj.num; }
+  reverseNum: function(obj) { return 5 - obj.num; },
+  filterArray: function(obj) { return obj.objects.length > 1; },
+  nonFuncFilter: 3,
+  sortArray: function(a, b) {
+    if(5 - a.num > 5 - b.num) return 1;
+    if(5 - a.num < 5 - b.num) return -1;
+    return 0;
+  }
 });
