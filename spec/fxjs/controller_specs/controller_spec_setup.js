@@ -147,7 +147,8 @@ fxjs.controller('forEach', {
     if(5 - a.num > 5 - b.num) return 1;
     if(5 - a.num < 5 - b.num) return -1;
     return 0;
-  }
+  },
+  arrayMask: [ { arrayMask: [ 1 ] }, { arrayMask: [ 3, 5, 7 ] } ]
 });
 
 fxjs.controller('context', {
@@ -159,5 +160,15 @@ fxjs.controller('context', {
   array2: [ 1, 2 ],
   testArgs: function(obj2, arr2mem, obj1, arr1mem, arr2ind, arr1ind, arg7) {
     return obj2.name2 + arr2mem + obj1.name + arr1mem + arr2ind + arr1ind + arg7;
-  }
+  },
+  objectMask: { objectMask: { name: 'inner' }, name: 'outer' }
+});
+
+fxjs.controller('fxFilter', {
+  arrayProp: [ 2, 3, 5, 7 ],
+  over3: function(num) { return num > 3; },
+  arrayOfArrays: [ [1, 3, 9], [5, 2], [6] ],
+  moreThan1: function(arr) { return arr.length > 1; },
+  greaterThan2: function(num) { return num > 2; },
+  objWithArray: { arrayProp: [ 1, 4, 8 ] }
 });

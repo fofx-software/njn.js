@@ -817,6 +817,31 @@ describe('fx-foreach', function() {
     });
   });
 
+  describe('when the list reference resolves to undefined', function() {
+    it('does nothing', function() {
+      var noList = forEach.getElementsByClassName('no-list');
+      // still has fx-foreach attribute because no processing has occurred:
+      expect(noList[0].hasAttribute('fx-foreach')).toBe(true);
+    });
+  });
+
+  describe('when the list reference resolves to a non-list', function() {
+    it('does nothing', function() {
+      var nonFuncFilter = forEach.getElementsByClassName('non-func-filter');
+      // still has fx-foreach attribute because no processing has occurred:
+      expect(nonFuncFilter[0].hasAttribute('fx-foreach')).toBe(true);
+    });
+  });
+
+  describe('when a property of an object in an inner foreach masks a property name of an object in the outer foreach loop', function() {
+    it('uses the proeprty in the inner foreach loop', function() {
+      var arrayMasks = forEach.getElementsByClassName('array-mask');
+      expect(arrayMasks.length).toBe(2);
+      expect(arrayMasks[0].children.length).toBe(1);
+      expect(arrayMasks[1].children.length).toBe(3);
+    });
+  });
+
   afterAll(function() { forEach.parentElement.removeChild(forEach); });
 });
 
@@ -863,12 +888,107 @@ describe('fx-context', function() {
     });
   });
 
+  describe('when an inner object has the same property name as an outer object', function() {
+    it('uses the inner-most object\'s property', function() {
+      var objectMask = context.getElementsByClassName('object-mask')[0];
+      expect(objectMask.childNodes[0].textContent.trim()).toBe('outer');
+      expect(objectMask.childNodes[1].textContent.trim()).toBe('inner');
+      expect(objectMask.childNodes[2].textContent.trim()).toBe('outer');
+    });
+  });
+
+  describe('when the property reference resolves to undefined', function() {
+    it('does nothing', function() {
+      expect(context.children[6].hasAttribute('fx-context')).toBe(true);
+    });
+  });
+
+  it('removes the fx-context attribute', function() {
+    expect(context.children[0].hasAttribute('fx-context')).toBe(false);
+    expect(context.children[1].hasAttribute('fx-context')).toBe(false);
+    expect(context.children[1].children[0].hasAttribute('fx-context')).toBe(false);
+    expect(context.children[2].children[0].hasAttribute('fx-context')).toBe(false);
+    expect(context.children[2].children[0].children[0].children[0].hasAttribute('fx-context')).toBe(false);
+    expect(context.children[5].hasAttribute('fx-context')).toBe(false);
+    expect(context.children[5].children[0].hasAttribute('fx-context')).toBe(false);
+  });
+
   afterAll(function() { context.parentElement.removeChild(context); });
 });
 
-// test fx-filter
+describe('fx-filter', function() {
+  var fxFilter = document.getElementById('fx-filter');
+  var ps = fxFilter.getElementsByTagName('p');
 
-// test fx-scope
+  describe('when given on the same element as fx-context', function() {
+    it('filters the list before processing other attributes', function() {
+      expect(ps[0].getAttribute('name')).toBe('2');
+    });
+
+    it('filters the list before processing textContent', function() {
+      expect(ps[0].textContent.trim()).toBe('2');
+    });
+
+    it('filters the list before processing childElements', function() {
+      var span = ps[0].getElementsByTagName('span')[0];
+      expect(span.className).toBe('2');
+    });
+  });
+
+  describe('when given in a child element', function() {
+    it('filters the nearest object in the lookup chain', function() {
+      expect(ps[1].children[0].children[0].textContent.trim()).toBe('2');
+    });
+  });
+
+  describe('when combined with fx-foreach', function() {
+    var arrayOfArrays = fxFilter.getElementsByClassName('array-of-arrays');
+
+    describe('when given in the same element as the fx-foreach', function() {
+      it('filters the toplevel list', function() {
+        expect(arrayOfArrays.length).toBe(2);
+      });
+    });
+
+    describe('when given in a child element', function() {
+      it('filters the sublist', function() {
+        expect(arrayOfArrays[0].children[0].textContent.trim()).toBe('2');
+        expect(arrayOfArrays[1].children[0].textContent.trim()).toBe('1');
+      });
+    });
+  });
+
+  describe('when the property reference resolves to undefined', function() {
+    it('does nothing', function() {
+      expect(ps[4].hasAttribute('fx-filter')).toBe(true);
+    });
+  });
+
+  describe('when the property reference resolves to a non-list', function() {
+    it('does nothing', function() {
+      expect(ps[5].hasAttribute('fx-filter')).toBe(true);
+    });
+  });
+
+  it('removes the fx-filter attribute', function() {
+    expect(ps[0].hasAttribute('fx-filter')).toBe(false);
+    expect(ps[1].children[0].children[0].hasAttribute('fx-filter')).toBe(false);
+    expect(ps[2].children[0].hasAttribute('fx-filter')).toBe(false);
+    expect(ps[3].children[0].hasAttribute('fx-filter')).toBe(false);
+  });
+
+  afterAll(function() { fxFilter.parentElement.removeChild(fxFilter); });
+});
+
+describe('fx-sort', function() {
+  var fxSort = document.getElementById('fx-sort');
+
+  afterAll(function() { fxSort.parentElement.removeChild(fxSort); });
+});
+
+// array indexing as property reference?
+
+// test fx-data
 
 // test watch
 // test rebuild after change to watch

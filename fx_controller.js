@@ -58,19 +58,25 @@ FXController.prototype.processElement = function(element, lookupChain, indices) 
 
   if(element.hasAttribute('fx-context')) {
     var contextObject = this.getFromLookupChain(element.getAttribute('fx-context'), lookupChain, indices, element);
-    lookupChain = [contextObject].concat(lookupChain);
+    if(fxjs.isDefined(contextObject)) {
+      lookupChain = [contextObject].concat(lookupChain);
+      element.removeAttribute('fx-context');
+    }
   }
 
-  // move to processAttributes to avoid confusion with buildList:
-  if(element.hasAttribute('fx-filter') && lookupChain[0] && lookupChain[0].isFXCollection) {
-// need to find in lookup chain, or use as string only
-    lookupChain[0] = lookupChain[0].scope({ filter: element.getAttribute('fx-filter') });
+  if(element.hasAttribute('fx-filter')) {
+    if(lookupChain[0] && (fxjs.isArray(lookupChain[0]) || lookupChain[0].isFXCollection)) {
+      lookupChain[0] = this.scopeList(element, lookupChain[0], lookupChain.slice(1), indices);
+    }
   }
 
   if(element.hasAttribute('fx-foreach')) {
     var listName = element.getAttribute('fx-foreach');
     var list = this.getFromLookupChain(listName, lookupChain, indices, element);
-    this.buildList(element, list, lookupChain, indices);
+    if(list && (fxjs.isArray(list) || list.isFXCollection)) {
+      list = this.scopeList(element, list, lookupChain, indices);
+      this.buildList(element, list, lookupChain, indices);
+    }
   } else {
     this.processAttributes(element, lookupChain, indices);
     // convert to an array to make it a non-live list. This prevents re-processing
@@ -88,7 +94,7 @@ FXController.prototype.processElement = function(element, lookupChain, indices) 
   }
 }
 
-FXController.prototype.buildList = function(element, list, lookupChain, indices) {
+FXController.prototype.scopeList = function(element, list, lookupChain, indices) {
   if(list.isFXCollection) {
     var collection = list;
     var scope = { filter: 'all' };
@@ -126,10 +132,15 @@ FXController.prototype.buildList = function(element, list, lookupChain, indices)
             list = list.slice()[attributeName.replace('fx-','')](func);
           }
         }
+        element.removeAttribute(attributeName);
       }
     }, this);
   }
 
+  return list;
+}
+
+FXController.prototype.buildList = function(element, list, lookupChain, indices) {
   var nextSibling = element.nextSibling;
   var elementParent = element.parentElement;
   elementParent.removeChild(element);

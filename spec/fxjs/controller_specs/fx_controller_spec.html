@@ -35,6 +35,11 @@
     <p>{{withTrailingSpace }}</p>
     {{ownText2}}
   </div>
+<!--
+
+end processText
+
+-->
   <div fx-controller="configureAttribute" id="configure-attribute" fx-attr-name="result of {{ownName}}">
     <div fx-attr-class="{{testArguments}}"></div>
     <div class="hide-me" fx-attr-style="{{useCurrElement}}"></div>
@@ -43,6 +48,14 @@
     <div fx-attr-class="{{firstTwoClasses}} {{thirdClass}}"></div>
     <div>{{processText1}}<span fx-attr-name="in the {{position}}">{{processInnerText}}</span>{{processText2}}</div>
   </div>
+<!--
+
+end fx-attr-*
+
+-->
+
+<!-- fx-data-* -->
+
   <div fx-controller="toggleClasses" fx-toggle-class="trueClass" id="toggle-classes">
     <ul fx-toggle-class="trueClass">
       <li fx-toggle-class="falseClass"></li>
@@ -62,6 +75,11 @@
       <li fx-attr-name="my name is {{getName}}" fx-toggle-class="trueClass falseClass">{{myText}}</li>
     </ul>
   </div>
+<!--
+
+end fx-toggle-class
+
+-->
   <div fx-controller="toggleDisplay" id="toggle-display">
     <div fx-toggle-display="trueProperty"></div>
     <div fx-toggle-display="truthyProperty"></div>
@@ -76,6 +94,11 @@
     <div fx-toggle-display="falseProperty falseyProperrty !trueProperty"></div>
     <div fx-toggle-display="falseProperty falseyProperty" fx-toggle-class="trueProperty noArgs" fx-attr-name='{{myName}}'>{{myText}}</div>
   </div>
+<!--
+
+end fx-toggle-display
+
+-->
   <div fx-controller="addEventListeners" id="add-event-listeners">
     <p fx-on="click:handleClick"></p>
     <p fx-on="click: handleClick"></p>
@@ -89,6 +112,11 @@
     <p fx-on="click, keypress: boolProp, increment;"></p>
     <p fx-on="click:setCurrElement; keypress: handleClick, increment;mouseover,mouseout:increment; keydown, keyup:boolProp, increment" id="combineAll"></p>
   </div>
+<!--
+
+end fx-on
+
+-->
   <div fx-controller="checkCheckbox" id="check-checkbox">
     <ul>
       <li><input type="checkbox" fx-checked="trueProp"></li>
@@ -99,6 +127,11 @@
       <li><input type="checkbox" checked fx-checked="falseyProp"></li>
     </ul>
   </div>
+<!--
+
+end fx-checked
+
+-->
   <div fx-controller="forEach" id="for-each">
     <ul>
       <li fx-foreach="arrayProp" class="array-prop"></li>
@@ -153,7 +186,17 @@
     <div fx-foreach="collectionProp" class="negated-filter">
       <p fx-foreach="objects" fx-filter="!num"></p>
     </div>
+    <div fx-foreach="noList" class="no-list"></div>
+    <div fx-foreach="nonFuncFilter" class="non-func-filter"></div>
+    <div fx-foreach="arrayMask" class="array-mask">
+      <p fx-foreach="arrayMask"></p>
+    </div>
   </div>
+<!--
+
+end fx-foreach
+
+-->
   <div fx-controller="context" id="context">
     <span fx-context="object1" fx-attr-name="my-name-is-{{name}}">{{name}}</span>
     <p fx-context="object1">
@@ -168,7 +211,47 @@
         </p>
       </div>
     </div>
+    <div fx-context="objectMask" class="object-mask">
+      {{name}}
+      <div fx-context="objectMask">{{name}}</div>
+      {{name}}
+    </div>
+    <div fx-context="noProp"></div>
   </div>
+<!--
+
+end fx-context
+
+-->
+  <div fx-controller="fxFilter" id="fx-filter">
+    <p fx-context="arrayProp" fx-attr-name="{{length}}" fx-filter="over3">
+      {{length}}
+      <span fx-attr-class="{{length}}"></span>
+    </p>
+    <p fx-context="objWithArray">
+      <span fx-context="arrayProp">
+        <b fx-filter="over3">{{length}}</b>
+      </span>
+    </p>
+    <p fx-foreach="arrayOfArrays" fx-filter="moreThan1" class="array-of-arrays">
+      <span fx-filter="greaterThan2">{{length}}</span>
+    </p>
+    <p fx-context="noProp" fx-filter="greaterThan2"></p>
+    <p fx-context="objWithArray" fx-filter="greaterThan2"></p>
+  </div>
+<!--
+
+end fx-filter
+
+-->
+  <div fx-controller="fxSort" id="fx-sort">
+
+  </div>
+<!--
+
+end fx-sort
+
+-->
   <script type="text/javascript" src="controller_spec_setup.js"></script>
   <script type="text/javascript" src="fx_controller_spec.js"></script>
 </body>
