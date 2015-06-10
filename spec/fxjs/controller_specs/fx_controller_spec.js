@@ -970,6 +970,56 @@ describe('fx-filter', function() {
     });
   });
 
+  describe('when the property does not resolve', function() {
+    it('does nothing', function() {
+      expect(ps[6].hasAttribute('fx-filter')).toBe(true);
+    });
+  });
+
+  describe('when the property reference resolves to an FXCollection', function() {
+    describe('when the property reference does not resolve', function() {
+      describe('when the property in the members is a string', function() {
+        it('filters the members using the property as a boolean', function() {
+          expect(ps[7].textContent.trim()).toBe('1');
+        });
+      });
+
+      describe('when the property in the members is a function', function() {
+        it('filters the members by calling the function on the object and/or passing the object to the function as the argument', function() {
+          expect(ps[11].textContent.trim()).toBe('2');
+        });
+      });
+
+      describe('when the property is not found in the members', function() {
+        it('filters the members to none', function() {
+          expect(ps[8].textContent.trim()).toBe('0');
+        });
+      });
+    });
+
+    describe('when the property reference resolves to a function', function() {
+      it('filters by calling the function on each member', function() {
+        expect(ps[9].textContent.trim()).toBe('2');
+      });
+
+      it('also passes each member to the function as its only argument', function() {
+        expect(ps[10].textContent.trim()).toBe('2');
+      });
+    });
+
+    describe('when the property reference resolves to a non-function and non-string', function() {
+      it('filters the members to none', function() {
+        expect(ps[12].textContent.trim()).toBe('0');
+      });
+    });
+
+    describe('when the property reference resolves to a string', function() {
+      it('uses the string to access properties in the members', function() {
+        expect(ps[13].textContent.trim()).toBe('1');
+      });
+    });
+  });
+
   it('removes the fx-filter attribute', function() {
     expect(ps[0].hasAttribute('fx-filter')).toBe(false);
     expect(ps[1].children[0].children[0].hasAttribute('fx-filter')).toBe(false);
@@ -986,9 +1036,9 @@ describe('fx-sort', function() {
   afterAll(function() { fxSort.parentElement.removeChild(fxSort); });
 });
 
+// test watch
+// test rebuild after change to watch
+
 // array indexing as property reference?
 
 // test fx-data
-
-// test watch
-// test rebuild after change to watch

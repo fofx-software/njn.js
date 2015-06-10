@@ -130,9 +130,9 @@ FXController.prototype.scopeList = function(element, list, lookupChain, indices)
           if(fxjs.isFunction(func)) {
             // slice to avoid altering array when sorting:
             list = list.slice()[attributeName.replace('fx-','')](func);
+            element.removeAttribute(attributeName);
           }
         }
-        element.removeAttribute(attributeName);
       }
     }, this);
   }

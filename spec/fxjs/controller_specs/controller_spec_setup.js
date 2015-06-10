@@ -170,5 +170,14 @@ fxjs.controller('fxFilter', {
   arrayOfArrays: [ [1, 3, 9], [5, 2], [6] ],
   moreThan1: function(arr) { return arr.length > 1; },
   greaterThan2: function(num) { return num > 2; },
-  objWithArray: { arrayProp: [ 1, 4, 8 ] }
+  objWithArray: { arrayProp: [ 1, 4, 8 ] },
+  collectionProp: fxjs.collection().addMembers(
+    { boolProp: true, num: 3, doStuff: function(obj) { return obj.boolProp; } },
+    { boolProp: false, num: 2, doStuff: function() { return this.boolProp; } },
+    { num: 5, doStuff: function() { return this.num; } }
+  ),
+  over2this: function() { return this.num > 2; },
+  over2arg: function(obj, arg1) { return !fxjs.isDefined(arg1) && obj.num > 2; },
+  boolProp1: true,
+  boolProp2: 'boolProp'
 });

@@ -236,17 +236,23 @@ end fx-context
     <p fx-foreach="arrayOfArrays" fx-filter="moreThan1" class="array-of-arrays">
       <span fx-filter="greaterThan2">{{length}}</span>
     </p>
+    <!--many of these are dubious. should they raise exceptions instead?-->
     <p fx-context="noProp" fx-filter="greaterThan2"></p>
     <p fx-context="objWithArray" fx-filter="greaterThan2"></p>
+    <p fx-context=arrayProp" fx-filter="noProp">{{length}}</p>
+    <p fx-context="collectionProp" fx-filter="boolProp">{{length}}</p>
+    <p fx-context="collectionProp" fx-filter="noProp">{{length}}</p>
+    <p fx-context="collectionProp" fx-filter="over2this">{{length}}</p>
+    <p fx-context="collectionProp" fx-filter="over2arg">{{length}}</p>
+    <p fx-context="collectionProp" fx-filter="doStuff">{{length}}</p>
+    <p fx-context="collectionProp" fx-filter="boolProp1">{{length}}</p>
+    <p fx-context="collectionProp" fx-filter="boolProp2">{{length}}</p>
   </div>
 <!--
 
 end fx-filter
 
 -->
-  <div fx-controller="fxSort" id="fx-sort">
-
-  </div>
 <!--
 
 end fx-sort

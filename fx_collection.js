@@ -67,14 +67,14 @@ FXCollection.prototype.scope = function(scope) {
         var filter = scope.filter;
         if(fxjs.isFunction(filter)) {
           return filter.call(member, member);
-        } else {
+        } else if(fxjs.isString(filter)) {
           var trueName = filter.replace(/^!/,'');
           var hasOwnProperty = member.hasOwnProperty(trueName);
           var isAlias = false;
           if(member.fxModel) { isAlias = member.fxModel.isAlias(trueName); }
           if(hasOwnProperty || isAlias) {
             var result = member[trueName];
-            if(fxjs.isFunction(result)) { result = result.call(member); }
+            if(fxjs.isFunction(result)) { result = result.call(member, member); }
             if(/^!/.test(filter) || negated) { result = !result; }
             return result;
           }
