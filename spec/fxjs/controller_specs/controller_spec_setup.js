@@ -181,3 +181,7 @@ fxjs.controller('fxFilter', {
   boolProp1: true,
   boolProp2: 'boolProp'
 });
+
+var fxWatch = fxjs.controller('watch', {
+  
+}, { name: 'watched' });

@@ -1,14 +1,15 @@
 (function defineFXController() {
 
-function FXController(name, template, viewInterface) {
+function FXController(name, template, viewInterface, watching) {
   this.name = name;
   this.template = template;
   this.viewInterface = viewInterface;
+  this.watching = watching;
 }
 
 fxjs.Controller = FXController;
 
-fxjs.controller = function(controllerName, viewInterface) {
+fxjs.controller = function(controllerName, viewInterface, watching) {
   if(fxjs.isObject(controllerName)) {
     viewInterface = controllerName;
     controllerName = undefined;
@@ -23,7 +24,7 @@ fxjs.controller = function(controllerName, viewInterface) {
     template = document.querySelector(query);
   }
 
-  var controller = new FXController(controllerName, template, viewInterface);
+  var controller = new FXController(controllerName, template, viewInterface, watching);
   if(template) { controller.init(); }
 
   if(fxjs.isString(controllerName)) { fxjs.registeredControllers[controllerName] = controller; }
@@ -34,7 +35,7 @@ fxjs.controller = function(controllerName, viewInterface) {
 FXController.prototype.init = function() {
   this.liveElement = this.template.cloneNode(true);
 
-  this.processElement(this.liveElement, this.watching ? [this.watching] : []);
+  this.processElement(this.liveElement, this.watching ? [].concat(this.watching) : []);
   this.template.parentElement.replaceChild(this.liveElement, this.template);
 }
 
@@ -46,7 +47,7 @@ FXController.prototype.refreshView = function() {
   var oldElement = this.liveElement;
   this.liveElement = this.template.cloneNode(true);
 
-  this.processElement(this.liveElement, this.watching ? [this.watching] : []);
+  this.processElement(this.liveElement, this.watching ? [].concat(this.watching) : []);
   oldElement.parentElement.replaceChild(this.liveElement, oldElement);
 }
 

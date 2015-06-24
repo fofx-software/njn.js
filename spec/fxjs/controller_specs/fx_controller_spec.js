@@ -1030,13 +1030,18 @@ describe('fx-filter', function() {
   afterAll(function() { fxFilter.parentElement.removeChild(fxFilter); });
 });
 
-describe('fx-sort', function() {
-  var fxSort = document.getElementById('fx-sort');
+describe('watch', function() {
+  var watch = document.getElementById('watch');
 
-  afterAll(function() { fxSort.parentElement.removeChild(fxSort); });
+  it('adds the watched object to the lookupChain', function() {
+    expect(watch.getAttribute('name')).toBe('watched');
+  });
+
+  afterAll(function() { watch.parentElement.removeChild(watch); });
+
+  // watching array
 });
 
-// test watch
 // test rebuild after change to watch
 
 // array indexing as property reference?

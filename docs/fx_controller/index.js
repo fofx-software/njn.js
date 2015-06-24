@@ -1,0 +1,3 @@
+fxjs.controller('body-controller', {
+
+});
