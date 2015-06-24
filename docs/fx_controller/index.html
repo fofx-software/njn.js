@@ -7,16 +7,22 @@
   <link rel="stylesheet" href="../prism.css"/>
   <style>
     body {
-      counter-reset: section subsection;
+      background-color: rgba(47,79,79,0.15);
     }
-    .list-section {
+    .section-break {
+      counter-reset: section;
+      background-color: rgba(47,79,79,0.3);
+      box-shadow: -5px 5px 5px gray;
+      padding: 10px;
+    }
+    h2 {
       counter-reset: subsection;
     }
-    .list-section h2 a::before {
+    h2 a::before {
       counter-increment: section;
       content: counter(section);
     }
-    .list-body {
+    .section-body {
       padding-left: 5%;
     }
     h3 a:first-of-type::before {
@@ -26,33 +32,30 @@
   </style>
 </head>
 <body fx-controller="body-controller">
-  <h1>fxjs.Controller</h1>
-  <p>is a module that makes it easy to build interactive web apps and DRY your HTML with powerful templating.</p>
+  <h1 class="section-break">fxjs.Controller</h1>
+  <p>A module that makes it easy to build interactive web apps and DRY your HTML with powerful templating.</p>
 
-  <div class="list-section">
-    <h2><a href=""></a>. Download the code:</h2>
-    <div class="list-body">
-      <h3><a href=""></a>. <a href="../../fx.js">fx.js</a></h3>
-      <h3><a href=""></a>. <a href="../../fx_controller.js">fx_controller.js</a></h3>
-    </div>
+  <h1 class="section-break">Quick Start</h1>
+
+  <h2><a href=""></a>. Download the code:</h2>
+  <div class="section-body">
+    <h3><a href=""></a>. <a href="http://github.com/fofx-software/fxjs/blob/master/fx.js">fx.js</a></h3>
+    <h3><a href=""></a>. <a href="http://github.com/fofx-software/fxjs/blob/master/fx_controller.js">fx_controller.js</a></h3>
   </div>
 
-  <div class="list-section">
-    <h2><a href=""></a>. Put it in your HTML:</h2>
-    <div class="list-body">
+  <h2><a href=""></a>. Put it in your HTML:</h2>
+  <div class="section-body">
 <!----><pre class="language-markup"><code>
 <!---->&lt;head&gt;
 <!---->  &lt;script src="fx.js"&gt;&lt;/script&gt; &lt;!--run fx.js first--&gt;
 <!---->  &lt;script src="fx_controller.js&gt;&lt;/script&gt;
 <!---->&lt;/head&gt;
 <!----></code></pre>
-    <i>syntax highlighting courtesy of <a href="http://prismjs.com" target="_blank">Prism</a></i>
-    </div>
+  <i>syntax highlighting courtesy of <a href="http://prismjs.com" target="_blank">Prism</a></i>
   </div>
 
-  <div class="list-section">
-    <h2><a href=""></a>. Quick setup</h2>
-    <div class="list-body">
+  <h2><a href=""></a>. Put it to work:</h2>
+  <div class="section-body">
 <!----><pre class="language-markup"><code id="code1">
 <!---->&lt;body&gt;
 <!---->  &lt;div fx-controller="example-controller"&gt;
@@ -65,34 +68,32 @@
 <!---->  &lt;/script&gt;
 <!---->&lt;/body&gt;
 <!----></code></pre>
-    </div>
   </div>
 
-  <div class="list-section">
-    <h2><a href=""></a>. Initialize the controller:</h2>
-    <div class="list-body">
-      <pre class="language-javascript"><code>fxjs.controller(); // returns an instance of fxjs.Controller</code></pre>
-      The first argument gives the new fxjs.Controller a name so you can reference it in your HTML:
-      <pre class="language-javascript"><code>fxjs.controller('example-controller');</code></pre>
-      The second argument provides the fxjs.Controller's <code class="language-javascript">viewInterface</code>:
+  <h1 class="section-break">Usage</h1>
+
+  <h2><a href=""></a>. Initialize the controller:</h2>
+  <div class="section-body">
+    <pre class="language-javascript"><code>fxjs.controller(); // returns an instance of fxjs.Controller</code></pre>
+    The first argument gives the new fxjs.Controller a name so you can reference it in your HTML:
+    <pre class="language-javascript"><code>fxjs.controller('example-controller');</code></pre>
+    The second argument provides the fxjs.Controller's <code class="language-javascript">viewInterface</code>:
 <!----><pre class="language-javascript"><code>
 <!---->fxjs.controller('example-controller', {
 <!---->  exampleText: 'hello world'
 <!---->});
 <!----></code></pre>
-    </div>
   </div>
 
-  <div class="list-section">
-    <h2><a href=""></a> Referencing the viewInterface</h2>
-    <div class="list-body">
-      The properties of the <code class="language-javascript">viewInterface</code> can be accessed from the HTML:
+  <h2><a href=""></a> Referencing the viewInterface</h2>
+  <div class="section-body">
+    The properties of the <code class="language-javascript">viewInterface</code> can be accessed from the HTML:
 <!----><pre class="language-markup"><code>
 <!---->&lt;div fx-controller="example-controller"&gt;{{exampleText}}&lt;/div&gt;
 <!---->&lt;script&gt;fxjs.controller('example-controller', { exampleText: 'hello world!' });&lt;/script&gt;
 <!----></code></pre>
-      <h3><a href=""></a>. Referencing a method in the viewInterface</h3>
-      When the property is a function, in normal cases it is called without any arguments:
+    <h3><a href=""></a>. Referencing a method in the viewInterface</h3>
+    When the property is a function, in normal cases it is called without any arguments:
 <!----><pre class="language-markup"><code>
 <!---->&lt;div fx-controller="example-controller"&gt;
 <!---->  {{getText}} &lt;!--processes to 'my text'--&gt;
@@ -103,7 +104,7 @@
 <!---->  });
 <!---->&lt;/script&gt;
 <!----></code></pre>
-      <h3><a href=""></a>. Referencing an object in the viewInterface</h3>
+    <h3><a href=""></a>. Referencing an object in the viewInterface</h3>
 <!----><pre class="language-markup"><code>
 <!---->&lt;div fx-controller="example-controller"&gt;
 <!---->  &lt;span fx-context="subObj"&gt;
@@ -116,7 +117,6 @@
 <!---->  });
 <!---->&lt;/script&gt;
 <!----></code></pre>
-    </div>
   </div>
 
   <script type="text/javascript" src="../prism.js"></script>
