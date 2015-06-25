@@ -29,6 +29,7 @@
       margin-bottom: 10px;
       position: relative;
       background: rgba(47,79,79,0.15);
+      overflow-x: auto;
     }
     h1 {
       margin: 10px 0px;
@@ -44,7 +45,7 @@
       padding: 10px 10px 0px 10px;
       text-decoration: none;
     }
-    .section-wrapper > a:first-of-type {
+    .section-wrapper > a {
       position: relative;
       top: -5px;
       left: -5px;
@@ -54,7 +55,7 @@
       background-color: rgb(47,79,79);
       color: white;
     }
-    .section-wrapper > a:first-of-type h2::before {
+    .section-wrapper > a h2::before {
       counter-increment: section;
       content: counter(section);
     }
