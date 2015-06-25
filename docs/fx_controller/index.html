@@ -36,16 +36,16 @@
     }
     h2 {
       counter-reset: subsection;
-      margin: 0px 0px 10px 0px;
+      margin: 5px 0px 10px 0px;
     }
     h3 {
       margin: 10px 0px;
     }
     .section-number {
-      padding: 10px 10px 0px 10px;
+      padding: 5px 10px 0px 10px;
       text-decoration: none;
     }
-    .section-wrapper > a {
+    .section-wrapper > div:first-of-type a {
       position: relative;
       top: -5px;
       left: -5px;
@@ -55,12 +55,15 @@
       background-color: rgb(47,79,79);
       color: white;
     }
-    .section-wrapper > a h2::before {
+    .section-wrapper > div:first-of-type a h2::before {
       counter-increment: section;
       content: counter(section);
     }
-    .section-body {
+    .section-wrapper > div:first-of-type > h2 {
       display: inline-block;
+    }
+    .section-body {
+      padding-left: 5%;
     }
     .section-body .section-number {
       padding-left: 0px;
@@ -84,18 +87,16 @@
   <h1 class="section-break">Quick Start</h1>
 
   <div class="section-wrapper">
-    <a class="section-number" href=""><h2></h2></a>
+    <div><a class="section-number" href=""><h2></h2></a><h2>Download the code:</h2></div>
     <div class="section-body">
-      <h2>Download the code:</h2>
       <h3><a class="section-number" href=""></a><a target="_blank" href="http://github.com/fofx-software/fxjs/blob/master/fx.js">fx.js</a></h3>
       <h3><a class="section-number" href=""></a><a target="_blank" href="http://github.com/fofx-software/fxjs/blob/master/fx_controller.js">fx_controller.js</a></h3>
     </div>
   </div>
 
   <div class="section-wrapper">
-    <a class="section-number" href=""><h2></h2></a>
+    <div><a class="section-number" href=""><h2></h2></a><h2>Put it in your HTML:</h2></div>
     <div class="section-body">
-      <h2>Put it in your HTML:</h2>
 <!----><pre class="language-markup"><code>
 <!---->&lt;head&gt;
 <!---->  &lt;script src="fx.js"&gt;&lt;/script&gt; &lt;!--run fx.js first--&gt;
@@ -107,9 +108,8 @@
   </div>
 
   <div class="section-wrapper">
-    <a class="section-number" href=""><h2></h2></a>
+    <div><a class="section-number" href=""><h2></h2></a><h2>Put it to work:</h2></div>
     <div class="section-body">
-      <h2>Put it to work:</h2>
 <!----><pre class="language-markup"><code id="code1">
 <!---->&lt;body&gt;
 <!---->  &lt;div fx-controller="example-controller"&gt;
@@ -128,9 +128,8 @@
   <h1 class="section-break">Usage</h1>
 
   <div class="section-wrapper">
-    <a class="section-number" href=""><h2></h2></a>
+    <div><a class="section-number" href=""><h2></h2></a><h2>Initialize the fxjs.Controller:</h2></div>
     <div class="section-body">
-      <h2>Initialize the fxjs.Controller:</h2>
       Initialize an instance of fxjs.Controller:
       <pre class="language-javascript"><code>fxjs.controller();</code></pre>
       The first argument gives the new fxjs.Controller a name so you can reference it in your HTML:
@@ -145,9 +144,8 @@
   </div>
 
   <div class="section-wrapper">
-    <a class="section-number" href=""><h2></h2></a>
+    <div><a class="section-number" href=""><h2></h2></a><h2>Reference the fxjs.Controller:</h2></div>
     <div class="section-body">
-      <h2>Reference the fxjs.Controller:</h2>
       Reference the fxjs.Controller by its name in an <code class="language-markup">fx-controller</code> attribute:
 <!----><pre class="language-markup"><code>
 <!---->&lt;div fx-controller="example-controller"&gt;&lt;/div&gt;
@@ -157,9 +155,8 @@
   </div>
 
   <div class="section-wrapper">
-    <a class="section-number" href=""><h2></h2></a>
+    <div><a class="section-number" href=""><h2></h2></a><h2>Access the viewInterface:</h2></div>
     <div class="section-body">
-      <h2>Access the viewInterface:</h2>
       The properties of the <code class="language-javascript">viewInterface</code> can be accessed from the HTML:
 <!----><pre class="language-markup"><code>
 <!---->&lt;div fx-controller="example-controller"&gt;{{exampleText}}&lt;/div&gt;
