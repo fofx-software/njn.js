@@ -7,25 +7,42 @@
   <link rel="stylesheet" href="../prism.css"/>
   <style>
     body {
-      background-color: rgba(47,79,79,0.15);
+      color: rgb(47,79,79);
     }
     .section-break {
       counter-reset: section;
-      background-color: rgba(47,79,79,0.3);
       box-shadow: -5px 5px 5px gray;
       padding: 10px;
+      background: rgba(47,79,79,0.15);
     }
+    .section-wrapper {
+      margin-left: 5%;
+      box-shadow: -5px 5px 5px gray;
+      padding: 5px;
+      padding-left: 5%;
+      margin-bottom: 10px;
+      position: relative;
+      background: rgba(47,79,79,0.15);
+    }
+    h1 { margin: 0px 10px 10px 0px; }
     h2 {
       counter-reset: subsection;
+      margin: 0px;
     }
-    h2 a::before {
+    .section-wrapper > a:first-of-type {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      padding: 10px;
+      background-color: rgb(47,79,79);
+      color: white;
+      text-decoration: none;
+    }
+    .section-wrapper > a:first-of-type h2::before {
       counter-increment: section;
       content: counter(section);
     }
-    .section-body {
-      padding-left: 5%;
-    }
-    h3 a:first-of-type::before {
+    h3 > a:first-of-type::before {
       counter-increment: subsection;
       content: counter(section) "." counter(subsection);
     }
@@ -33,29 +50,36 @@
 </head>
 <body fx-controller="body-controller">
   <h1 class="section-break">fxjs.Controller</h1>
-  <p>A module that makes it easy to build interactive web apps and DRY your HTML with powerful templating.</p>
+  <div class="section-wrapper">
+    A module that makes it easy to build interactive web apps and DRY your HTML with powerful templating.
+  </div>
 
   <h1 class="section-break">Quick Start</h1>
 
-  <h2><a href=""></a>. Download the code:</h2>
-  <div class="section-body">
-    <h3><a href=""></a>. <a href="http://github.com/fofx-software/fxjs/blob/master/fx.js">fx.js</a></h3>
-    <h3><a href=""></a>. <a href="http://github.com/fofx-software/fxjs/blob/master/fx_controller.js">fx_controller.js</a></h3>
+  <div class="section-wrapper">
+    <a href=""><h2></h2></a><h2>Download the code:</h2>
+    <div class="section-body">
+      <h3><a href=""></a><a href="http://github.com/fofx-software/fxjs/blob/master/fx.js">fx.js</a></h3>
+      <h3><a href=""></a><a href="http://github.com/fofx-software/fxjs/blob/master/fx_controller.js">fx_controller.js</a></h3>
+    </div>
   </div>
 
-  <h2><a href=""></a>. Put it in your HTML:</h2>
-  <div class="section-body">
+  <div class="section-wrapper">
+    <a href=""><h2></h2></a><h2>Put it in your HTML:</h2>
+    <div class="section-body">
 <!----><pre class="language-markup"><code>
 <!---->&lt;head&gt;
 <!---->  &lt;script src="fx.js"&gt;&lt;/script&gt; &lt;!--run fx.js first--&gt;
 <!---->  &lt;script src="fx_controller.js&gt;&lt;/script&gt;
 <!---->&lt;/head&gt;
 <!----></code></pre>
-  <i>syntax highlighting courtesy of <a href="http://prismjs.com" target="_blank">Prism</a></i>
+    <i>syntax highlighting courtesy of <a href="http://prismjs.com" target="_blank">Prism</a></i>
+    </div>
   </div>
 
-  <h2><a href=""></a>. Put it to work:</h2>
-  <div class="section-body">
+  <div class="section-wrapper">
+    <a href=""><h2></h2></a><h2>Put it to work:</h2>
+    <div class="section-body">
 <!----><pre class="language-markup"><code id="code1">
 <!---->&lt;body&gt;
 <!---->  &lt;div fx-controller="example-controller"&gt;
@@ -68,32 +92,36 @@
 <!---->  &lt;/script&gt;
 <!---->&lt;/body&gt;
 <!----></code></pre>
+    </div>
   </div>
 
   <h1 class="section-break">Usage</h1>
 
-  <h2><a href=""></a>. Initialize the controller:</h2>
-  <div class="section-body">
-    <pre class="language-javascript"><code>fxjs.controller(); // returns an instance of fxjs.Controller</code></pre>
-    The first argument gives the new fxjs.Controller a name so you can reference it in your HTML:
-    <pre class="language-javascript"><code>fxjs.controller('example-controller');</code></pre>
-    The second argument provides the fxjs.Controller's <code class="language-javascript">viewInterface</code>:
+  <div class="section-wrapper">
+    <a href=""><h2></h2></a><h2>Initialize the controller:</h2>
+    <div class="section-body">
+      <pre class="language-javascript"><code>fxjs.controller(); // returns an instance of fxjs.Controller</code></pre>
+      The first argument gives the new fxjs.Controller a name so you can reference it in your HTML:
+      <pre class="language-javascript"><code>fxjs.controller('example-controller');</code></pre>
+      The second argument provides the fxjs.Controller's <code class="language-javascript">viewInterface</code>:
 <!----><pre class="language-javascript"><code>
 <!---->fxjs.controller('example-controller', {
 <!---->  exampleText: 'hello world'
 <!---->});
 <!----></code></pre>
+    </div>
   </div>
 
-  <h2><a href=""></a> Referencing the viewInterface</h2>
-  <div class="section-body">
-    The properties of the <code class="language-javascript">viewInterface</code> can be accessed from the HTML:
+  <div class="section-wrapper">
+    <a href=""><h2></h2></a><h2>Referencing the viewInterface</h2>
+    <div class="section-body">
+      The properties of the <code class="language-javascript">viewInterface</code> can be accessed from the HTML:
 <!----><pre class="language-markup"><code>
 <!---->&lt;div fx-controller="example-controller"&gt;{{exampleText}}&lt;/div&gt;
 <!---->&lt;script&gt;fxjs.controller('example-controller', { exampleText: 'hello world!' });&lt;/script&gt;
 <!----></code></pre>
-    <h3><a href=""></a>. Referencing a method in the viewInterface</h3>
-    When the property is a function, in normal cases it is called without any arguments:
+      <h3><a href=""></a>Referencing a method in the viewInterface</h3>
+      When the property is a function, in normal cases it is called without any arguments:
 <!----><pre class="language-markup"><code>
 <!---->&lt;div fx-controller="example-controller"&gt;
 <!---->  {{getText}} &lt;!--processes to 'my text'--&gt;
@@ -104,7 +132,7 @@
 <!---->  });
 <!---->&lt;/script&gt;
 <!----></code></pre>
-    <h3><a href=""></a>. Referencing an object in the viewInterface</h3>
+      <h3><a href=""></a>Referencing an object in the viewInterface</h3>
 <!----><pre class="language-markup"><code>
 <!---->&lt;div fx-controller="example-controller"&gt;
 <!---->  &lt;span fx-context="subObj"&gt;
@@ -117,6 +145,7 @@
 <!---->  });
 <!---->&lt;/script&gt;
 <!----></code></pre>
+    </div>
   </div>
 
   <script type="text/javascript" src="../prism.js"></script>
