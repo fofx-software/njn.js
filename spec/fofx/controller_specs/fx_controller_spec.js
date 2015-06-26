@@ -362,7 +362,7 @@ describe('toggleDisplay', function() {
 describe('addEventListeners', function() {
   var addEventListeners = document.getElementById('add-event-listeners');
   var ps = addEventListeners.getElementsByTagName('p');
-  var controller = fxjs.registeredControllers['addEventListeners'];
+  var controller = fofx.registeredControllers['addEventListeners'];
 
   describe('when given one event type and one handler', function() {
     it('attaches the handler to that event', function() {

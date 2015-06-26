@@ -17,17 +17,17 @@ var modelWithEnumerables = {
   dateClass:      Date
 };
 
-// ^ test with fxjs utility classes
+// ^ test with fofx utility classes
 
-describe('fxjs.model', function() {
+describe('fofx.model', function() {
   describe('when given no object or an empty object as an argument', function() {
-    var withoutObject = fxjs.model();
-    var withEmptyObject = fxjs.model({});
+    var withoutObject = fofx.model();
+    var withEmptyObject = fofx.model({});
 
     describe('the returned FXModel object', function() {
       it('is an FXModel object', function() {
-        expect(withoutObject).toEqual(jasmine.any(fxjs.Model));
-        expect(withEmptyObject).toEqual(jasmine.any(fxjs.Model));
+        expect(withoutObject).toEqual(jasmine.any(fofx.Model));
+        expect(withEmptyObject).toEqual(jasmine.any(fofx.Model));
       });
 
       describe('its initialize function', function() {
@@ -58,7 +58,7 @@ describe('fxjs.model', function() {
   });
 
   describe('when an object with properties is given', function() {
-    var withObject = fxjs.model(modelWithEnumerables);
+    var withObject = fofx.model(modelWithEnumerables);
 
     describe('the returned FXModel object', function() {
       describe('its stored model', function() {
@@ -73,7 +73,7 @@ describe('fxjs.model', function() {
 
           describe('their values', function() {
             it('correspond to those of the given object', function() {
-              expect(fxjs.Object.values(withObject.model)).toEqual(fxjs.Object.values(modelWithEnumerables));
+              expect(fofx.Object.values(withObject.model)).toEqual(fofx.Object.values(modelWithEnumerables));
             });
           });
         });
@@ -84,7 +84,7 @@ describe('fxjs.model', function() {
 
 describe('.initialize()', function() {
   describe('when no enumerable properties were given', function() {
-    var withoutEnumerables = fxjs.model();
+    var withoutEnumerables = fofx.model();
     var newObject = withoutEnumerables.initialize();
     
     describe('when called, the returned object', function() {
@@ -114,7 +114,7 @@ describe('.initialize()', function() {
   });
 
   describe('when enumerable properties were given', function() {
-    var withEnumerables = fxjs.model(modelWithEnumerables);
+    var withEnumerables = fofx.model(modelWithEnumerables);
     var newObject = withEnumerables.initialize();
 
     describe('when called, the returned object', function() {
@@ -168,7 +168,7 @@ describe('.initialize()', function() {
 });
 
 describe('setting a model instance\'s properties', function() {
-  var newObject = fxjs.model(modelWithEnumerables).initialize();
+  var newObject = fofx.model(modelWithEnumerables).initialize();
 
   describe('when you try to set it to a value of a different type than was originally given', function() {
     it('will throw an exception', function() {
@@ -241,12 +241,12 @@ describe('setting a model instance\'s properties', function() {
 
 describe('.defineInitializer()', function() {
   it('returns the FXModel', function() {
-    var newModel = fxjs.model();
+    var newModel = fofx.model();
     expect(newModel.defineInitializer()).toBe(newModel);
   });
 
   it('adds a function to be run within .initialize()', function() {
-    var newModel = fxjs.model().defineInitializer(function() {
+    var newModel = fofx.model().defineInitializer(function() {
       this.newState = 'initialized';
     });
 
@@ -257,7 +257,7 @@ describe('.defineInitializer()', function() {
 
   describe('the inner initializer', function() {
     it('uses any arguments passed to .initialize()', function() {
-      var newModel = fxjs.model().defineInitializer(function(arg1, arg2) {
+      var newModel = fofx.model().defineInitializer(function(arg1, arg2) {
         this.arg1 = arg1;
         this.arg2 = arg2;
       });
@@ -269,7 +269,7 @@ describe('.defineInitializer()', function() {
     });
 
     it('is run *after* the enumerable properties\' rules are set on the modeled object', function() {
-      var newModel = fxjs.model({ stringProp: 'string' }).defineInitializer(function(arg) {
+      var newModel = fofx.model({ stringProp: 'string' }).defineInitializer(function(arg) {
         this.stringProp = arg;
       });
 
@@ -280,7 +280,7 @@ describe('.defineInitializer()', function() {
 
 describe('.create()', function() {
   var argObject = { name: '', age: Number };
-  var fxModel = fxjs.model(argObject);
+  var fxModel = fofx.model(argObject);
 
   describe('when given no argument', function() {
     it('is equivalent to .initialize()', function() {
@@ -328,7 +328,7 @@ describe('.create()', function() {
 
 describe('.aliasProperty()', function() {
   var argObject = { boolProp: Boolean, arrayProp: Array };
-  var fxModel = fxjs.model(argObject);
+  var fxModel = fofx.model(argObject);
   fxModel.aliasProperty('boolProp', 'boolAlias');
   fxModel.aliasProperty('!boolProp', 'boolNegate');
   fxModel.aliasProperty('arrayProp', 'arrayAlias');

@@ -1,4 +1,4 @@
-fxjs.controller('processText', {
+fofx.controller('processText', {
   ownText1: 'start text',
   ownText2: 'end text',
   ownTextInner: 'inner text',
@@ -24,7 +24,7 @@ fxjs.controller('processText', {
   withTrailingSpace: 'won\'t process'
 });
 
-fxjs.controller('configureAttribute', {
+fofx.controller('configureAttribute', {
   ownName: function() {
     return this.currElement.id;
   },
@@ -47,7 +47,7 @@ fxjs.controller('configureAttribute', {
   processText2: 'end text'
 });
 
-fxjs.controller('toggleClasses', {
+fofx.controller('toggleClasses', {
   trueClass: true,
   falseClass: false,
   noArgs: function(arg1) { return arg1; },
@@ -62,7 +62,7 @@ fxjs.controller('toggleClasses', {
   myText: 'hi!'
 });
 
-fxjs.controller('toggleDisplay', {
+fofx.controller('toggleDisplay', {
   trueProperty: true,
   truthyProperty: 'string',
   falseProperty: false,
@@ -76,7 +76,7 @@ fxjs.controller('toggleDisplay', {
   myText: function() { return this.myName; }
 });
 
-fxjs.controller('addEventListeners', {
+fofx.controller('addEventListeners', {
   boolProp: false,
   argProp: {},
   count: 0,
@@ -86,7 +86,7 @@ fxjs.controller('addEventListeners', {
   increment: function() { this.count++; }
 });
 
-fxjs.controller('checkCheckbox', {
+fofx.controller('checkCheckbox', {
   trueProp: true,
   truthyProp: {},
   funcProp: function() { return this.trueProp; },
@@ -122,13 +122,13 @@ var array = [
 var arrayOfCollections = array.map(function(obj) {
   return {
     name: obj.name,
-    objects: fxjs.collection().concatMembers(obj.objects)
+    objects: fofx.collection().concatMembers(obj.objects)
   };
 });
 
-fxjs.controller('forEach', {
+fofx.controller('forEach', {
   arrayProp: array,
-  collectionProp: fxjs.collection().concatMembers(arrayOfCollections),
+  collectionProp: fofx.collection().concatMembers(arrayOfCollections),
   getOuterText: function(outerMember, outerIndex, arg3) {
     return this.currElement.getAttribute('name') + outerMember.name + outerIndex + arg3;
   },
@@ -151,7 +151,7 @@ fxjs.controller('forEach', {
   arrayMask: [ { arrayMask: [ 1 ] }, { arrayMask: [ 3, 5, 7 ] } ]
 });
 
-fxjs.controller('context', {
+fofx.controller('context', {
   object1: { name: 'george', object2: { name2: 'john' } },
   getName: function(obj1, obj2, arg3) {
     return obj1.name2 + obj2.name + arg3;
@@ -164,24 +164,24 @@ fxjs.controller('context', {
   objectMask: { objectMask: { name: 'inner' }, name: 'outer' }
 });
 
-fxjs.controller('fxFilter', {
+fofx.controller('fxFilter', {
   arrayProp: [ 2, 3, 5, 7 ],
   over3: function(num) { return num > 3; },
   arrayOfArrays: [ [1, 3, 9], [5, 2], [6] ],
   moreThan1: function(arr) { return arr.length > 1; },
   greaterThan2: function(num) { return num > 2; },
   objWithArray: { arrayProp: [ 1, 4, 8 ] },
-  collectionProp: fxjs.collection().addMembers(
+  collectionProp: fofx.collection().addMembers(
     { boolProp: true, num: 3, doStuff: function(obj) { return obj.boolProp; } },
     { boolProp: false, num: 2, doStuff: function() { return this.boolProp; } },
     { num: 5, doStuff: function() { return this.num; } }
   ),
   over2this: function() { return this.num > 2; },
-  over2arg: function(obj, arg1) { return !fxjs.isDefined(arg1) && obj.num > 2; },
+  over2arg: function(obj, arg1) { return !fofx.isDefined(arg1) && obj.num > 2; },
   boolProp1: true,
   boolProp2: 'boolProp'
 });
 
-var fxWatch = fxjs.controller('watch', {
+var fxWatch = fofx.controller('watch', {
   
 }, { name: 'watched' });

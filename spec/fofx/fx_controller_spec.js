@@ -1,6 +1,6 @@
 describe('FXController', function() {
 
-describe('fxjs.controller()', function() {
+describe('fofx.controller()', function() {
   var linkedController, linkedDiv;
   
   beforeAll(function() {
@@ -20,10 +20,10 @@ describe('fxjs.controller()', function() {
       var newController;
 
       it('initializes, registers and returns a new FXController', function() {
-        expect(fxjs.registeredControllers.newController).toBeUndefined();
-        newController = fxjs.controller('newController');
-        expect(fxjs.registeredControllers.newController).toBe(newController);
-        expect(newController).toEqual(jasmine.any(fxjs.Controller));
+        expect(fofx.registeredControllers.newController).toBeUndefined();
+        newController = fofx.controller('newController');
+        expect(fofx.registeredControllers.newController).toBe(newController);
+        expect(newController).toEqual(jasmine.any(fofx.Controller));
       });
 
       describe('the new controller', function() {
@@ -36,7 +36,7 @@ describe('fxjs.controller()', function() {
 
           describe('when a linked element is found', function() {
             it('is the linked element', function() {
-              linkedController = fxjs.controller('linkedController');
+              linkedController = fofx.controller('linkedController');
               expect(linkedController.template).toBe(linkedDiv);
             });
 
@@ -59,9 +59,9 @@ describe('fxjs.controller()', function() {
 
     describe('if a controller has been registered with its name', function() {
       it('overrides the previous one', function() {
-        expect(fxjs.registeredControllers.newController).toEqual(jasmine.any(fxjs.Controller));
-        var overrider = fxjs.controller('newController');
-        expect(fxjs.registeredControllers.newController).toBe(overrider);
+        expect(fofx.registeredControllers.newController).toEqual(jasmine.any(fofx.Controller));
+        var overrider = fofx.controller('newController');
+        expect(fofx.registeredControllers.newController).toBe(overrider);
       });
     });
   });
@@ -70,10 +70,10 @@ describe('fxjs.controller()', function() {
     var unregistered;
 
     it('initializes and returns a new FXController, but does not register it', function() {
-      expect(Object.keys(fxjs.registeredControllers).length).toBe(2);
-      unregistered = fxjs.controller();
-      expect(unregistered).toEqual(jasmine.any(fxjs.Controller));
-      expect(Object.keys(fxjs.registeredControllers).length).toBe(2);
+      expect(Object.keys(fofx.registeredControllers).length).toBe(2);
+      unregistered = fofx.controller();
+      expect(unregistered).toEqual(jasmine.any(fofx.Controller));
+      expect(Object.keys(fofx.registeredControllers).length).toBe(2);
     });
 
     describe('the returned FXController', function() {
@@ -103,7 +103,7 @@ describe('fxjs.controller()', function() {
 
       describe('when a viewInterface object was given', function() {
         var viewInterface = { prop: 'value' };
-        var withViewInterface = fxjs.controller(viewInterface);
+        var withViewInterface = fofx.controller(viewInterface);
 
         describe('the returned FXController\'s viewInterface', function() {
           it('is the given object', function() {
@@ -130,7 +130,7 @@ describe('init()', function() {
     innerDiv.className = 'inner-div';
     linkedDiv.appendChild(innerDiv);
     document.body.appendChild(linkedDiv);
-    linkedController = new fxjs.Controller('linkedController', linkedDiv);
+    linkedController = new fofx.Controller('linkedController', linkedDiv);
     linkedController.init();
     liveElements = document.getElementsByClassName('linked-div');
   });
@@ -167,7 +167,7 @@ describe('.refreshView()', function() {
   beforeAll(function() {
     var linkedDiv = document.body.appendChild(document.createElement('div'));
     linkedDiv.setAttribute('fx-controller', 'linkedController');
-    linkedController = fxjs.controller('linkedController');
+    linkedController = fofx.controller('linkedController');
     oldLiveElement = linkedController.liveElement;
     linkedController.refreshView();
   });
@@ -184,7 +184,7 @@ describe('.refreshView()', function() {
 });
 
 describe('.processText()', function() {
-  var controller = fxjs.controller({
+  var controller = fofx.controller({
     stringProp: 'this',
     funcProp: function() { return this.stringProp; },
     withArgs: function(obj1, obj2, ind1, ind2) { return obj1 + ' ' + obj2 + ' ' + ind1 + ' ' + ind2; },
@@ -283,14 +283,14 @@ describe('.findInLookupChain()', function() {
   describe('when no lookupChain is given', function() {
     describe('if the property is found in the viewInterface', function() {
       it('returns the viewInterface', function() {
-        var controller = fxjs.controller({ prop: false });
+        var controller = fofx.controller({ prop: false });
         expect(controller.findInLookupChain('prop')).toBe(controller.viewInterface);
       });
     });
 
     describe('if the property is not found in the viewInterface', function() {
       it('returns undefined', function() {
-        var controller = fxjs.controller();
+        var controller = fofx.controller();
         expect(controller.findInLookupChain('prop')).toBeUndefined();
       });
     });
@@ -299,7 +299,7 @@ describe('.findInLookupChain()', function() {
   describe('when a lookupChain is given', function() {
     describe('if the property is found in the lookupChain', function() {
       it('returns the object in which the property is found', function() {
-        var controller = fxjs.controller();
+        var controller = fofx.controller();
         var obj1 = {};
         var obj2 = { prop: true };
         expect(controller.findInLookupChain('prop', [obj1, obj2])).toBe(obj2);
@@ -308,7 +308,7 @@ describe('.findInLookupChain()', function() {
 
     describe('if the property is not found in the lookupChain but is found in the viewInterface', function() {
       it('returns the viewInterface', function() {
-        var controller = fxjs.controller({ prop: true });
+        var controller = fofx.controller({ prop: true });
         var obj1 = {};
         var obj2 = {};
         expect(controller.findInLookupChain('prop', [obj1, obj2])).toBe(controller.viewInterface);
@@ -318,7 +318,7 @@ describe('.findInLookupChain()', function() {
 });
 
 describe('.getFromLookupChain()', function() {
-  var controller = fxjs.controller({
+  var controller = fofx.controller({
     stringProp: 'value',
     numProp: 17,
     uniqueProp: [],
@@ -422,7 +422,7 @@ describe('.configureAttribute()', function() {
   div.setAttribute('fx-attr-name', 'call-me-{{myName}}');
   div.setAttribute('fx-attr-class', '{{getName}}-div');
 
-  var controller = fxjs.controller({
+  var controller = fofx.controller({
     myName: 'ishmael',
     getName: function() { return this.myName; },
     myAge: 45,
@@ -522,7 +522,7 @@ describe('.toggleClasses()', function() {
       describe('when the property is true', function() {
         describe('when the property is found in the lookup chain', function() {
           it('adds the className to the element\'s class property', function() {
-            var controller = fxjs.controller({ boolProp: false });
+            var controller = fofx.controller({ boolProp: false });
             var div = makeDiv('boolProp');
 
             controller.toggleClasses(div, [{ boolProp: true }]);
@@ -532,7 +532,7 @@ describe('.toggleClasses()', function() {
 
         describe('when the property is found in the viewController', function() {
           it('adds the className to the element\'s class property', function() {
-            var controller = fxjs.controller({ boolProp: true });
+            var controller = fofx.controller({ boolProp: true });
             var div = makeDiv('boolProp');
 
             controller.toggleClasses(div, [{ boolPrp: false }]);
@@ -543,7 +543,7 @@ describe('.toggleClasses()', function() {
         describe('when there was no className', function() {
           it('starts a new className', function() {
             var div = makeDiv('newClass');
-            fxjs.controller({ newClass: true }).toggleClasses(div);
+            fofx.controller({ newClass: true }).toggleClasses(div);
             expect(div.className).toBe('newClass');
           });
         });
@@ -552,7 +552,7 @@ describe('.toggleClasses()', function() {
           it('adds to the className', function() {
             var div = makeDiv('addClass');
             div.className = 'addToMe';
-            fxjs.controller({ addClass: true }).toggleClasses(div);
+            fofx.controller({ addClass: true }).toggleClasses(div);
             expect(div.className).toBe('addToMe addClass');
           });
         });
@@ -560,7 +560,7 @@ describe('.toggleClasses()', function() {
 
       describe('when the property is truthy', function() {
         it('works the same as when it\'s true', function() {
-          var controller = fxjs.controller({ truthy: [] });
+          var controller = fofx.controller({ truthy: [] });
           var div = makeDiv('truthy');
           controller.toggleClasses(div);
           expect(div.className).toBe('truthy');
@@ -570,7 +570,7 @@ describe('.toggleClasses()', function() {
       describe('when the property is false', function() {
         describe('when there was no className', function() {
           it('does not add the className', function() {
-            var controller = fxjs.controller({ boolProp: false });
+            var controller = fofx.controller({ boolProp: false });
             var div = makeDiv('boolProp');
             controller.toggleClasses(div);
             expect(div.hasAttribute('class')).toBe(false);
@@ -581,7 +581,7 @@ describe('.toggleClasses()', function() {
           it('does not add the className', function() {
             var div = makeDiv('boolProp');
             div.className = 'addToMe';
-            fxjs.controller({ boolProp: false }).toggleClasses(div);
+            fofx.controller({ boolProp: false }).toggleClasses(div);
             expect(div.className).toBe('addToMe');
           });
         });
@@ -589,7 +589,7 @@ describe('.toggleClasses()', function() {
 
       describe('when the property is 0', function() {
         it('does not add the className', function() {
-          var controller = fxjs.controller({ num: 0 });
+          var controller = fofx.controller({ num: 0 });
           var div = makeDiv('num');
           controller.toggleClasses(div);
           expect(div.className).toBe('');
@@ -599,7 +599,7 @@ describe('.toggleClasses()', function() {
 
     describe('when the toggleClass does not correspond to a property found in the lookupChain', function() {
       it('does not add the className', function() {
-        var controller = fxjs.controller({ prop: 'value' });
+        var controller = fofx.controller({ prop: 'value' });
         var div = makeDiv('noProp');
         controller.toggleClasses(div);
         expect(div.className).toBe('');
@@ -610,7 +610,7 @@ describe('.toggleClasses()', function() {
       describe('when the className was added, the fx-toggle attribute', function() {
         it('should be removed', function() {
           var div = makeDiv('prop');
-          fxjs.controller({ prop: 'value' }).toggleClasses(div);
+          fofx.controller({ prop: 'value' }).toggleClasses(div);
           expect(div.hasAttribute('fx-toggle-class')).toBe(false);
         });
       });
@@ -618,7 +618,7 @@ describe('.toggleClasses()', function() {
       describe('when the className was not added, the fx-toggle attribute', function() {
         it('is removed', function() {
           var div = makeDiv('noProp');
-          fxjs.controller({ prop: 'value' }).toggleClasses(div);
+          fofx.controller({ prop: 'value' }).toggleClasses(div);
           expect(div.hasAttribute('fx-toggle-class')).toBe(false);
         });
       });
@@ -627,7 +627,7 @@ describe('.toggleClasses()', function() {
     describe('when there is no fx-toggle-class attribute', function() {
       it('changes nothing', function() {
         var div = document.createElement('div');
-        fxjs.controller({ prop: 'value' }).toggleClasses(div);
+        fofx.controller({ prop: 'value' }).toggleClasses(div);
         expect(div.hasAttribute('class')).toBe(false);
       });
     });
@@ -638,7 +638,7 @@ describe('.toggleClasses()', function() {
       describe('when there is no previous className', function() {
         it('creates a new className of them all', function() {
           var div = makeDiv('class1 class2 class3');
-          fxjs.controller({
+          fofx.controller({
             class1: true,
             class2: 'false',
             class3: 1
@@ -651,7 +651,7 @@ describe('.toggleClasses()', function() {
         it('adds all the classNames to the existing one', function() {
           var div = makeDiv('class1 class2 class3');
           div.className = 'already-here';
-          fxjs.controller({
+          fofx.controller({
             class1: true,
             class2: 'false',
             class3: 1
@@ -664,7 +664,7 @@ describe('.toggleClasses()', function() {
         it('works the same way', function() {
           var div = makeDiv('class1 class2 class3');
           div.className = 'already-here here-too';
-          fxjs.controller({
+          fofx.controller({
             class1: false,
             class3: true
           }).toggleClasses(div, [{ class2: true }, { class1: true }]);
@@ -677,7 +677,7 @@ describe('.toggleClasses()', function() {
       describe('when there is no previous className', function() {
         it('does not create one', function() {
           var div = makeDiv('class1 class2 class3');
-          fxjs.controller().toggleClasses(div);
+          fofx.controller().toggleClasses(div);
           expect(div.hasAttribute('class')).toBe(false);
         });
       });
@@ -686,7 +686,7 @@ describe('.toggleClasses()', function() {
         it('does not add to it', function() {
           var div = makeDiv('class1 class2 class3');
           div.className = 'already-here';
-          fxjs.controller().toggleClasses(div);
+          fofx.controller().toggleClasses(div);
           expect(div.className).toBe('already-here');
         });
       });
@@ -695,7 +695,7 @@ describe('.toggleClasses()', function() {
         it('works the same way', function() {
           var div = makeDiv('class1 class2 class3');
           div.className = 'already-here here-too';
-          fxjs.controller({
+          fofx.controller({
             class1: false,
             class3: true
           }).toggleClasses(div, [{}, { class3: false }]);
@@ -708,7 +708,7 @@ describe('.toggleClasses()', function() {
       describe('when there is no previous className', function() {
         it('adds the ones that are true to it', function() {
           var div = makeDiv('class1 class2 class3');
-          fxjs.controller({
+          fofx.controller({
             class1: true,
             class3: false
           }).toggleClasses(div);
@@ -720,7 +720,7 @@ describe('.toggleClasses()', function() {
         it('adds the ones that are true to it', function() {
           var div = makeDiv('class1 class2 class3');
           div.className = 'already-here here-too';
-          fxjs.controller({
+          fofx.controller({
             class1: true,
             class3: {}
           }).toggleClasses(div);
@@ -732,7 +732,7 @@ describe('.toggleClasses()', function() {
         it('works the same way', function() {
           var div = makeDiv('class1 class2 class3');
           div.className = 'already-here';
-          fxjs.controller({
+          fofx.controller({
             class1: false
           }).toggleClasses(div, [{ class3: true }, { class1: true }]);
           expect(div.className).toBe('already-here class1 class3');
@@ -752,7 +752,7 @@ describe('.toggleDisplay()', function() {
   describe('when one or more of the toggle properties are found true in the lookup chain', function() {
     it('sets the display style to empty string', function() {
       var div = makeDiv('toggle1 toggle2');
-      fxjs.controller({
+      fofx.controller({
         toggle1: false,
         toggle2: false
       }).toggleDisplay(div, [{ toggle2: true }]);
@@ -763,7 +763,7 @@ describe('.toggleDisplay()', function() {
   describe('when none of the toggle properties are found true in the lookup chain', function() {
     it('sets the display style to \'none\'', function() {
       var div = makeDiv('toggle1 toggle2');
-      fxjs.controller({
+      fofx.controller({
         toggle2: false
       }).toggleDisplay(div);
       expect(div.style.display).toBe('none');
@@ -774,7 +774,7 @@ describe('.toggleDisplay()', function() {
     describe('if the negated property is found true in the lookup chain', function() {
       it('contributes to setting the display property to \'none\'', function() {
         var div = makeDiv('toggle1 !toggle2');
-        fxjs.controller({
+        fofx.controller({
           toggle1: false,
           toggle2: false
         }).toggleDisplay(div, [{ toggle2: true }]);
@@ -785,7 +785,7 @@ describe('.toggleDisplay()', function() {
     describe('if the property is found false in the lookup chain', function() {
       it('works as if it were true', function() {
         var div = makeDiv('!toggle1 !toggle2');
-        fxjs.controller({
+        fofx.controller({
           toggle1: false,
           toggle2: false
         }).toggleDisplay(div);
@@ -796,7 +796,7 @@ describe('.toggleDisplay()', function() {
     describe('if the property is found undefined in the lookup chain', function() {
       it('works as if it were true', function() {
         var div = makeDiv('!toggle1');
-        fxjs.controller().toggleDisplay(div);
+        fofx.controller().toggleDisplay(div);
         expect(div.style.display).toBe('');
       });
     });
@@ -804,7 +804,7 @@ describe('.toggleDisplay()', function() {
 
   it('removes the toggle-display attribute', function() {
     var div = makeDiv('n/a');
-    fxjs.controller().toggleDisplay(div);
+    fofx.controller().toggleDisplay(div);
     expect(div.hasAttribute('fx-toggle-display')).toBe(false);
   });
 });
@@ -822,10 +822,10 @@ describe('.addEventListeners()', function() {
         describe('when the event handler is a function', function() {
           it('calls that function on the viewInterface with the event as its argument', function() {
             var div = makeDiv('click:setTrue');
-            var controller = fxjs.controller({
+            var controller = fofx.controller({
               bool: false,
               setTrue: function(e, arg1) {
-                if(fxjs.isDefined(arg1)) { return; }
+                if(fofx.isDefined(arg1)) { return; }
                 if(e.type === 'click') { this.bool = true; }
               }
             });
@@ -838,7 +838,7 @@ describe('.addEventListeners()', function() {
         describe('when the event handler is a boolean property', function() {
           it('toggles the truth of the property in the viewInterface', function() {
             var div = makeDiv('keydown:boolProp');
-            var controller = fxjs.controller({ boolProp: false });
+            var controller = fofx.controller({ boolProp: false });
             controller.addEventListeners(div);
             div.dispatchEvent(new KeyboardEvent('keydown'));
             expect(controller.viewInterface.boolProp).toBe(true);
@@ -849,7 +849,7 @@ describe('.addEventListeners()', function() {
       describe('when the event handler is not found in the viewInterface', function() {
         it('does nothing', function() {
           var div = makeDiv('click:notFound');
-          fxjs.controller().addEventListeners(div);
+          fofx.controller().addEventListeners(div);
           var dispatchEvent = function() { div.dispatchEvent(new MouseEvent('click')); }
           expect(dispatchEvent).not.toThrow();
         });
@@ -868,7 +868,7 @@ describe('.addEventListeners()', function() {
                 this.bool = true;
               }
             };
-            fxjs.controller().addEventListeners(div, [object]);
+            fofx.controller().addEventListeners(div, [object]);
             div.dispatchEvent(new KeyboardEvent('keydown'));
             expect(object.bool).toBe(true);
           });
@@ -879,7 +879,7 @@ describe('.addEventListeners()', function() {
             var div = makeDiv('click: boolProp');
             var object1 = {};
             var object2 = { boolProp: true };
-            fxjs.controller().addEventListeners(div, [object1, object2]);
+            fofx.controller().addEventListeners(div, [object1, object2]);
             div.dispatchEvent(new MouseEvent('click'));
             expect(object2.boolProp).toBe(false);
           });
@@ -892,7 +892,7 @@ describe('.addEventListeners()', function() {
     describe('when each event type has its own handler', function() {
       it('attaches the handler to that event type', function() {
         var div = makeDiv('click: clickEvent; keypress: keyEvent');
-        var controller = fxjs.controller({
+        var controller = fofx.controller({
           arrayProp: [],
           clickEvent: function(e) {
             this.arrayProp.push(e.type);
@@ -911,7 +911,7 @@ describe('.addEventListeners()', function() {
     describe('when more than one event type share a handler', function() {
       it('attaches the handler to each of those event types', function() {
         var div = makeDiv('click, keypress: pushType');
-        var controller = fxjs.controller({
+        var controller = fofx.controller({
           arrayProp: [],
           pushType: function(e) {
             this.arrayProp.push(e.type);
@@ -927,7 +927,7 @@ describe('.addEventListeners()', function() {
     describe('when an event type has more than one handler', function() {
       it('attaches all handlers to the event, calling them in order', function() {
         var div = makeDiv('click: pushType, pushBool');
-        var controller = fxjs.controller({
+        var controller = fofx.controller({
           arrayProp: [],
           pushType: function(e) {
             this.arrayProp.push(e.type);
@@ -945,7 +945,7 @@ describe('.addEventListeners()', function() {
     describe('when multiple event types share multiple handlers', function() {
       it('attaches all handlers to each event', function() {
         var div = makeDiv('click, keypress: pushType, pushBool');
-        var controller = fxjs.controller({
+        var controller = fofx.controller({
           arrayProp: [],
           pushType: function(e) {
             this.arrayProp.push(e.type);
@@ -964,7 +964,7 @@ describe('.addEventListeners()', function() {
 
   it('removes the fx-on attribute', function() {
     var div = makeDiv('click: doSomething');
-    fxjs.controller().addEventListeners(div);
+    fofx.controller().addEventListeners(div);
     expect(div.hasAttribute('fx-on')).toBe(false);
   });
 });
@@ -982,7 +982,7 @@ describe('.buildList()', function() {
   describe('when there is no sibling element', function() {
     it('repeats the given element for each members of the given list', function() {
       var parentDiv = makeDiv();
-      fxjs.controller().buildList(parentDiv.childDiv, ['a', 'b', 'c']);
+      fofx.controller().buildList(parentDiv.childDiv, ['a', 'b', 'c']);
       expect(parentDiv.children.length).toBe(3);
     });
   });
@@ -991,7 +991,7 @@ describe('.buildList()', function() {
     it('repeats the given element for each member of the given list, before the sibling element', function() {
       var parentDiv = makeDiv();
       parentDiv.appendChild(document.createElement('p'));
-      fxjs.controller().buildList(parentDiv.childDiv, [1, 2, 3]);
+      fofx.controller().buildList(parentDiv.childDiv, [1, 2, 3]);
       var childArray = Array.prototype.slice.call(parentDiv.children);
       var tagNames = childArray.map(function(element) { return element.tagName; });
       expect(tagNames).toEqual(['DIV', 'DIV', 'DIV', 'P']);
@@ -1003,7 +1003,7 @@ describe('.buildList()', function() {
       var parentDiv = makeDiv();
       parentDiv.insertBefore(document.createElement('p'), parentDiv.childDiv);
       parentDiv.appendChild(document.createElement('p'));
-      fxjs.controller().buildList(parentDiv.childDiv, [1, 2, 3]);
+      fofx.controller().buildList(parentDiv.childDiv, [1, 2, 3]);
       var childArray = Array.prototype.slice.call(parentDiv.children);
       var tagNames = childArray.map(function(element) { return element.tagName; });
       expect(tagNames).toEqual(['P', 'DIV', 'DIV', 'DIV', 'P']);
@@ -1012,7 +1012,7 @@ describe('.buildList()', function() {
 
   it('removes the original element', function() {
     var parentDiv = makeDiv();
-    fxjs.controller().buildList(parentDiv.childDiv, ['a', 'b', 'c']);
+    fofx.controller().buildList(parentDiv.childDiv, ['a', 'b', 'c']);
     var childArray = Array.prototype.slice.call(parentDiv.children);
     var isOriginal = childArray.some(function(element) {
       return element === parentDiv.childDiv;
@@ -1022,7 +1022,7 @@ describe('.buildList()', function() {
 
   it('removes the fx-foreach attribute from each clone', function() {
     var parentDiv = makeDiv();
-    fxjs.controller().buildList(parentDiv.childDiv, ['a', 'b', 'c']);
+    fofx.controller().buildList(parentDiv.childDiv, ['a', 'b', 'c']);
     var childArray = Array.prototype.slice.call(parentDiv.children);
     var hasAttribute = childArray.some(function(element) {
       return element.hasAttribute('fx-foreach');
@@ -1032,7 +1032,7 @@ describe('.buildList()', function() {
 
   describe('when given an FXCollection', function() {
     it('processes the element on each member of the collection', function() {
-      var collection = fxjs.collection({
+      var collection = fofx.collection({
         boolProp: true,
         name: ''
       }).addMembers(
@@ -1041,7 +1041,7 @@ describe('.buildList()', function() {
       );
       var parentDiv = makeDiv();
       parentDiv.childDiv.textContent = '{{name}}';
-      fxjs.controller().buildList(parentDiv.childDiv, collection);
+      fofx.controller().buildList(parentDiv.childDiv, collection);
       var childArray = Array.prototype.slice.call(parentDiv.children);
       var divText = childArray.map(function(element) { return element.textContent.trim(); });
       expect(divText).toEqual(['Jack', 'Bob']);

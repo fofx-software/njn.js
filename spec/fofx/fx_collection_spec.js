@@ -7,7 +7,7 @@ beforeEach(function() {
       return {
         compare: function(actual, expected) {
           return {
-            pass: fxjs.isFunction(actual[expected])
+            pass: fofx.isFunction(actual[expected])
           };
         }
       };
@@ -17,7 +17,7 @@ beforeEach(function() {
       return {
         compare: function(actual, expected) {
           return {
-            pass: (expected in actual) && !fxjs.isFunction(actual[expected])
+            pass: (expected in actual) && !fofx.isFunction(actual[expected])
           };
         }
       };
@@ -26,12 +26,12 @@ beforeEach(function() {
   });
 });
 
-describe('fxjs.collection()', function() {
+describe('fofx.collection()', function() {
   describe('when no argument is given', function() {
-    var newCollection = fxjs.collection();
+    var newCollection = fofx.collection();
 
     it('initializes and returns a new FXCollection', function() {
-      expect(newCollection).toEqual(jasmine.any(fxjs.Collection));
+      expect(newCollection).toEqual(jasmine.any(fofx.Collection));
     });
 
     describe('the new FXCollection', function() {
@@ -43,14 +43,14 @@ describe('fxjs.collection()', function() {
 
   describe('when a model is given', function() {
     it('initializes and returns a new FXCollection', function() {
-      var newCollection = fxjs.collection({});
-      expect(newCollection).toEqual(jasmine.any(fxjs.Collection));
+      var newCollection = fofx.collection({});
+      expect(newCollection).toEqual(jasmine.any(fofx.Collection));
     });
   });
 });
 
 describe('.defineModel()', function() {
-  var newCollection = new fxjs.Collection;
+  var newCollection = new fofx.Collection;
 
   it('gives the collection a memberModel', function() {
     expect(newCollection.memberModel).toBeUndefined();
@@ -60,12 +60,12 @@ describe('.defineModel()', function() {
 
   describe('the memberModel', function() {
     it('is an instance of FXModel', function() {
-      expect(newCollection.memberModel).toEqual(jasmine.any(fxjs.Model));
+      expect(newCollection.memberModel).toEqual(jasmine.any(fofx.Model));
     });
   });
 
   describe('when given an object argument', function() {
-    var withCustomModel = new fxjs.Collection;
+    var withCustomModel = new fofx.Collection;
     withCustomModel.defineModel({ prop1: 'someVal', boolProp: true });
 
     describe('each property of the given object', function() {
@@ -78,12 +78,12 @@ describe('.defineModel()', function() {
 });
 
 describe('.addMembers()', function() {
-  var withModel = (new fxjs.Collection).defineModel({
+  var withModel = (new fofx.Collection).defineModel({
     prop: 'someVal',
     boolProp: true
   });
 
-  var withoutModel = new fxjs.Collection;
+  var withoutModel = new fofx.Collection;
 
   it('returns the FXCollection', function() {
     expect(withModel.addMembers()).toBe(withModel);
@@ -128,7 +128,7 @@ describe('.addMembers()', function() {
 });
 
 describe('.scope()', function() {
-  var withScope = new fxjs.Collection;
+  var withScope = new fofx.Collection;
 
   withScope.addMembers(
     { rank: 3, keepMe: false, funcProp: function() { return this.keepMe; }                                       },
@@ -139,7 +139,7 @@ describe('.scope()', function() {
   var originalMembers = Array.prototype.slice.call(withScope.members);
 
   it('returns a new FXCollection', function() {
-    expect(withScope.scope({})).toEqual(jasmine.any(fxjs.Collection));
+    expect(withScope.scope({})).toEqual(jasmine.any(fofx.Collection));
   });
 
   describe('the returned FXCollection', function() {
@@ -147,7 +147,7 @@ describe('.scope()', function() {
 
     describe('its memberModel\'s inner model', function() {
       it('is the same as the original one', function() {
-        var withModel = fxjs.collection({ a: 1 });
+        var withModel = fofx.collection({ a: 1 });
         var scopedCollection = withModel.scope({});
         expect(scopedCollection.memberModel.model).toEqual(withModel.memberModel.model);
       });
@@ -322,8 +322,8 @@ describe('.scope()', function() {
       describe('when scope.sort is a function', function() {
         it('sorts by the return value of the function called on each member', function() {
           var sortedFunc = withScope.sort(function(member) {
-            if(fxjs.isDefined(member.varyProp)) {
-              if(fxjs.isFunction(member.varyProp)) {
+            if(fofx.isDefined(member.varyProp)) {
+              if(fofx.isFunction(member.varyProp)) {
                 return member.varyProp();
               } else {
                 return member.varyProp;
@@ -347,7 +347,7 @@ describe('.scope()', function() {
 });
 
 describe('.areAny()', function() {
-  var collection = (new fxjs.Collection).addMembers(
+  var collection = (new fofx.Collection).addMembers(
     { boolProp: true,  funcProp: function() { return 0; } },
     { boolProp: false, funcProp: function() { return 0; } },
     { boolProp: false, funcProp: function() { return 0; } }
@@ -375,7 +375,7 @@ describe('.areAny()', function() {
 });
 
 describe('.areAll()', function() {
-  var collection = (new fxjs.Collection).addMembers(
+  var collection = (new fofx.Collection).addMembers(
     { boolProp: true,  funcProp: function() { return 1; } },
     { boolProp: false, funcProp: function() { return 1; } },
     { boolProp: false, funcProp: function() { return 13; } }
