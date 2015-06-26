@@ -2,9 +2,9 @@
 
 var FXRouter = { routes: {} };
 
-fxjs.router = FXRouter;
+fofx.router = FXRouter;
 
-fxjs.route = function() {
+fofx.route = function() {
   var routes;
 
   if(arguments.length === 1) {
@@ -23,7 +23,7 @@ FXRouter.parseLocation = function() {
   var hash = location.hash.replace(/^#\//,'');
   if(FXRouter.routes[hash]) {
     FXRouter.routes[hash]();
-    fxjs.registeredControllers.watching(FXRouter).forEach(function(controller) {
+    fofx.registeredControllers.watching(FXRouter).forEach(function(controller) {
       controller.refreshView();
     });
     FXRouter.currentLocation = hash;
@@ -46,7 +46,7 @@ FXRouter.filter = function(scope) {
   for(var i = 1; i < arguments.length; i++) {
     (function(routeName) {
       var split = routeName.split(':');
-      fxjs.route(split[0], function() {
+      fofx.route(split[0], function() {
         scope.set('filter', split[1] || split[0]);
       });
     })(arguments[i]);

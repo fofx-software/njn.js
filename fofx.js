@@ -1,30 +1,30 @@
-var fxjs = {};
+var fofx = {};
 
 (function() {
   var controllersPrototype = {
     asArray: function() {
-      return(Object.getOwnPropertyNames(fxjs.registeredControllers).map(function(controllerName) {
-        return fxjs.registeredControllers[controllerName];
+      return(Object.getOwnPropertyNames(fofx.registeredControllers).map(function(controllerName) {
+        return fofx.registeredControllers[controllerName];
       }));
     },
-    
+
     watching: function(collection) {
-      return(fxjs.registeredControllers.asArray().filter(function(controller) {
+      return(fofx.registeredControllers.asArray().filter(function(controller) {
         return controller.watching === collection;
       }));
     },
-  
+
     reset: function() {
-      fxjs.registeredControllers = Object.create(controllersPrototype);
+      fofx.registeredControllers = Object.create(controllersPrototype);
     }
   };
   
-  fxjs.registeredControllers = Object.create(controllersPrototype);
+  fofx.registeredControllers = Object.create(controllersPrototype);
 })();
 
 // utilities:
 
-fxjs.isArray = function(value) {
+fofx.isArray = function(value) {
   if(Array.isArray) {
     return Array.isArray(value);
   } else {
@@ -32,60 +32,60 @@ fxjs.isArray = function(value) {
   }
 }
 
-fxjs.isBoolean = function(value) {
+fofx.isBoolean = function(value) {
   return typeof value === 'boolean';
 }
 
-fxjs.isDate = function(value) {
+fofx.isDate = function(value) {
   return value instanceof Date;
 }
 
-fxjs.isDefined = function(value) {
+fofx.isDefined = function(value) {
   return typeof value !== 'undefined';
 }
 
-fxjs.isFunction = function(value) {
+fofx.isFunction = function(value) {
   return typeof value === 'function';
 }
 
-fxjs.isNull = function(value) {
+fofx.isNull = function(value) {
   return value === null;
 }
 
-fxjs.isNumber = function(value) {
+fofx.isNumber = function(value) {
   return typeof value === "number" && value === value;
 }
 
-fxjs.isObject = function(value) {
+fofx.isObject = function(value) {
   if(typeof value !== 'object') return false;
-  if(fxjs.isDate(value)) return false;
-  if(fxjs.isArray(value)) return false;
-  if(fxjs.isNull(value)) return false;
+  if(fofx.isDate(value)) return false;
+  if(fofx.isArray(value)) return false;
+  if(fofx.isNull(value)) return false;
   return true;
 }
 
-fxjs.isRegExp = function(val) {
+fofx.isRegExp = function(val) {
   return val instanceof RegExp;
 }
 
-fxjs.isString = function(value) {
+fofx.isString = function(value) {
   return typeof value === 'string';
 }
 
-fxjs.typeOf = function(val) {
-  if(fxjs.isArray(val))       return Array;
-  if(fxjs.isBoolean(val))     return Boolean;
-  if(fxjs.isDate(val))        return Date;
-  if(!fxjs.isDefined(val))    return undefined;
-  if(fxjs.isFunction(val))    return Function;
-  if(fxjs.isNull(val))        return null;
-  if(fxjs.isNumber(val))      return Number;
-  if(fxjs.isObject(val))      return Object;
-  if(fxjs.isRegExp(val))      return RegExp;
-  if(fxjs.isString(val))      return String;
+fofx.typeOf = function(val) {
+  if(fofx.isArray(val))       return Array;
+  if(fofx.isBoolean(val))     return Boolean;
+  if(fofx.isDate(val))        return Date;
+  if(!fofx.isDefined(val))    return undefined;
+  if(fofx.isFunction(val))    return Function;
+  if(fofx.isNull(val))        return null;
+  if(fofx.isNumber(val))      return Number;
+  if(fofx.isObject(val))      return Object;
+  if(fofx.isRegExp(val))      return RegExp;
+  if(fofx.isString(val))      return String;
 }
 
-fxjs.camelCase = function(string) {
+fofx.camelCase = function(string) {
   var splitString = string.split(/[-_ ]/);
   for(var i = 1; i < splitString.length; i++) {
     var firstLetter = splitString[i].slice(0, 1).toUpperCase();
@@ -94,7 +94,7 @@ fxjs.camelCase = function(string) {
   return splitString.join('');
 }
 
-fxjs.isBlank = function(string) {
+fofx.isBlank = function(string) {
   var emptyString = string === '';
   var whiteSpace = !!string.match(/^\s+$/);
   return emptyString || whiteSpace;
@@ -102,9 +102,9 @@ fxjs.isBlank = function(string) {
 
 // mock classes:
 
-fxjs.Object = {
+fofx.Object = {
   clone: function(original, deep) {
-    if(fxjs.isArray(original)) {
+    if(fofx.isArray(original)) {
       return original.slice();
     } else {
       var newObj = Object.create(Object.getPrototypeOf(original));
@@ -115,7 +115,7 @@ fxjs.Object = {
     }
   },
   isCloneable: function(object) {
-    return fxjs.isObject(object) || fxjs.isArray(object);
+    return fofx.isObject(object) || fofx.isArray(object);
   },
   values: function(object) {
     var values = [];

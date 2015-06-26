@@ -5,9 +5,9 @@ function FXModel() {
   Object.defineProperty(this.model, 'fxModel', { value: this });
 }
 
-fxjs.Model = FXModel;
+fofx.Model = FXModel;
 
-fxjs.model = function(modelObject) {
+fofx.model = function(modelObject) {
   modelObject = modelObject || {};
   if(modelObject.isFXModel) return modelObject;
 
@@ -32,7 +32,7 @@ FXModel.prototype.initialize = function() {
     FXModel.transferProperty(newObject, this.model, propertyName);
   }, this);
 
-  if(fxjs.isFunction(this.innerInitializer)) {
+  if(fofx.isFunction(this.innerInitializer)) {
     this.innerInitializer.apply(newObject, arguments);
   }
 
@@ -95,20 +95,20 @@ FXModel.transferProperty = function(receiver, model, property) {
   var nativeClasses = [Array, Boolean, Date, Function, Number, Object, String];
   var isNativeClass = nativeClasses.indexOf(model[property]) > -1;
   var isNativeInstance = nativeClasses.find(function(klass) {
-    var found = fxjs.typeOf(model[property]) === klass;
+    var found = fofx.typeOf(model[property]) === klass;
     return found && (klass !== Function || !isNativeClass);
   });
   if(isNativeClass || isNativeInstance) {
     var underlyingValue = isNativeInstance ? model[property] : undefined;
-    if(fxjs.Object.isCloneable(underlyingValue)) {
-      underlyingValue = fxjs.Object.clone(underlyingValue);
+    if(fofx.Object.isCloneable(underlyingValue)) {
+      underlyingValue = fofx.Object.clone(underlyingValue);
     }
     var mustBeClass = isNativeInstance || model[property];
     Object.defineProperty(receiver, property, {
       enumerable: true,
       get: function() { return underlyingValue; },
       set: function(newValue) {
-        if(fxjs.typeOf(newValue) !== mustBeClass) {
+        if(fofx.typeOf(newValue) !== mustBeClass) {
           throw new Error('Value of ' + property + ' must be instance of ' + mustBeClass.name);
         }
         underlyingValue = newValue;

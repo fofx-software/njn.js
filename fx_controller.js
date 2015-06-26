@@ -7,10 +7,10 @@ function FXController(name, template, viewInterface, watching) {
   this.watching = watching;
 }
 
-fxjs.Controller = FXController;
+fofx.Controller = FXController;
 
-fxjs.controller = function(controllerName, viewInterface, watching) {
-  if(fxjs.isObject(controllerName)) {
+fofx.controller = function(controllerName, viewInterface, watching) {
+  if(fofx.isObject(controllerName)) {
     viewInterface = controllerName;
     controllerName = undefined;
   }
@@ -19,7 +19,7 @@ fxjs.controller = function(controllerName, viewInterface, watching) {
 
   var template;
 
-  if(fxjs.isString(controllerName)) {
+  if(fofx.isString(controllerName)) {
     var query = '[fx-controller="' + controllerName + '"]';
     template = document.querySelector(query);
   }
@@ -27,7 +27,7 @@ fxjs.controller = function(controllerName, viewInterface, watching) {
   var controller = new FXController(controllerName, template, viewInterface, watching);
   if(template) { controller.init(); }
 
-  if(fxjs.isString(controllerName)) { fxjs.registeredControllers[controllerName] = controller; }
+  if(fofx.isString(controllerName)) { fofx.registeredControllers[controllerName] = controller; }
 
   return controller;
 }
@@ -59,14 +59,14 @@ FXController.prototype.processElement = function(element, lookupChain, indices) 
 
   if(element.hasAttribute('fx-context')) {
     var contextObject = this.getFromLookupChain(element.getAttribute('fx-context'), lookupChain, indices, element);
-    if(fxjs.isDefined(contextObject)) {
+    if(fofx.isDefined(contextObject)) {
       lookupChain = [contextObject].concat(lookupChain);
       element.removeAttribute('fx-context');
     }
   }
 
   if(element.hasAttribute('fx-filter')) {
-    if(lookupChain[0] && (fxjs.isArray(lookupChain[0]) || lookupChain[0].isFXCollection)) {
+    if(lookupChain[0] && (fofx.isArray(lookupChain[0]) || lookupChain[0].isFXCollection)) {
       lookupChain[0] = this.scopeList(element, lookupChain[0], lookupChain.slice(1), indices);
     }
   }
@@ -74,7 +74,7 @@ FXController.prototype.processElement = function(element, lookupChain, indices) 
   if(element.hasAttribute('fx-foreach')) {
     var listName = element.getAttribute('fx-foreach');
     var list = this.getFromLookupChain(listName, lookupChain, indices, element);
-    if(list && (fxjs.isArray(list) || list.isFXCollection)) {
+    if(list && (fofx.isArray(list) || list.isFXCollection)) {
       list = this.scopeList(element, list, lookupChain, indices);
       this.buildList(element, list, lookupChain, indices);
     }
@@ -128,7 +128,7 @@ FXController.prototype.scopeList = function(element, list, lookupChain, indices)
         var hasIt = this.findInLookupChain(element.getAttribute(attributeName), lookupChain, indices, element);
         if(hasIt) {
           var func = hasIt[element.getAttribute(attributeName)];
-          if(fxjs.isFunction(func)) {
+          if(fofx.isFunction(func)) {
             // slice to avoid altering array when sorting:
             list = list.slice()[attributeName.replace('fx-','')](func);
             element.removeAttribute(attributeName);
@@ -199,7 +199,7 @@ FXController.prototype.processText = function(text, lookupChain, indices, elemen
 FXController.prototype.findInLookupChain = function(propertyName, lookupChain) {
   lookupChain = (lookupChain || []).concat(this.viewInterface);
   for(var i = 0; i < lookupChain.length; i++) {
-    if(fxjs.isDefined(lookupChain[i][propertyName])) {
+    if(fofx.isDefined(lookupChain[i][propertyName])) {
       return lookupChain[i];
     }
   }
@@ -211,7 +211,7 @@ FXController.prototype.getFromLookupChain = function(propertyName, lookupChain, 
   var hasProperty = this.findInLookupChain(propertyName, lookupChain);
   if(hasProperty) {
     var returnVal = hasProperty[propertyName];
-    if(fxjs.isFunction(returnVal)) {
+    if(fofx.isFunction(returnVal)) {
       this.viewInterface.currElement = currElement;
       var isInterface = hasProperty === this.viewInterface;
       var lookupArg = isInterface ? lookupChain.concat(indices) : [];
@@ -278,7 +278,7 @@ FXController.prototype.addEventListeners = function(element, lookupChain, indice
       element.addEventListener(eventAndHandler[0], function(e) {
         handlers.forEach(function(handler) {
           var result = this.getFromLookupChain(handler, lookupChain, indices, element, e);
-          if(fxjs.isBoolean(result)) {
+          if(fofx.isBoolean(result)) {
             var hasProperty = this.findInLookupChain(handler, lookupChain);
             hasProperty[handler] = !result;
           }

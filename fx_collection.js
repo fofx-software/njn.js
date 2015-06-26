@@ -4,9 +4,9 @@ function FXCollection() {
   this.members = [];
 }
 
-fxjs.Collection = FXCollection;
+fofx.Collection = FXCollection;
 
-fxjs.collection = function(model) {
+fofx.collection = function(model) {
   var collection = new FXCollection;
   if(model) { collection.defineModel(model); }
   return collection;
@@ -15,16 +15,16 @@ fxjs.collection = function(model) {
 FXCollection.prototype.isFXCollection = true;
 
 FXCollection.prototype.broadcastChange = function() {
-  fxjs.registeredControllers.watching(this).forEach(function(controller) {
+  fofx.registeredControllers.watching(this).forEach(function(controller) {
     controller.refreshView();
   });
 }
 
 FXCollection.prototype.defineModel = function(object) {
-  this.memberModel = fxjs.model(object);
+  this.memberModel = fofx.model(object);
   var collection = this;
   this.memberModel.define('set', function(property, value) {
-    if(fxjs.isObject(property)) {
+    if(fofx.isObject(property)) {
       Object.keys(property).forEach(function(key) {
         this[key] = property[key];
       }, this);
@@ -62,43 +62,43 @@ FXCollection.prototype.scope = function(scope) {
   var negated, collection = this;
   if(scope) {
     var scopedMembers = Array.prototype.slice.call(this.members);
-    if(fxjs.isDefined(scope.filter) && scope.filter !== 'all') {
+    if(fofx.isDefined(scope.filter) && scope.filter !== 'all') {
       scopedMembers = scopedMembers.filter(function(member) {
         var filter = scope.filter;
-        if(fxjs.isFunction(filter)) {
+        if(fofx.isFunction(filter)) {
           return filter.call(member, member);
-        } else if(fxjs.isString(filter)) {
+        } else if(fofx.isString(filter)) {
           var trueName = filter.replace(/^!/,'');
           var hasOwnProperty = member.hasOwnProperty(trueName);
           var isAlias = false;
           if(member.fxModel) { isAlias = member.fxModel.isAlias(trueName); }
           if(hasOwnProperty || isAlias) {
             var result = member[trueName];
-            if(fxjs.isFunction(result)) { result = result.call(member, member); }
+            if(fofx.isFunction(result)) { result = result.call(member, member); }
             if(/^!/.test(filter) || negated) { result = !result; }
             return result;
           }
         }
       }, this);
     }
-    if(fxjs.isDefined(scope.sort)) {
+    if(fofx.isDefined(scope.sort)) {
       scopedMembers = scopedMembers.sort(function(a, b) {
         var aVal, bVal;
-        if(fxjs.isString(scope.sort)) {
+        if(fofx.isString(scope.sort)) {
           var trueProp = scope.sort.replace(/^!/,'');
           aVal = a[trueProp];
           bVal = b[trueProp];
-          if(fxjs.isFunction(aVal)) aVal = aVal.call(a);
-          if(fxjs.isFunction(bVal)) bVal = bVal.call(b);
+          if(fofx.isFunction(aVal)) aVal = aVal.call(a);
+          if(fofx.isFunction(bVal)) bVal = bVal.call(b);
           if(/^!/.test(scope.sort)) {
             aVal = !aVal;
             bVal = !bVal;
           }
-        } else if(fxjs.isFunction(scope.sort)) {
+        } else if(fofx.isFunction(scope.sort)) {
           aVal = scope.sort.call(null, a);
           bVal = scope.sort.call(null, b);
         }
-        if(fxjs.typeOf(aVal) !== fxjs.typeOf(bVal)) {
+        if(fofx.typeOf(aVal) !== fofx.typeOf(bVal)) {
           var msg= 'cannot sort collection because member values ' + aVal + ' and ' + bVal + ' are not of same type';
           throw new TypeError(msg);
         }
@@ -109,10 +109,10 @@ FXCollection.prototype.scope = function(scope) {
     }
 
     var scopedCollection;
-    if(fxjs.isDefined(this.memberModel)) {
-      scopedCollection = fxjs.collection(collection.memberModel.model);
+    if(fofx.isDefined(this.memberModel)) {
+      scopedCollection = fofx.collection(collection.memberModel.model);
     } else {
-      scopedCollection = fxjs.collection();
+      scopedCollection = fofx.collection();
     }
     // transfer members directly so they are the same objects:
     scopedCollection.members = scopedMembers;
@@ -140,9 +140,9 @@ FXCollection.prototype.remove = function(member) {
 
 FXCollection.prototype.areAll = function(callbackOrProp) {
   return(this.members.every(function(member) {
-    if(fxjs.isString(callbackOrProp)) {
+    if(fofx.isString(callbackOrProp)) {
       var val = member[callbackOrProp];
-      if(fxjs.isFunction(val)) {
+      if(fofx.isFunction(val)) {
         return val.call(member);
       } else {
         return val;
@@ -155,9 +155,9 @@ FXCollection.prototype.areAll = function(callbackOrProp) {
 
 FXCollection.prototype.areAny = function(callbackOrProp) {
   return(this.members.some(function(member) {
-    if(fxjs.isString(callbackOrProp)) {
+    if(fofx.isString(callbackOrProp)) {
       var val = member[callbackOrProp];
-      if(fxjs.isFunction(val)) {
+      if(fofx.isFunction(val)) {
         return val.call(member);
       } else {
         return val;
