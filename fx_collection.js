@@ -1,30 +1,35 @@
-(function defineFXCollection() {
+// recalculable attributes
+// njn-style-*
+// viewInterface doctree
+// append when property reference resolves to htmlElement
 
-function FXCollection() {
+(function defineNJNCollection() {
+
+function NJNCollection() {
   this.members = [];
 }
 
-fofx.Collection = FXCollection;
+njn.Collection = NJNCollection;
 
-fofx.collection = function(model) {
-  var collection = new FXCollection;
+njn.collection = function(model) {
+  var collection = new NJNCollection;
   if(model) { collection.defineModel(model); }
   return collection;
 }
 
-FXCollection.prototype.isFXCollection = true;
+NJNCollection.prototype.isNJNCollection = true;
 
-FXCollection.prototype.broadcastChange = function() {
-  fofx.registeredControllers.watching(this).forEach(function(controller) {
+NJNCollection.prototype.broadcastChange = function() {
+  njn.registeredControllers.watching(this).forEach(function(controller) {
     controller.refreshView();
   });
 }
 
-FXCollection.prototype.defineModel = function(object) {
-  this.memberModel = fofx.model(object);
+NJNCollection.prototype.defineModel = function(object) {
+  this.memberModel = njn.model(object);
   var collection = this;
   this.memberModel.define('set', function(property, value) {
-    if(fofx.isObject(property)) {
+    if(njn.isObject(property)) {
       Object.keys(property).forEach(function(key) {
         this[key] = property[key];
       }, this);
@@ -37,7 +42,7 @@ FXCollection.prototype.defineModel = function(object) {
   return this;
 }
 
-FXCollection.prototype.addMembers = function() {
+NJNCollection.prototype.addMembers = function() {
   var candidates = arguments;
   for(var i = 0; i < candidates.length; i++) {
     var newMember = candidates[i];
@@ -53,52 +58,52 @@ FXCollection.prototype.addMembers = function() {
   return this;
 }
 
-FXCollection.prototype.concatMembers = function(array) {
+NJNCollection.prototype.concatMembers = function(array) {
 // test this
   return this.addMembers.apply(this, array);
 }
 
-FXCollection.prototype.scope = function(scope) {
+NJNCollection.prototype.scope = function(scope) {
   var negated, collection = this;
   if(scope) {
     var scopedMembers = Array.prototype.slice.call(this.members);
-    if(fofx.isDefined(scope.filter) && scope.filter !== 'all') {
+    if(njn.isDefined(scope.filter) && scope.filter !== 'all') {
       scopedMembers = scopedMembers.filter(function(member) {
         var filter = scope.filter;
-        if(fofx.isFunction(filter)) {
+        if(njn.isFunction(filter)) {
           return filter.call(member, member);
-        } else if(fofx.isString(filter)) {
+        } else if(njn.isString(filter)) {
           var trueName = filter.replace(/^!/,'');
           var hasOwnProperty = member.hasOwnProperty(trueName);
           var isAlias = false;
           if(member.fxModel) { isAlias = member.fxModel.isAlias(trueName); }
           if(hasOwnProperty || isAlias) {
             var result = member[trueName];
-            if(fofx.isFunction(result)) { result = result.call(member, member); }
+            if(njn.isFunction(result)) { result = result.call(member, member); }
             if(/^!/.test(filter) || negated) { result = !result; }
             return result;
           }
         }
       }, this);
     }
-    if(fofx.isDefined(scope.sort)) {
+    if(njn.isDefined(scope.sort)) {
       scopedMembers = scopedMembers.sort(function(a, b) {
         var aVal, bVal;
-        if(fofx.isString(scope.sort)) {
+        if(njn.isString(scope.sort)) {
           var trueProp = scope.sort.replace(/^!/,'');
           aVal = a[trueProp];
           bVal = b[trueProp];
-          if(fofx.isFunction(aVal)) aVal = aVal.call(a);
-          if(fofx.isFunction(bVal)) bVal = bVal.call(b);
+          if(njn.isFunction(aVal)) aVal = aVal.call(a);
+          if(njn.isFunction(bVal)) bVal = bVal.call(b);
           if(/^!/.test(scope.sort)) {
             aVal = !aVal;
             bVal = !bVal;
           }
-        } else if(fofx.isFunction(scope.sort)) {
+        } else if(njn.isFunction(scope.sort)) {
           aVal = scope.sort.call(null, a);
           bVal = scope.sort.call(null, b);
         }
-        if(fofx.typeOf(aVal) !== fofx.typeOf(bVal)) {
+        if(njn.typeOf(aVal) !== njn.typeOf(bVal)) {
           var msg= 'cannot sort collection because member values ' + aVal + ' and ' + bVal + ' are not of same type';
           throw new TypeError(msg);
         }
@@ -109,10 +114,10 @@ FXCollection.prototype.scope = function(scope) {
     }
 
     var scopedCollection;
-    if(fofx.isDefined(this.memberModel)) {
-      scopedCollection = fofx.collection(collection.memberModel.model);
+    if(njn.isDefined(this.memberModel)) {
+      scopedCollection = njn.collection(collection.memberModel.model);
     } else {
-      scopedCollection = fofx.collection();
+      scopedCollection = njn.collection();
     }
     // transfer members directly so they are the same objects:
     scopedCollection.members = scopedMembers;
@@ -120,29 +125,29 @@ FXCollection.prototype.scope = function(scope) {
   }
 }
 
-FXCollection.prototype.filter = function() {
+NJNCollection.prototype.filter = function() {
   return this.scope({ filter: arguments[0] });
 }
 
-FXCollection.prototype.sort = function() {
+NJNCollection.prototype.sort = function() {
   return this.scope({ sort: arguments[0] });
 }
 
-FXCollection.prototype.forEach = function(callback, thisArg) {
+NJNCollection.prototype.forEach = function(callback, thisArg) {
   this.members.forEach(callback, thisArg);
 }
 
-FXCollection.prototype.remove = function(member) {
+NJNCollection.prototype.remove = function(member) {
   var index = this.members.indexOf(member);
   this.members.splice(index, 1);
   this.broadcastChange();
 }
 
-FXCollection.prototype.areAll = function(callbackOrProp) {
+NJNCollection.prototype.areAll = function(callbackOrProp) {
   return(this.members.every(function(member) {
-    if(fofx.isString(callbackOrProp)) {
+    if(njn.isString(callbackOrProp)) {
       var val = member[callbackOrProp];
-      if(fofx.isFunction(val)) {
+      if(njn.isFunction(val)) {
         return val.call(member);
       } else {
         return val;
@@ -153,11 +158,11 @@ FXCollection.prototype.areAll = function(callbackOrProp) {
   }, true));
 }
 
-FXCollection.prototype.areAny = function(callbackOrProp) {
+NJNCollection.prototype.areAny = function(callbackOrProp) {
   return(this.members.some(function(member) {
-    if(fofx.isString(callbackOrProp)) {
+    if(njn.isString(callbackOrProp)) {
       var val = member[callbackOrProp];
-      if(fofx.isFunction(val)) {
+      if(njn.isFunction(val)) {
         return val.call(member);
       } else {
         return val;
@@ -168,14 +173,14 @@ FXCollection.prototype.areAny = function(callbackOrProp) {
   }));
 }
 
-FXCollection.prototype.setAll = function(propName, value) {
+NJNCollection.prototype.setAll = function(propName, value) {
   this.members.forEach(function(member) {
     member[propName] = value;
   });
   this.broadcastChange();
 }
 
-FXCollection.prototype.count = function() {
+NJNCollection.prototype.count = function() {
   return this.members.length;
 }
 
