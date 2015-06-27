@@ -1,76 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>fxjs.Controller API Documentation</title>
+  <title>fofx.Controller API Documentation</title>
   <script type="text/javascript" src="../../fx.js"></script>
   <script type="text/javascript" src="../../fx_controller.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="../prism.css"/>
-  <style>
-    body {
-      color: rgb(47,79,79);
-      margin: 0 10% 0 10%;
-    }
-    @media (max-width: 500px) {
-      body {
-        margin: 0px;
-      }
-    }
-    .section-break {
-      counter-reset: section;
-      box-shadow: -5px 5px 5px gray;
-      padding: 10px;
-      background: rgba(47,79,79,0.15);
-      margin-bottom: 10px;
-    }
-    .section-wrapper {
-      margin-left: 5%;
-      box-shadow: -5px 5px 5px gray;
-      padding: 0px 5px 5px 5px;
-      margin-bottom: 10px;
-      background: rgba(47,79,79,0.15);
-    }
-    h1, h2, h3 {
-      margin: 0px;
-      padding: 10px;
-    }
-    .section-number {
-      text-decoration: none;
-    }
-    .section-wrapper > div:first-of-type .section-number {
-      position: relative;
-      top: 0px;
-      left: -5px;
-      float: left;
-      background-color: rgb(47,79,79);
-      color: white;
-    }
-    .section-wrapper .section-number:first-of-type h2::before {
-      counter-increment: section;
-      content: counter(section);
-    }
-    .section-wrapper > div:first-of-type > h2 {
-      clear: right;
-    }
-    .section-body {
-      counter-reset: subsection;
-      padding-left: 5%;
-    }
-    .section-body .section-number {
-      padding-left: 0px;
-    }
-    .section-body .section-number::before {
-      color: rgb(47,79,79);
-      counter-increment: subsection;
-      content: counter(section) "." counter(subsection);
-    }
-    .subsection {
-      padding-left: 5%;
-    }
-  </style>
+  <link rel="stylesheet" href="index.css"/>
 </head>
 <body fx-controller="body-controller">
-  <h1 class="section-break">fxjs.Controller</h1>
+  <h1 class="section-break">fofx.Controller</h1>
   <div class="section-wrapper">
     <h3>A module for building interactive web apps and DRYing your HTML with powerful templating.</h3>
   </div>
@@ -80,8 +19,8 @@
   <div class="section-wrapper">
     <div><a class="section-number" href=""><h2></h2></a><h2>Download the code:</h2></div>
     <div class="section-body">
-      <h3><a class="section-number" href=""></a><a target="_blank" href="http://github.com/fofx-software/fxjs/blob/master/fx.js">fx.js</a></h3>
-      <h3><a class="section-number" href=""></a><a target="_blank" href="http://github.com/fofx-software/fxjs/blob/master/fx_controller.js">fx_controller.js</a></h3>
+      <h3><a class="section-number" href=""></a><a target="_blank" href="http://github.com/fofx-software/fofx/blob/master/fofx.js">fofx.js</a></h3>
+      <h3><a class="section-number" href=""></a><a target="_blank" href="http://github.com/fofx-software/fofx/blob/master/fx_controller.js">fx_controller.js</a></h3>
     </div>
   </div>
 
@@ -107,7 +46,7 @@
 <!---->    {{exampleText}} &lt;!-- will be processed as 'hello world' --&gt;
 <!---->  &lt;/div&gt;
 <!---->  &lt;script&gt;
-<!---->    fxjs.controller('example-controller', {
+<!---->    fofx.controller('example-controller', {
 <!---->      exampleText: 'hello world'
 <!---->    });
 <!---->  &lt;/script&gt;
@@ -119,15 +58,15 @@
   <h1 class="section-break">Usage</h1>
 
   <div class="section-wrapper">
-    <div><a class="section-number" href=""><h2></h2></a><h2>Initialize the fxjs.Controller:</h2></div>
+    <div><a class="section-number" href=""><h2></h2></a><h2>Initialize the fofx.Controller:</h2></div>
     <div class="section-body">
-      Initialize an instance of fxjs.Controller:
-      <pre class="language-javascript"><code>fxjs.controller();</code></pre>
-      The first argument gives the new fxjs.Controller a name so you can reference it in your HTML:
-      <pre class="language-javascript"><code>fxjs.controller('example-controller');</code></pre>
-      The second argument provides the fxjs.Controller's <code class="language-javascript">viewInterface</code>:
+      Initialize an instance of fofx.Controller:
+      <pre class="language-javascript"><code>fofx.controller();</code></pre>
+      The first argument gives the new fofx.Controller a name so you can reference it in your HTML:
+      <pre class="language-javascript"><code>fofx.controller('example-controller');</code></pre>
+      The second argument provides the fofx.Controller's <code class="language-javascript">viewInterface</code>:
 <!----><pre class="language-javascript"><code>
-<!---->fxjs.controller('example-controller', {
+<!---->fofx.controller('example-controller', {
 <!---->  exampleText: 'hello world'
 <!---->});
 <!----></code></pre>
@@ -135,13 +74,18 @@
   </div>
 
   <div class="section-wrapper">
-    <div><a class="section-number" href=""><h2></h2></a><h2>Reference the fxjs.Controller:</h2></div>
+    <div><a class="section-number" href=""><h2></h2></a><h2>Reference the fofx.Controller:</h2></div>
     <div class="section-body">
-      Reference the fxjs.Controller by its name in an <code class="language-markup">fx-controller</code> attribute:
-<!----><pre class="language-markup"><code>
-<!---->&lt;div fx-controller="example-controller"&gt;&lt;/div&gt;
-<!---->&lt;script&gt;fxjs.controller('example-controller');&lt;/script&gt;
-<!----></code></pre>
+      Reference the fofx.Controller by its name in an <code class="language-markup">fx-controller</code> attribute:
+<!----><pre><code class="language-markup">
+<!--    -->&lt;div fx-controller="example-controller"&gt;&lt;/div&gt;
+<!--  --></code>
+<!----></pre>
+<!----><pre>
+<!--  --><code class="language-javascript">
+<!--    -->fofx.controller('example-controller');
+<!--  --></code>
+<!----></pre>
     </div>
   </div>
 
@@ -151,7 +95,7 @@
       The properties of the <code class="language-javascript">viewInterface</code> can be accessed from the HTML:
 <!----><pre class="language-markup"><code>
 <!---->&lt;div fx-controller="example-controller"&gt;{{exampleText}}&lt;/div&gt;
-<!---->&lt;script&gt;fxjs.controller('example-controller', { exampleText: 'hello world!' });&lt;/script&gt;
+<!---->&lt;script&gt;fofx.controller('example-controller', { exampleText: 'hello world!' });&lt;/script&gt;
 <!----></code></pre>
       <h3><a class="section-number" href=""></a>Referencing a method in the viewInterface</h3>
       <div class="subsection">
@@ -161,7 +105,7 @@
 <!--  -->  {{getText}} &lt;!--processes to 'my text'--&gt;
 <!--  -->&lt;/div&gt;
 <!--  -->&lt;script&gt;
-<!--  -->  fxjs.controller('example-controller', {
+<!--  -->  fofx.controller('example-controller', {
 <!--  -->    getText: function(arg1) { if(typeof arg1 === 'undefined') return 'my text'; }
 <!--  -->  });
 <!--  -->&lt;/script&gt;
@@ -176,7 +120,7 @@
 <!--  -->  &lt;/span&gt;
 <!--  -->&lt;/div&gt;
 <!--  -->&lt;script&gt;
-<!--  -->  fxjs.controller('example-controller', {
+<!--  -->  fofx.controller('example-controller', {
 <!--  -->    subObj: { myText: 'it's me!' }
 <!--  -->  });
 <!--  -->&lt;/script&gt;

@@ -1,0 +1,63 @@
+body {
+  color: rgb(47,79,79);
+  margin: 0 10% 0 10%;
+}
+@media (max-width: 500px) {
+  body {
+    margin: 0px;
+  }
+}
+.section-break {
+  counter-reset: section;
+  box-shadow: -5px 5px 5px gray;
+  background: rgb(47,79,79);
+  color: white;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.section-wrapper {
+  box-shadow: -5px 5px 5px gray;
+  padding: 0px 5px 5px 5px;
+  margin-bottom: 10px;
+  background: rgba(47,79,79,0.15);
+}
+h1, h2, h3 {
+  margin: 0px;
+  padding: 10px;
+}
+.section-number {
+  text-decoration: none;
+}
+.section-wrapper > div:first-of-type .section-number {
+  position: relative;
+  top: 0px;
+  left: -5px;
+  float: left;
+  background-color: rgb(47,79,79);
+  color: white;
+}
+.section-wrapper .section-number:first-of-type h2::before {
+  counter-increment: section;
+  content: counter(section);
+}
+.section-wrapper > div:first-of-type > h2 {
+  clear: right;
+}
+.section-body {
+  counter-reset: subsection;
+  padding-left: 5%;
+}
+.section-body .section-number {
+  padding-left: 0px;
+}
+.section-body .section-number::before {
+  color: rgb(47,79,79);
+  counter-increment: subsection;
+  content: counter(section) "." counter(subsection) " ";
+}
+.subsection {
+  padding-left: 5%;
+}
+pre.two-code code {
+  display: block;
+}
