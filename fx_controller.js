@@ -1,3 +1,7 @@
+// fx-style-width, etc
+// recalculable attributes
+// own tree, named elements
+
 (function defineFXController() {
 
 function FXController(name, template, viewInterface, watching) {
