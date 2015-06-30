@@ -3,7 +3,7 @@
 describe('njn_controller.loadTemplate()', function() {
   var newController = njn.controller({ className: 'processed' });
   var div = document.createElement('div');
-  div.setAttribute('njn-attr-class', '{{className}}');
+  div.setAttribute('njn-class', '{{className}}');
   div.setAttribute('njn-controller', 'foo');
   div.id = 'template-div';
 

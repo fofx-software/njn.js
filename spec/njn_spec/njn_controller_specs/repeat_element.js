@@ -6,7 +6,7 @@ describe('repeatElement()', function() {
   falseRepeat.setAttribute('njn-foreach', 'nonList');
   var trueRepeat = parentElement.appendChild(document.createElement('div'));
   trueRepeat.setAttribute('njn-foreach', 'list');
-  trueRepeat.setAttribute('njn-attr-class', '{{nonList}}');
+  trueRepeat.setAttribute('njn-class', '{{nonList}}');
   trueRepeat.textContent = '{{getInd}}';
   var innerRepeat = trueRepeat.appendChild(trueRepeat.cloneNode(true));
   var afterRepeat = parentElement.appendChild(document.createElement('div'));
