@@ -60,7 +60,7 @@ describe('addEventListeners()', function() {
       });
     });    
 
-    describe('when multiple event and handler combinations are given, separated by semicolons', function() {
+    describe('when multiple event/handler combinations are given, separated by semicolons', function() {
       var div = document.createElement('div');
       div.setAttribute('njn-on', 'click: handleClick; keypress: handleKeypress');
       var viewInterface = {
@@ -74,6 +74,82 @@ describe('addEventListeners()', function() {
         div.dispatchEvent(click);
         div.dispatchEvent(keypress);
         expect(viewInterface.events).toEqual(['click', 'keypress']);
+      });
+    });
+
+    describe('when an event/handler combination contains multiple event types separated by commas', function() {
+      var div = document.createElement('div');
+      div.setAttribute('njn-on', 'click,keypress:pushType');
+      var viewInterface = { events: [], pushType: function(e) { this.events.push(e.type); } };
+      addEventListeners(div, [viewInterface]);
+
+      it('adds the handler to each of the event types', function() {
+        div.dispatchEvent(click);
+        div.dispatchEvent(keypress);
+        expect(viewInterface.events).toEqual(['click', 'keypress']);
+      });
+    });
+
+    describe('when an event/handler combination contains multiple handler names separated by commas', function() {
+      var div = document.createElement('div');
+      div.setAttribute('njn-on', 'click:pushType,changeClass');
+      var viewInterface = {
+        events: [],
+        pushType: function(e) { this.events.push(e.type); },
+        changeClass: function() { this.currElement.className = 'clicked'; }
+      };
+      addEventListeners(div, [viewInterface]);
+
+      it('calls each referenced handler when the event is triggered', function() {
+        div.dispatchEvent(click);
+        expect(viewInterface.events).toEqual(['click']);
+        expect(div.className).toBe('clicked');
+      });
+    });
+
+    describe('when an event/handler combination contains multiple event types and multiple handler names', function() {
+      var div = document.createElement('div');
+      div.setAttribute('njn-on', 'click,keypress:pushType,changeClass');
+      var viewInterface = {
+        events: [],
+        pushType: function(e) { this.events.push(e.type); },
+        changeClass: function(e) { this.currElement.className = (this.currElement.className + ' ' + e.type).trim(); }
+      };
+      addEventListeners(div, [viewInterface]);
+
+      it('calls each referenced handler when each event is triggered', function() {
+        div.dispatchEvent(click);
+        div.dispatchEvent(keypress);
+        expect(viewInterface.events).toEqual(['click','keypress']);
+        expect(div.className).toBe('click keypress');
+      });
+    });
+
+    describe('any combination of the above', function() {
+      var div = document.createElement('div');
+      div.setAttribute('njn-on', 'click:pushType; click,keypress:changeClass; mouseover:boolProp,pushType; dblclick,keypress:boolProp,pushType');
+      var viewInterface = {
+        events: [],
+        boolProp: true,
+        pushType: function(e) { this.events.push(e.type); },
+        changeClass: function(e) { this.currElement.className = (this.currElement.className + ' ' + e.type).trim(); }
+      };
+      addEventListeners(div, [viewInterface]);
+
+      it('splits them and adds them correctly', function() {
+        div.dispatchEvent(click);
+        expect(viewInterface.events).toEqual(['click']);
+        expect(div.className).toBe('click');
+        div.dispatchEvent(keypress);
+        expect(div.className).toBe('click keypress');
+        expect(viewInterface.boolProp).toBe(false);
+        expect(viewInterface.events).toEqual(['click', 'keypress']);
+        div.dispatchEvent(new MouseEvent('mouseover'));
+        expect(viewInterface.boolProp).toBe(true);
+        expect(viewInterface.events).toEqual(['click', 'keypress', 'mouseover']);
+        div.dispatchEvent(new MouseEvent('dblclick'));
+        expect(viewInterface.boolProp).toBe(false);
+        expect(viewInterface.events).toEqual(['click', 'keypress', 'mouseover', 'dblclick']);
       });
     });
   });
