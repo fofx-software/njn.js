@@ -36,7 +36,7 @@ describe('njn.controller()', function() {
       expect(newController.watching).toBeUndefined();
     });
 
-    it('gives the new controller a template', function() {
+    it('gives the new controller a null template', function() {
       expect(newController.template).toBeNull();
     });
   });

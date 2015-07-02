@@ -1,74 +1,52 @@
 describe('addContextObjectToLookupChain()', function() {
-  var noVI = njn.controller();
-  var withVI = njn.controller({ subobj: ['a','b'] });
-  var noAttr = document.createElement('div');
-  var withAttr = document.createElement('div');
-  withAttr.setAttribute('njn-context', 'subobj');
-  var addContextObjectToLookupChain = __njn_controller_utility_functions__.addContextObjectToLookupChain;
+  var viewInterface = { subObj: ['a','b'] };
 
-  describe('when given no element', function() {
-    it('raises an exception', function() {
-      var willThrow = function() { addContextObjectToLookupChain(noVI); }
-      expect(willThrow).toThrow();
-    });
-  });
+  var div = document.createElement('div');
+  div.setAttribute('njn-context', 'subObj');
+
+  var addContextObjectToLookupChain = __njn_controller_utility_functions__.addContextObjectToLookupChain;
 
   describe('when given an element without an njn-context attribute', function() {
     it('returns the lookupChain', function() {
-      var returned = addContextObjectToLookupChain(noVI, noAttr, [1,2,3]);
+      var returned = addContextObjectToLookupChain(document.createElement('div'), [1,2,3]);
       expect(returned).toEqual([1,2,3]);
     });
   });
 
-  describe('when given an element with an njn-context attribute but no viewInterface or lookupChain', function() {
-    var clone = withAttr.cloneNode();
+  describe('when given an element with an njn-context attribute', function() {
+    describe('when the njn-context attribute is empty', function() {
+      var div = document.createElement('div');
+      div.setAttribute('njn-context', '');
 
-    it('returns undefined', function() {
-      var returned = addContextObjectToLookupChain(noVI, clone);
-      expect(returned).toBeUndefined();
-    });
-
-    it('removes the njn-context attribute', function() {
-      expect(clone.hasAttribute('njn-context')).toBe(false);
-    });
-  });
-
-  describe('when given an element with an njn-context attribute, a viewInterface but no lookupChain', function() {
-    var clone = withAttr.cloneNode();
-
-    it('returns undefined', function() {
-      expect(clone.hasAttribute('njn-context')).toBe(true);
-      var returned = addContextObjectToLookupChain(withVI, clone);
-      expect(returned).toBeUndefined();
-    });
-
-    it('removes the njn-context attribute', function() {
-      expect(clone.hasAttribute('njn-context')).toBe(false);
-    });
-  });
-
-  describe('when given an element with an njn-context attribute and a lookupChain', function() {
-    describe('when the property is found', function() {
-      var lookupChain = [1,2];
-
-      it('returns the lookupChain with the context object at the beginning', function() {
-        var returned = addContextObjectToLookupChain(withVI, withAttr, lookupChain);
-        expect(returned).toEqual([ [ 'a','b' ], 1, 2 ]);
-      });
-
-      it('does not affect the lookupChain', function() {
-        expect(lookupChain).toEqual([1,2]);
-      });
-
-      it('removes the njn-context attribute', function() {
-        expect(withAttr.hasAttribute('njn-context')).toBe(false);
-      });
-    });
-
-    describe('when the property is not found', function() {
       it('returns the unmodified lookupChain', function() {
-        var returned = addContextObjectToLookupChain(noVI, withAttr, [1,2]);
+        var returned = addContextObjectToLookupChain(div, [1,2]);
         expect(returned).toEqual([1,2]);
+      });
+    });
+
+    describe('when the njn-context attribute is non-empty', function() {
+      describe('when the referenced property is found in the lookupChain', function() {
+        var lookupChain = [1,2,viewInterface];
+
+        it('returns the lookupChain with the resoved value at the beginning', function() {
+          var returned = addContextObjectToLookupChain(div, lookupChain);
+          expect(returned).toEqual([['a','b'],1,2,viewInterface]);
+        });
+
+        it('does not affect the lookupChain', function() {
+          expect(lookupChain).toEqual([1,2,viewInterface]);
+        });
+
+        it('removes the njn-context attribute', function() {
+          expect(div.hasAttribute('njn-context')).toBe(false);
+        });
+      });
+
+      describe('when the referenced property is not found', function() {
+        it('returns the unmodified lookupChain', function() {
+          var returned = addContextObjectToLookupChain(div, [1,2]);
+          expect(returned).toEqual([1,2]);
+        });
       });
     });
   });
