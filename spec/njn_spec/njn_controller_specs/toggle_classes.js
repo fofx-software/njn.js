@@ -18,82 +18,15 @@ describe('toggleClasses()', function() {
   });
 
   describe('when given an element whose njn-toggle-class attribute is non-empty', function() {
-    describe('when the njn-toggle-class attribute contains one property reference', function() {
-      describe('when the referenced property resolves to true', function() {
-        var div = document.createElement('div');
-        div.setAttribute('njn-toggle-class', 'trueProp');
-        var viewInterface = { trueProp: true };
+    var div = document.createElement('div');
+    div.setAttribute('njn-toggle-class', 'trueProp falseProp noProp arrayProp');
+    var viewInterface = { trueProp: true, falseProp: false, arrayProp: [] };
 
-        describe('when the element had no prior className', function() {
-          var clone = div.cloneNode();
-
-          it('sets the element\'s className to the referenced property name (hyphenized instead of camelCase)', function() {
-            toggleClasses(clone, [viewInterface]);
-            expect(clone.className).toBe('true-prop');
-          });
-
-          it('removes the njn-toggle-class attribute', function() {
-            expect(clone.hasAttribute('njn-toggle-class')).toBe(false);
-          });
-        });
-
-        describe('when the element had a prior className', function() {
-          var clone = div.cloneNode();
-
-          it('adds the referenced property name (hyphenized) to the element\'s className', function() {
-            clone.className = 'prior-class';
-            toggleClasses(clone, [viewInterface]);
-            expect(clone.className).toBe('prior-class true-prop');
-          });
-
-          it('removes the njn-toggle-class attribute', function() {
-            expect(clone.hasAttribute('njn-toggle-class')).toBe(false);
-          });
-        });
-      });
-
-      describe('when the referenced property resolves to falsey', function() {
-        var div = document.createElement('div');
-        div.setAttribute('njn-toggle-class', 'nonProp');
-
-        describe('when the element had no prior className', function() {
-          var clone = div.cloneNode();
-
-          it('does not give the element a className', function() {
-            toggleClasses(clone, []);
-            expect(clone.className).toBe('');
-          });
-
-          it('removes the njn-toggle-class attribute', function() {
-            expect(clone.hasAttribute('njn-toggle-class')).toBe(false);
-          });
-        });
-
-        describe('when the element had a prior className', function() {
-          var clone = div.cloneNode();
-
-          it('does not add the property name to the element\'s className', function() {
-            clone.className = 'prior-class';
-            toggleClasses(clone, []);
-            expect(clone.className).toBe('prior-class');
-          });
-
-          it('removes the njn-toggle-class attribute', function() {
-            expect(clone.hasAttribute('njn-toggle-class')).toBe(false);
-          });
-        });
-      });
-    });
-
-    describe('when the njn-toggle-class attribute contains multiple property references', function() {
-      var div = document.createElement('div');
-      div.setAttribute('njn-toggle-class', 'trueProp falseProp noProp arrayProp');
-      var viewInterface = { trueProp: true, falseProp: false, arrayProp: [] };
-
-      describe('when the element had no prior className', function() {
+    describe('when the element had no prior className', function() {
+      describe('when any of the referenced properties resolve to truthy', function() {
         var clone = div.cloneNode();
 
-        it('sets the element\'s className to all the properties that resolve to true', function() {
+        it('sets the element\'s className to all the properties that resolve to truthy', function() {
           toggleClasses(clone, [viewInterface]);
           expect(clone.className).toBe('true-prop array-prop');
         });
@@ -103,13 +36,42 @@ describe('toggleClasses()', function() {
         });
       });
 
-      describe('when the element had a prior className', function() {
+      describe('when none of the referenced properties resolve to truthy', function() {
         var clone = div.cloneNode();
 
+        it('does not set the element\'s className', function() {
+          toggleClasses(clone, [{ trueProp: false }]);
+          expect(clone.className).toBe('');
+        });
+
+        it('removes the njn-toggle-class attribute', function() {
+          expect(clone.hasAttribute('njn-toggle-class')).toBe(false);
+        });
+      });
+    });
+
+    describe('when the element had a prior className', function() {
+      describe('when any of the referenced properties resolve to truthy', function() {
+        var clone = div.cloneNode();
+        clone.className = 'prior-class previous-class';
+
         it('adds each of the properties that resolve to true to the element\'s className', function() {
-          clone.className = 'prior-class previous-class';
           toggleClasses(clone, [viewInterface]);
           expect(clone.className).toBe('prior-class previous-class true-prop array-prop');
+        });
+
+        it('removes the njn-toggle-class attribute', function() {
+          expect(clone.hasAttribute('njn-toggle-class')).toBe(false);
+        });
+      });
+
+      describe('when none of the referenced properties resolve to truthy', function() {
+        var clone = div.cloneNode();
+        clone.className = 'prior-class previous-class';
+
+        it('does not add to the element\'s className', function() {
+          toggleClasses(clone, [{ trueProp: false }]);
+          expect(clone.className).toBe('prior-class previous-class');
         });
 
         it('removes the njn-toggle-class attribute', function() {
