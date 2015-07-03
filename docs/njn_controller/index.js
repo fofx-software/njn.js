@@ -4,14 +4,10 @@ fofx.controller('body-controller', {
       title: 'Download the code:',
       subsections: [
         {
-          subtitle: '<a target="_blank" href="http://github.com/fofx-software/fofx/blob/master/fofx.js">fofx.js</a>'
+          subtitle: '<a target="_blank" href="http://github.com/fofx-software/njn.js/blob/master/njn.js">njn.js</a>'
         },
         {
-          subtitle: fofx.createElement('a', {
-            target: "_blank",
-            href: "http://github.com/fofx-software/fofx/blob/master/fx_controller.js",
-            textContent: 'fx_controller.js' 
-          })
+          subtitle: '<a target="_blank" href="http://github.com/fofx-software/njn.js/blob/master/njn_controller.js">njn_controller.js</a>'
         }
       ]
     }
