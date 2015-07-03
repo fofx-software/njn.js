@@ -1,34 +1,34 @@
-(function defineFXRouter() {
+(function defineNJNRouter() {
 
-var FXRouter = { routes: {} };
+var NJNRouter = { routes: {} };
 
-fofx.router = FXRouter;
+njn.router = NJNRouter;
 
-fofx.route = function() {
+njn.route = function() {
   var routes;
 
   if(arguments.length === 1) {
     var paramsObject = arguments[0];
     Object.keys(paramsObject).forEach(function(routeName) {
       newKey = routeName === '/' ? '' : routeName.toString();
-      FXRouter.routes[newKey] = paramsObject[routeName];
+      NJNRouter.routes[newKey] = paramsObject[routeName];
     });
   } else {
     if(arguments[0] === '/') arguments[0] = '';
-    FXRouter.routes[arguments[0]] = arguments[1];
+    NJNRouter.routes[arguments[0]] = arguments[1];
   }
 }
 
-FXRouter.parseLocation = function() {
+NJNRouter.parseLocation = function() {
   var hash = location.hash.replace(/^#\//,'');
-  if(FXRouter.routes[hash]) {
-    FXRouter.routes[hash]();
-    fofx.registeredControllers.watching(FXRouter).forEach(function(controller) {
+  if(NJNRouter.routes[hash]) {
+    NJNRouter.routes[hash]();
+    njn.registeredControllers.watching(NJNRouter).forEach(function(controller) {
       controller.refreshView();
     });
-    FXRouter.currentLocation = hash;
+    NJNRouter.currentLocation = hash;
   } else {
-    var matchingPattern = Object.keys(FXRouter.routes).find(function(routeName) {
+    var matchingPattern = Object.keys(NJNRouter.routes).find(function(routeName) {
       if(/^\/.+\//.test(routeName)) {
         var regexpBody = routeName.match(/[^\/]+/)[0];
         var flags = routeName.match(/[^\/]+$/);
@@ -37,23 +37,23 @@ FXRouter.parseLocation = function() {
       }
     });
     if(matchingPattern) {
-      FXRouter.routes[matchingPattern]();
+      NJNRouter.routes[matchingPattern]();
     }
   }
 }
 
-FXRouter.filter = function(scope) {
+NJNRouter.filter = function(scope) {
   for(var i = 1; i < arguments.length; i++) {
     (function(routeName) {
       var split = routeName.split(':');
-      fofx.route(split[0], function() {
+      njn.route(split[0], function() {
         scope.set('filter', split[1] || split[0]);
       });
     })(arguments[i]);
   }
 }
 
-window.onhashchange = FXRouter.parseLocation;
-window.onload = FXRouter.parseLocation;
+window.onhashchange = NJNRouter.parseLocation;
+window.onload = NJNRouter.parseLocation;
 
 })();

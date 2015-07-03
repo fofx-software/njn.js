@@ -1,8 +1,3 @@
-// recalculable attributes
-// njn-style-*
-// viewInterface doctree
-// append when property reference resolves to htmlElement
-
 (function defineNJNCollection() {
 
 function NJNCollection() {
@@ -76,7 +71,7 @@ NJNCollection.prototype.scope = function(scope) {
           var trueName = filter.replace(/^!/,'');
           var hasOwnProperty = member.hasOwnProperty(trueName);
           var isAlias = false;
-          if(member.fxModel) { isAlias = member.fxModel.isAlias(trueName); }
+          if(member.njnModel) { isAlias = member.njnModel.isAlias(trueName); }
           if(hasOwnProperty || isAlias) {
             var result = member[trueName];
             if(njn.isFunction(result)) { result = result.call(member, member); }
