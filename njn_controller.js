@@ -184,20 +184,26 @@ function repeatElement(element, lookupChain, indices) {
   });
 }
 
-function processTextNode(node, lookupChain, indices) {
-  var parentElement = node.parentElement;
-  var nextSibling = node.nextSibling;
-  parentElement.removeChild(node);
-  njn.String.keepSplit(node.textContent, /(\[\[\w+\]\])/).forEach(function(part) {
-    if(/\[\[\w+\]\]/.test(part)) {
-      var innerMatch = part.match(/\w+/)[0];
-      var newElement = resolveFromLookupChain(innerMatch, lookupChain, indices, parentElement);
-      parentElement.insertBefore(processHTML(newElement, lookupChain, indices), nextSibling);
-    } else if(/.+/.test(part)) {
-      var newText = processText(part, lookupChain, indices, parentElement);
-      parentElement.insertBefore(document.createTextNode(newText), nextSibling);
+function processTextNode(textNode, lookupChain, indices) {
+  var parentElement = textNode.parentElement;
+  var nextSibling = textNode.nextSibling;
+  parentElement.removeChild(textNode);
+  var interpolator = /({{!?\w+\??}})/;
+  var newNode = document.createTextNode('');
+  njn.String.keepSplit(textNode.textContent, interpolator).forEach(function(part) {
+    var processed = processText(part, lookupChain, indices, parentElement);
+    if(processed && njn.isString(processed)) {
+      newNode.textContent += processed;
+    } else if(njn.isHTMLElement(processed)) {
+      if(newNode.textContent) {
+        parentElement.insertBefore(newNode, nextSibling);
+        newNode = document.createTextNode('');
+      }
+      var element = processHTML(processed, lookupChain, indices);
+      parentElement.insertBefore(element, nextSibling);
     }
   });
+  if(newNode.textContent) parentElement.insertBefore(newNode, nextSibling);
 }
 
 function processText(text, lookupChain, indices, element) {
@@ -207,7 +213,11 @@ function processText(text, lookupChain, indices, element) {
     var innerMatch = match.match(/\w+\??/)[0];
     var replacement = resolveFromLookupChain(innerMatch, lookupChain, indices, element);
     if(negate) { replacement = !replacement; }
-    text = text.replace(match, replacement);
+    if(njn.isHTMLElement(replacement)) {
+      text = replacement;
+    } else {
+      text = text.replace(match, replacement);
+    }
   });
   return text;
 }

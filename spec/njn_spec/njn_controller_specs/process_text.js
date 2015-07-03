@@ -94,4 +94,25 @@ describe('processText()', function() {
       });
     });
   });
+
+  describe('when the string consists wholly of an interpolator which resolves to an HTMLElement', function() {
+    it('returns the HTMLElement', function() {
+      var processed = processText('{{getEl}}', [{ getEl: document.createElement('div') }]);
+      expect(processed.tagName).toBe('DIV');
+    });
+  });
+
+  describe('when the string consists of some text and then an interpolator which resolves to an HTMLElement', function() {
+    it('returns only the HTMLElement', function() {
+      var processed = processText('hello {{name}} {{getEl}}', [{ name: 'Joe', getEl: document.createElement('div') }]);
+      expect(processed.tagName).toBe('DIV');
+    });
+  });
+
+  describe('when the string has any text following an interpolator which resolves to an HTMLElement', function() {
+    it('raises an exception', function() {
+      var willThrow = function() { processText('{{getEl}} hello {{name}}', [{ name: 'Joe', getEl: document.createElement('div') }]); }
+      expect(willThrow).toThrowError(/text.replace is not a function/);
+    });
+  });
 });
