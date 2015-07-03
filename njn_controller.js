@@ -1,6 +1,7 @@
 // njn-style-*
 // recalculable attributes
 // viewInterface tree named elements
+// parse html strings
 
 var __njn_controller_utility_functions__ = (function defineNJNController() {
 
@@ -213,6 +214,7 @@ function processText(text, lookupChain, indices, element) {
     var innerMatch = match.match(/\w+\??/)[0];
     var replacement = resolveFromLookupChain(innerMatch, lookupChain, indices, element);
     if(negate) { replacement = !replacement; }
+    if(njn.isString(replacement) && /^</.test(replacement)) parseHTML(replacement);
     if(njn.isHTMLElement(replacement)) {
       text = replacement;
     } else {
@@ -220,6 +222,22 @@ function processText(text, lookupChain, indices, element) {
     }
   });
   return text;
+}
+
+function parseHTML(html) {
+  // to do: handle nested elements
+  var openingTag = html.match(/^<([^<]+)>/)[1].split(' ');
+  var tagName = openingTag.shift();
+  var element = document.createElement(tagName);
+  openingTag.forEach(function(attrVal) {
+    var attr = attrVal.split('=')[0];
+    var valu = attrVal.split('=')[1] || '';
+    element.setAttribute(attr, (valu.match(/[^"']+/) || [''])[0]);
+  });
+  if(!tagName.match(/^(img|br|input)$/)) {
+    element.textContent = (html.match(/>([^<]+)</) || ['',''])[1];
+  }
+  return element;
 }
 
 function configureAttribute(element, attr, lookupChain, indices) {
@@ -328,6 +346,7 @@ if(testing)
     repeatElement: repeatElement,
     processTextNode: processTextNode,
     processText: processText,
+    parseHTML: parseHTML,
     configureAttribute: configureAttribute,
     toggleClasses: toggleClasses,
     toggleDisplay: toggleDisplay,
