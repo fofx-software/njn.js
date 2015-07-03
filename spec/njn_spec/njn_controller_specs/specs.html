@@ -21,10 +21,12 @@
   <script type="text/javascript" src="./load_template.js"></script>
   <script type="text/javascript" src="./find_in_lookup_chain.js"></script>
   <script type="text/javascript" src="./resolve_from_lookup_chain.js"></script>
+
   <script type="text/javascript" src="./add_context_object_to_lookup_chain.js"></script>
   <script type="text/javascript" src="./filter_sort_first_member_of_lookup_chain.js"></script>
   <script type="text/javascript" src="./modify_lookup_chain.js"></script>
   <script type="text/javascript" src="./repeat_element.js"></script>
+  <script type="text/javascript" src="./process_text_node.js"></script>
   <script type="text/javascript" src="./process_text.js"></script>
   <script type="text/javascript" src="./configure_attribute.js"></script>
   <script type="text/javascript" src="./toggle_classes.js"></script>
@@ -32,8 +34,18 @@
   <script type="text/javascript" src="./add_event_listeners.js"></script>
   <script type="text/javascript" src="./check_checkbox.js"></script>
 
-  <!--test more; this is the big one:-->
   <script type="text/javascript" src="./process_html.js"></script>
 </head>
-<body></body>
+<body>
+  <div njn-controller="acceptance-controller" njn-id="{{ownID}}">
+    {{firstText}}
+    <p njn-context="subObj">{{firstText}}</p>
+    {{firstText}}
+    <div njn-sort="ascending" njn-context="subArr">{{join}}</div>
+    <div njn-sort="ascending" njn-foreach="subArr" class="repeat1">{{toString}}</div>
+    <div njn-foreach="arrArr" class="repeat2"><p njn-foreach="subArr" njn-id="{{getID}}"></p></div>
+  </div>
+  <script type="text/javascript" src="./acceptance_controller.js"></script>
+  <script type="text/javascript" src="./process_html_acceptance.js"></script>
+</body>
 </html>

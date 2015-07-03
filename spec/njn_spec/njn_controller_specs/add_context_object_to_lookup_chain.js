@@ -1,8 +1,8 @@
 describe('addContextObjectToLookupChain()', function() {
-  var viewInterface = { subObj: ['a','b'] };
+  var viewInterface = { subArr: ['a','b'], subObj: {} };
 
   var div = document.createElement('div');
-  div.setAttribute('njn-context', 'subObj');
+  div.setAttribute('njn-context', 'subArr');
 
   var addContextObjectToLookupChain = __njn_controller_utility_functions__.addContextObjectToLookupChain;
 
@@ -48,6 +48,33 @@ describe('addContextObjectToLookupChain()', function() {
           expect(returned).toEqual([1,2]);
         });
       });
+    });
+  });
+
+  describe('when the element has njn-foreach instead of njn-context', function() {
+    var lookupChain = [1,2,viewInterface];
+    var div = document.createElement('div');
+    div.setAttribute('njn-foreach', 'subArr');
+
+    it('treats the njn-foreach attribute as the njn-context attribute', function() {
+      var returned = addContextObjectToLookupChain(div, lookupChain);
+      expect(returned).toEqual([['a','b']].concat(lookupChain));
+    });
+
+    it('does not remove the njn-foreach attribute', function() {
+      expect(div.hasAttribute('njn-foreach')).toBe(true);
+    });
+  });
+
+  describe('when the element has njn-foreach and njn-context', function() {
+    var lookupChain = [1,2,viewInterface];
+    var div = document.createElement('div');
+    div.setAttribute('njn-foreach', 'subArr');
+    div.setAttribute('njn-context', 'subObj');
+
+    it('uses the njn-context attribute', function() {
+      var returned = addContextObjectToLookupChain(div, lookupChain);
+      expect(returned).toEqual([{}].concat(lookupChain));
     });
   });
 });
