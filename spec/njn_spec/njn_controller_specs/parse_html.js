@@ -112,11 +112,10 @@ describe('parseHTML()', function() {
     });
 
     describe('when an outer element has a noparse attribute', function() {
-      var html = '<pre><code noparse><div class="example-div"><div></div></div></code></pre>';
-      var pre = parseHTML(html)[0];
-
       it('does not parse inner html', function() {
-        expect(pre.children[0].textContent).toBe('<div class="example-div"><div></div></div>');
+        var html = '<pre><code noparse>text<div class="example-div"><div></div></div></code></pre>';
+        var pre = parseHTML(html)[0];
+        expect(pre.children[0].textContent).toBe('text<div class="example-div"><div></div></div>');
       });
     });
   });
@@ -125,6 +124,20 @@ describe('parseHTML()', function() {
     it('treats it as text', function() {
       var div = parseHTML('<div>hello sir <!-- comment --></div>')[0];
       expect(div.textContent).toBe('hello sir <!-- comment -->');
+    });
+  });
+
+  describe('when an outer element has a noparse attribute and an escapable character appears within a child element', function() {
+    it('unescapes it', function() {
+      var div = parseHTML('<div noparse><div>&</div></div>')[0];
+      expect(div.textContent).toBe('<div>&</div>');
+    });
+  });
+
+  describe('when an outer element has a noparse attribute and an escaped character appears within a child element', function() {
+    it('unescapes it', function() {
+      var div = parseHTML('<div noparse><div>&lt;&gt;</div></div>')[0];
+      expect(div.textContent).toBe('<div><></div>');
     });
   });
 });

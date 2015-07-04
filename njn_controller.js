@@ -72,6 +72,9 @@ function processHTML(element, lookupChain, indices) {
     });
   }
 
+  // in case element was created in parseHTML. If noparse attribute was used there, it can safely be removed now:
+  element.removeAttribute('noparse');
+
   return element;
 }
 
@@ -240,8 +243,8 @@ function parseHTML(html) {
     while(!tagName.match(/^(img|br|input)$/) && html && !html.match(closingTag)) {
       var processed = parseHTML(html);
       if(element.hasAttribute('noparse')) {
-        processed[0] = document.createTextNode(processed[0].outerHTML);
-        //element.removeAttribute('noparse');
+        var outerHTML = processed[0].outerHTML;
+        if(outerHTML) processed[0] = document.createTextNode(unescapeHTML(outerHTML));
       }
       element.appendChild(processed[0]);
       html = processed[1];
@@ -249,10 +252,15 @@ function parseHTML(html) {
     html = html.replace(closingTag, '');
   } else {
     var textPart = /^([^<]|<(?=!--))+/;
-    element = document.createTextNode(html.match(textPart)[0]);
+    var unescaped = unescapeHTML(html.match(textPart)[0]);
+    element = document.createTextNode(unescaped);
     html = html.replace(textPart,'');
   }
   return [element, html];
+}
+
+function unescapeHTML(html) {
+  return html.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g, '&').replace(/&quot;/,'"');
 }
 
 function configureAttribute(element, attr, lookupChain, indices) {
