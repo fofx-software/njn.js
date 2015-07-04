@@ -226,7 +226,7 @@ function processText(text, lookupChain, indices, element) {
 
 function parseHTML(html) {
   var element;
-  if(html.match(/^</) && !noparse) {
+  if(html.match(/^</)) {
     var openTagRegExp = /^<([^<]+)>/;
     var openingTag = html.match(openTagRegExp)[1].split(' ');
     var tagName = openingTag.shift();
