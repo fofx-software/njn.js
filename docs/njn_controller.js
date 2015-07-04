@@ -200,7 +200,8 @@ function processTextNode(textNode, lookupChain, indices) {
         parentElement.insertBefore(newNode, nextSibling);
         newNode = document.createTextNode('');
       }
-      parentElement.insertBefore(processed, nextSibling);
+      var element = processHTML(processed, lookupChain, indices);
+      parentElement.insertBefore(element, nextSibling);
     }
   });
   if(newNode.textContent) parentElement.insertBefore(newNode, nextSibling);
