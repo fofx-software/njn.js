@@ -1,4 +1,4 @@
-var codeBlock = '<pre njn-class="language-{{preLanguage}}">{{code}}</pre>';
+var codeBlock = function(code) { return '<pre njn-class="language-{{preLanguage}}"><code noparse>' + code + '</code></pre>' };
 
 njn.controller('body-controller', {
   chapters: [
@@ -20,15 +20,13 @@ njn.controller('body-controller', {
             {
               title: 'Put it in your HTML:',
               subsections: [],
-              code: '<code>' + (
-                     '<head>\n' +
-                     '  <script src="njn.js"></script> <!--run njn.js first!-->\n' +
-                     '  <script src="njn_controller.js"></script>\n' +
-                     '</head>'
-                    ).replace(/</g, '&lt;').replace(/>/g, '&gt;') +
-                    '</code>',
               preLanguage: 'markup',
-              sectionBody: codeBlock
+              sectionBody: codeBlock(
+                '<head>\n' +
+                '  <script src="njn.js"></script>\n' +
+                '  <script src="njn_controller.js"></script>\n' +
+                '</head>'
+              )
             }
         ]
       }

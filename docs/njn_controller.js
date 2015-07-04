@@ -214,7 +214,7 @@ function processText(text, lookupChain, indices, element) {
     var innerMatch = match.match(/\w+\??/)[0];
     var replacement = resolveFromLookupChain(innerMatch, lookupChain, indices, element);
     if(negate) { replacement = !replacement; }
-    if(njn.isString(replacement) && /^</.test(replacement)) replacement = parseHTML(replacement);
+    if(njn.isString(replacement) && /^</.test(replacement)) replacement = parseHTML(replacement)[0];
     if(njn.isHTMLElement(replacement)) {
       text = replacement;
     } else {
@@ -225,21 +225,35 @@ function processText(text, lookupChain, indices, element) {
 }
 
 function parseHTML(html) {
-  // to do: handle nested elements
-  var openingTag = html.match(/^<([^<]+)>/)[1].split(' ');
-  var tagName = openingTag.shift();
-  var element = document.createElement(tagName);
-  openingTag.forEach(function(attrVal) {
-    var attr = attrVal.split('=')[0];
-    var valu = attrVal.split('=')[1] || '';
-    element.setAttribute(attr, (valu.match(/[^"']+/) || [''])[0]);
-  });
-  if(!tagName.match(/^(img|br|input)$/)) {
-    var closingTag = new RegExp('>(.+)</' + tagName, 'm');
-console.log(closingTag);
-    element.textContent = (html.match(closingTag) || ['',''])[1];
+  var element;
+  if(html.match(/^<[^!][^-]?[^-]?/)) {
+    var openTagRegExp = /^<([^<]+)>/;
+    var openingTag = html.match(openTagRegExp)[1].split(' ');
+    var tagName = openingTag.shift();
+    element = document.createElement(tagName);
+    openingTag.forEach(function(attrVal) {
+      var attr = attrVal.split('=')[0];
+      var valu = attrVal.split('=')[1] || '';
+      element.setAttribute(attr, (valu.match(/[^"']+/) || [''])[0]);
+    });
+    html = html.replace(openTagRegExp, '');
+    var closingTag = new RegExp('^</' + tagName + '>');
+    while(!tagName.match(/^(img|br|input)$/) && html && !html.match(closingTag)) {
+      var processed = parseHTML(html);
+      if(element.hasAttribute('noparse')) {
+        processed[0] = document.createTextNode(processed[0].outerHTML);
+        element.removeAttribute('noparse');
+      }
+      element.appendChild(processed[0]);
+      html = processed[1];
+    }
+    html = html.replace(closingTag, '');
+  } else {
+    var textPart = /^[^<]+/;
+    element = document.createTextNode(html.match(textPart)[0]);
+    html = html.replace(textPart,'');
   }
-  return element;
+  return [element, html];
 }
 
 function configureAttribute(element, attr, lookupChain, indices) {
