@@ -118,10 +118,13 @@ describe('parseHTML()', function() {
       it('does not parse inner html', function() {
         expect(pre.children[0].textContent).toBe('<div class="example-div"><div></div></div>');
       });
+    });
+  });
 
-      it('removes the noparse attribute', function() {
-        expect(pre.children[0].hasAttribute('noparse')).toBe(false);
-      });
+  describe('when an html string contains a comment', function() {
+    it('treats it as text', function() {
+      var div = parseHTML('<div>hello sir <!-- comment --></div>')[0];
+      expect(div.textContent).toBe('hello sir <!-- comment -->');
     });
   });
 });
