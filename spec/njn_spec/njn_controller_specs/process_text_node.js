@@ -47,4 +47,15 @@ describe('processTextNode()', function() {
       expect(parentElement.childNodes[5].className).toBe('new-class');
     });
   });
+
+  describe('when the textNode contains an interpolator that resolves to a string of html', function() {
+    it('parses the html and inserts it', function() {
+      var node = parentElement.appendChild(document.createTextNode('bold text: {{getBold}} is bold'));
+      processTextNode(node, [{ getBold: '<b>this</b>' }], []);
+      expect(parentElement.childNodes[6].textContent).toBe('bold text: ');
+      expect(parentElement.childNodes[7].tagName).toBe('B');
+      expect(parentElement.childNodes[7].textContent).toBe('this');
+      expect(parentElement.childNodes[8].textContent).toBe(' is bold');
+    });
+  });
 });

@@ -214,7 +214,7 @@ function processText(text, lookupChain, indices, element) {
     var innerMatch = match.match(/\w+\??/)[0];
     var replacement = resolveFromLookupChain(innerMatch, lookupChain, indices, element);
     if(negate) { replacement = !replacement; }
-    if(njn.isString(replacement) && /^</.test(replacement)) parseHTML(replacement);
+    if(njn.isString(replacement) && /^</.test(replacement)) replacement = parseHTML(replacement);
     if(njn.isHTMLElement(replacement)) {
       text = replacement;
     } else {
