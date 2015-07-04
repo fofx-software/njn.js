@@ -1,7 +1,6 @@
 // njn-style-*
 // recalculable attributes
 // viewInterface tree named elements
-// parse html strings
 
 var __njn_controller_utility_functions__ = (function defineNJNController() {
 
@@ -226,7 +225,7 @@ function processText(text, lookupChain, indices, element) {
 
 function parseHTML(html) {
   var element;
-  if(html.match(/^<[^!][^-]?[^-]?/)) {
+  if(html.match(/^<(?!!--)/)) {
     var openTagRegExp = /^<([^<]+)>/;
     var openingTag = html.match(openTagRegExp)[1].split(' ');
     var tagName = openingTag.shift();
@@ -241,15 +240,16 @@ function parseHTML(html) {
     while(!tagName.match(/^(img|br|input)$/) && html && !html.match(closingTag)) {
       var processed = parseHTML(html);
       if(element.hasAttribute('noparse')) {
-        processed[0] = document.createTextNode(processed[0].outerHTML);
-        element.removeAttribute('noparse');
+        var outerHTML = processed[0].outerHTML.replace('&lt;','<').replace('&gt;','>');
+        processed[0] = document.createTextNode(outerHTML);
+        //element.removeAttribute('noparse');
       }
       element.appendChild(processed[0]);
       html = processed[1];
     }
     html = html.replace(closingTag, '');
   } else {
-    var textPart = /^[^<]+/;
+    var textPart = /^([^<]|<(?=!--))+/;
     element = document.createTextNode(html.match(textPart)[0]);
     html = html.replace(textPart,'');
   }

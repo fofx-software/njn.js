@@ -1,4 +1,4 @@
-var codeBlock = function(code) { return '<pre njn-class="language-{{preLanguage}}"><code noparse>' + code + '</code></pre>' };
+var codeBlock = '<pre njn-class="language-{{preLanguage}}">{{code}}</pre>';
 
 njn.controller('body-controller', {
   chapters: [
@@ -21,14 +21,14 @@ njn.controller('body-controller', {
               title: 'Put it in your HTML:',
               subsections: [],
               preLanguage: 'markup',
-              sectionBody: codeBlock(
-                '<head>\n' +
-                '  <script src="njn.js"></script>\n' +
+              code: 
+                '<code noparse><head>\n' +
+                '  <script src="njn.js"></script> <!-- run this first! -->\n' +
                 '  <script src="njn_controller.js"></script>\n' +
-                '</head>'
-              )
+                '</head></code>',
+              sectionBody: codeBlock
             }
         ]
       }
   ]
-});//, function() { Prism.highlightAll(); });
+});
