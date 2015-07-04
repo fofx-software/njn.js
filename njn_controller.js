@@ -336,7 +336,7 @@ function processAttributes(element, lookupChain, indices) {
   });
 }
 
-if(testing)
+if(typeof testing !== 'undefind')
   return {
     findInLookupChain: findInLookupChain,
     resolveFromLookupChain: resolveFromLookupChain,
