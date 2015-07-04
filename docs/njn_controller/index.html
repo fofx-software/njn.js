@@ -2,24 +2,25 @@
 <html>
 <head>
   <title>njn.Controller API Documentation</title>
+  <script type="text/javascript">var testing = false;</script>
   <script type="text/javascript" src="../njn.js"></script>
   <script type="text/javascript" src="../njn_controller.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="../prism.css"/>
   <link rel="stylesheet" href="index.css"/>
 </head>
-<body fx-controller="body-controller">
-  <h1 class="section-break">fofx.Controller</h1>
+<body njn-controller="body-controller">
+  <h1 class="section-break">njn.Controller</h1>
   <div class="section-wrapper">
     <h3>A module for building interactive web apps and DRYing your HTML with powerful templating.</h3>
   </div>
 
   <h1 class="section-break">Quick Start</h1>
 
-  <div class="section-wrapper" fx-foreach="sections">
+  <div class="section-wrapper" njn-foreach="sections">
     <div><a class="section-number" href=""><h2></h2></a><h2>{{title}}</h2></div>
     <div class="section-body">
-      <div fx-foreach="subsections">
+      <div njn-foreach="subsections">
         <h3><a class="section-number" href=""></a>{{subtitle}}</h3>
         
       </div>
