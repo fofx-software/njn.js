@@ -1,4 +1,4 @@
-fofx.controller('body-controller', {
+njn.controller('body-controller', {
   sections: [
     {
       title: 'Download the code:',
