@@ -14,18 +14,20 @@
     <h3>A module for building interactive web apps and DRYing your HTML with powerful templating.</h3>
   </div>
 
-  <h1 class="section-break">Quick Start</h1>
+  <div njn-foreach="chapters">
+    <h1 class="section-break">{{title}}</h1>
 
-  <div class="section-wrapper" njn-foreach="sections">
-    <div><a class="section-number" href=""><h2></h2></a><h2>{{title}}</h2></div>
-    <div class="section-body">
-      <div njn-foreach="subsections">
-        <h3><a class="section-number" href=""></a>{{subtitle}}</h3>
-        
+    <div class="section-wrapper" njn-foreach="sections">
+      <div><a class="section-number" href=""><h2></h2></a><h2>{{title}}</h2></div>
+      <div class="section-body">
+        <div njn-foreach="subsections">
+          <h3><a class="section-number" href=""></a>{{title}}</h3>
+        </div>
+        {{sectionBody}}
       </div>
     </div>
   </div>
-  <script type="text/javascript" src="index.js"></script>
   <script type="text/javascript" src="../prism.js"></script>
+  <script type="text/javascript" src="index.js"></script>
 </body>
 </html>

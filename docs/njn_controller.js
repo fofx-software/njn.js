@@ -235,7 +235,9 @@ function parseHTML(html) {
     element.setAttribute(attr, (valu.match(/[^"']+/) || [''])[0]);
   });
   if(!tagName.match(/^(img|br|input)$/)) {
-    element.textContent = (html.match(/>([^<]+)</) || ['',''])[1];
+    var closingTag = new RegExp('>(.+)</' + tagName, 'm');
+console.log(closingTag);
+    element.textContent = (html.match(closingTag) || ['',''])[1];
   }
   return element;
 }
