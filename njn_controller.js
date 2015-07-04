@@ -72,7 +72,7 @@ function processHTML(element, lookupChain, indices) {
     });
   }
 
-  // in case element was created in parseHTML. If noparse attribute was used there, it can safely be removed now:
+  // in case noparse attribute was used in parseHTML, it can safely be removed now:
   element.removeAttribute('noparse');
 
   return element;
@@ -216,7 +216,9 @@ function processText(text, lookupChain, indices, element) {
     var innerMatch = match.match(/\w+\??/)[0];
     var replacement = resolveFromLookupChain(innerMatch, lookupChain, indices, element);
     if(negate) { replacement = !replacement; }
-    if(njn.isString(replacement) && /^</.test(replacement)) replacement = parseHTML(replacement)[0];
+    if(njn.isString(replacement) && /^</.test(replacement)) {
+      replacement = parseHTML(replacement, element.hasAttribute('noparse'))[0];
+    }
     if(njn.isHTMLElement(replacement)) {
       text = replacement;
     } else {
@@ -226,7 +228,7 @@ function processText(text, lookupChain, indices, element) {
   return text;
 }
 
-function parseHTML(html) {
+function parseHTML(html, noparse) {
   var element;
   if(html.match(/^<(?!!--)/)) {
     var openTagRegExp = /^<([^<]+)>/;
@@ -242,7 +244,7 @@ function parseHTML(html) {
     var closingTag = new RegExp('^</' + tagName + '>');
     while(!tagName.match(/^(img|br|input)$/) && html && !html.match(closingTag)) {
       var processed = parseHTML(html);
-      if(element.hasAttribute('noparse')) {
+      if(noparse || element.hasAttribute('noparse')) {
         var outerHTML = processed[0].outerHTML;
         if(outerHTML) processed[0] = document.createTextNode(unescapeHTML(outerHTML));
       }
