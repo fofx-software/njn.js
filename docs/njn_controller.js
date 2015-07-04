@@ -336,7 +336,7 @@ function processAttributes(element, lookupChain, indices) {
   });
 }
 
-if(testing)
+if(window['testing'])
   return {
     findInLookupChain: findInLookupChain,
     resolveFromLookupChain: resolveFromLookupChain,
