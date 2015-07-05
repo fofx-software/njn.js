@@ -72,8 +72,8 @@ function processHTML(element, lookupChain, indices) {
     });
   }
 
-  // in case noparse attribute was used in parseHTML, it can safely be removed now:
-  //element.removeAttribute('noparse');
+  // in case noparse attribute was used in processTextNode, it can safely be removed now:
+  element.removeAttribute('noparse');
 
   return element;
 }
