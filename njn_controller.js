@@ -73,7 +73,7 @@ function processHTML(element, lookupChain, indices) {
   }
 
   // in case noparse attribute was used in parseHTML, it can safely be removed now:
-  element.removeAttribute('noparse');
+  //element.removeAttribute('noparse');
 
   return element;
 }
@@ -198,12 +198,15 @@ function processTextNode(textNode, lookupChain, indices) {
     if(processed && njn.isString(processed)) {
       newNode.textContent += processed;
     } else if(njn.isHTMLElement(processed)) {
-      if(newNode.textContent) {
+      var element = processHTML(processed, lookupChain, indices);
+      if(parentElement.hasAttribute('noparse')) {
+        newNode.textContent += unescapeHTML(element.outerHTML);
+        element = null;
+      } else if(newNode.textContent) {
         parentElement.insertBefore(newNode, nextSibling);
         newNode = document.createTextNode('');
       }
-      var element = processHTML(processed, lookupChain, indices);
-      parentElement.insertBefore(element, nextSibling);
+      if(element) parentElement.insertBefore(element, nextSibling);
     }
   });
   if(newNode.textContent) parentElement.insertBefore(newNode, nextSibling);
@@ -217,7 +220,7 @@ function processText(text, lookupChain, indices, element) {
     var replacement = resolveFromLookupChain(innerMatch, lookupChain, indices, element);
     if(negate) { replacement = !replacement; }
     if(njn.isString(replacement) && /^</.test(replacement)) {
-      replacement = parseHTML(replacement, element.hasAttribute('noparse'))[0];
+      replacement = parseHTML(replacement)[0];
     }
     if(njn.isHTMLElement(replacement)) {
       text = replacement;
@@ -228,7 +231,7 @@ function processText(text, lookupChain, indices, element) {
   return text;
 }
 
-function parseHTML(html, noparse) {
+function parseHTML(html) {
   var element;
   if(html.match(/^<(?!!--)/)) {
     var openTagRegExp = /^<([^<]+)>/;
@@ -244,7 +247,7 @@ function parseHTML(html, noparse) {
     var closingTag = new RegExp('^</' + tagName + '>');
     while(!tagName.match(/^(img|br|input)$/) && html && !html.match(closingTag)) {
       var processed = parseHTML(html);
-      if(noparse || element.hasAttribute('noparse')) {
+      if(element.hasAttribute('noparse')) {
         var outerHTML = processed[0].outerHTML;
         if(outerHTML) processed[0] = document.createTextNode(unescapeHTML(outerHTML));
       }

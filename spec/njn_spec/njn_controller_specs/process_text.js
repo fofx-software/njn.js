@@ -121,15 +121,5 @@ describe('processText()', function() {
       var processed = processText('{{getDiv}}',[{ getDiv: '<div></div>' }], [], document.createElement('div'));
       expect(processed.tagName).toBe('DIV');
     });
-
-    describe('when the outer element has a noparse attribute', function() {
-      it('does returns the parsed html as text', function() {
-        var viewInterface = { getDiv: '<div><div class="example-div"><div></div></div></div>' };
-        var outerElement = document.createElement('div');
-        outerElement.setAttribute('noparse', '');
-        var processed = processText('{{getDiv}}', [viewInterface], [], outerElement);
-        expect(processed.textContent).toBe('<div class="example-div"><div></div></div>');
-      });
-    });
   });
 });
