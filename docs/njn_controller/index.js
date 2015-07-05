@@ -1,4 +1,4 @@
-var codeBlock = '<pre njn-class="language-{{preLanguage}}">{{code}}</pre>';
+var codeBlock = '<pre njn-class="language-{{preLanguage}}"><code noparse>{{code}}</code></pre>';
 
 njn.controller('body-controller', {
   chapters: [
@@ -22,10 +22,10 @@ njn.controller('body-controller', {
               subsections: [],
               preLanguage: 'markup',
               code: 
-                '<code noparse><head>\n' +
+                '<head>\n' +
                 '  <script src="njn.js"></script> <!-- run this first! -->\n' +
                 '  <script src="njn_controller.js"></script>\n' +
-                '</head></code>',
+                '</head>',
               sectionBody: codeBlock
             }
         ]
