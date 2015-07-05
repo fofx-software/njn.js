@@ -3,7 +3,7 @@ var codeBlock = '<pre njn-class="language-{{preLanguage}}"><code noparse>{{code}
 njn.controller('body-controller', {
   chapters: [
       {
-        title: 'Quick Start:',
+        title: 'Quick Start',
         sections: [
             {
               title: 'Download the code:',
@@ -47,6 +47,46 @@ njn.controller('body-controller', {
                 '  </script>\n' +
                 '</body>',
               sectionBody: codeBlock
+            }
+        ]
+      },
+      {
+        title: 'Usage',
+        sections: [
+            {
+              title: 'Initialize the njn.controller:',
+              subsections: [
+                  {
+                    text: 'Initialize an instance of njn.Controller:',
+                    preLanguage: 'javascript',
+                    code: 'njn.controller();'
+                  },
+                  {
+                    text: 'The first argument gives the new njn.controller a name so you can reference it in your HTML:',
+                    preLanguage: 'javascript',
+                    code: 'njn.controller(\'example-controller\');'
+                  },
+                  {
+                    text: function() {
+                      return njn.controller({
+                        inlineCode: '<code class="language-javascript">viewInterface</code>'
+                      }).process('The second argument provides the njn.controller\'s {{inlineCode}}:');
+                    },
+                  }
+              ],
+              sectionBody:
+                '<div>' +
+                  '<div njn-foreach="subsections">' +
+                    '{{text}}' + codeBlock +
+                  '</div>' +
+                '</div>'
+
+//                
+//          <!----><pre class="language-javascript"><code>
+//          <!---->fofx.controller('example-controller', {
+//          <!---->  exampleText: 'hello world'
+//          <!---->});
+//          <!----></code></pre>
             }
         ]
       }
