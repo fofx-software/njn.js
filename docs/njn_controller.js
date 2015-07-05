@@ -191,6 +191,7 @@ function processTextNode(textNode, lookupChain, indices) {
   var parentElement = textNode.parentElement;
   var nextSibling = textNode.nextSibling;
   parentElement.removeChild(textNode);
+  var noparse = parentElement.hasAttribute('noparse');
   var interpolator = /({{!?\w+\??}})/;
   var newNode = document.createTextNode('');
   njn.String.keepSplit(textNode.textContent, interpolator).forEach(function(part) {
@@ -198,20 +199,27 @@ function processTextNode(textNode, lookupChain, indices) {
     if(processed && njn.isString(processed)) {
       newNode.textContent += processed;
     } else if(njn.isHTMLElement(processed)) {
-      if(parentElement.hasAttribute('noparse')) {
+      if(noparse) {
         newNode.textContent += unescapeHTML(processed.outerHTML);
       } else {
         if(newNode.textContent) {
           parentElement.insertBefore(newNode, nextSibling);
+          if(newNode.textContent.match(/{{.+}}/) && !noparse) {
+            processTextNode(newNode, lookupChain, indices);
+          }
           newNode = document.createTextNode('');
         }
         var element = processHTML(processed, lookupChain, indices)
         parentElement.insertBefore(element, nextSibling);
       }
-
     }
   });
-  if(newNode.textContent) parentElement.insertBefore(newNode, nextSibling);
+  if(newNode.textContent) {
+    parentElement.insertBefore(newNode, nextSibling);
+    if(newNode.textContent.match(/{{.+}}/) && !noparse) {
+      processTextNode(newNode, lookupChain, indices);
+    }
+  }
 }
 
 function processText(text, lookupChain, indices, element) {

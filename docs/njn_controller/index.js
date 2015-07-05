@@ -1,4 +1,10 @@
 var codeBlock = '<pre njn-class="language-{{preLanguage}}"><code noparse>{{code}}</code></pre>';
+var subsections = '<div>' +
+                    '<div njn-foreach="subsections">' +
+                      '<h3><a class="section-number" href=""></a>{{title}}</h3>' +
+                      '{{content}}'
+                    '</div>' +
+                  '</div>';
 
 njn.controller('body-controller', {
   chapters: [
@@ -9,18 +15,15 @@ njn.controller('body-controller', {
               title: 'Download the code:',
               subsections: [
                 {
-                  title: '<a target="_blank" href="http://github.com/fofx-software/njn.js/blob/master/njn.js">njn.js</a>'
+                  title: '<a target="_blank" href="http://github.com/fofx-software/njn.js/blob/master/njn.js">njn.js</a>',
+                  content: ''
                 },
                 {
-                  title: '<a target="_blank" href="http://github.com/fofx-software/njn.js/blob/master/njn_controller.js">njn_controller.js</a>'
+                  title: '<a target="_blank" href="http://github.com/fofx-software/njn.js/blob/master/njn_controller.js">njn_controller.js</a>',
+                  content: ''
                 }
               ],
-              sectionBody:
-                '<div>' +
-                  '<div njn-foreach="subsections">' +
-                    '<h3><a class="section-number" href=""></a>{{title}}</h3>' +
-                  '</div>' +
-                '</div>'
+              sectionBody: subsections
             },
             {
               title: 'Put it in your HTML:',
@@ -55,38 +58,48 @@ njn.controller('body-controller', {
         sections: [
             {
               title: 'Initialize the njn.controller:',
+              viewInterfaceCode: '<code class="language-javascript">viewInterface</code>',
+              preLanguage: 'javascript',
+              content: codeBlock,
               subsections: [
                   {
-                    text: 'Initialize an instance of njn.Controller:',
-                    preLanguage: 'javascript',
-                    code: 'njn.controller();'
+                    title: 'Initialize an instance of njn.Controller:',
+                    code: 'njn.controller();',
                   },
                   {
-                    text: 'The first argument gives the new njn.controller a name so you can reference it in your HTML:',
-                    preLanguage: 'javascript',
-                    code: 'njn.controller(\'example-controller\');'
+                    title: 'The first argument gives the new njn.controller a name so you can reference it in your HTML:',
+                    code: 'njn.controller(\'example-controller\');',
                   },
                   {
-                    text: function() {
-                      return njn.controller({
-                        inlineCode: '<code class="language-javascript">viewInterface</code>'
-                      }).process('The second argument provides the njn.controller\'s {{inlineCode}}:');
-                    },
+                    title: 'The second argument provides the njn.controller\'s {{viewInterfaceCode}}:',
+                    code:
+                      'njn.controller(\'example-controller\', {\n' +
+                      '  exampleText: \'hello world\'\n' +
+                      '});',
+                  },
+                  {
+                    title: 'It\'s also possible to pass only a {{viewInterfaceCode}}:',
+                    code:
+                      'njn.controller({\n' +
+                      '  exampleText: \'hello world\'\n' +
+                      '});'
                   }
               ],
-              sectionBody:
-                '<div>' +
-                  '<div njn-foreach="subsections">' +
-                    '{{text}}' + codeBlock +
-                  '</div>' +
-                '</div>'
-
-//                
-//          <!----><pre class="language-javascript"><code>
-//          <!---->fofx.controller('example-controller', {
-//          <!---->  exampleText: 'hello world'
-//          <!---->});
-//          <!----></code></pre>
+              sectionBody: subsections
+            }
+        ]
+      },
+      {
+        title: 'Reference the njn.controller',
+        sections: [
+            {
+              njnControllerAttr: '<code class="language-markup">njn-controller</code>',
+              sectionBody: subsections,
+              sections: [
+                
+              ],
+              sectionBody: 'Reference the njn.controller by its name in an {{njnControllerAttr}} HTML attribute: {{code}}'
+              //<div fx-controller="example-controller"&gt;&lt;/div&gt;
             }
         ]
       }
