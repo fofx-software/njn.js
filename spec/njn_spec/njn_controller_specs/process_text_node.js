@@ -20,6 +20,15 @@ describe('processTextNode()', function() {
     });
   });
 
+  describe('when the textNode has an interpolator that returns text with an interpolator', function() {
+    it('processes the returned text', function() {
+      var node = parentElement.appendChild(document.createTextNode('{{getText}}'));
+      var viewInterface = { getText: '{{newText}}', newText: 'hello' };
+      processTextNode(node, [viewInterface], []);
+      expect(parentElement.childNodes[2].textContent).toBe('hello');
+    });
+  });
+
   describe('when the textNode consists of interpolator(s) that resolve(s) to HTMLElement(s) as well as other text', function() {
     it('inserts each text segment as a textNode and the resolved HTMLElement(s) in the appropriate order', function() {
       var node = parentElement.appendChild(document.createTextNode('my name is {{name}} and {{bold}} is my game'));
@@ -27,11 +36,11 @@ describe('processTextNode()', function() {
         name: 'Joe',
         bold: (function(b) { b.textContent = 'programming'; return b; })(document.createElement('b'))
       }], []);
-      expect(parentElement.childNodes.length).toBe(5);
-      expect(parentElement.childNodes[2].textContent).toBe('my name is Joe and ');
-      expect(parentElement.childNodes[3].textContent).toBe('programming');
-      expect(parentElement.childNodes[3].tagName).toBe('B');
-      expect(parentElement.childNodes[4].textContent).toBe(' is my game');
+      expect(parentElement.childNodes.length).toBe(6);
+      expect(parentElement.childNodes[3].textContent).toBe('my name is Joe and ');
+      expect(parentElement.childNodes[4].textContent).toBe('programming');
+      expect(parentElement.childNodes[4].tagName).toBe('B');
+      expect(parentElement.childNodes[5].textContent).toBe(' is my game');
     });
   });
 
@@ -44,7 +53,7 @@ describe('processTextNode()', function() {
         })(document.createElement('p')),
         getClass: 'new-class'
       }], []);
-      expect(parentElement.childNodes[5].className).toBe('new-class');
+      expect(parentElement.childNodes[6].className).toBe('new-class');
     });
   });
 
@@ -52,10 +61,10 @@ describe('processTextNode()', function() {
     it('parses the html and inserts it', function() {
       var node = parentElement.appendChild(document.createTextNode('bold text: {{getBold}} is bold'));
       processTextNode(node, [{ getBold: '<b>this</b>' }], []);
-      expect(parentElement.childNodes[6].textContent).toBe('bold text: ');
-      expect(parentElement.childNodes[7].tagName).toBe('B');
-      expect(parentElement.childNodes[7].textContent).toBe('this');
-      expect(parentElement.childNodes[8].textContent).toBe(' is bold');
+      expect(parentElement.childNodes[7].textContent).toBe('bold text: ');
+      expect(parentElement.childNodes[8].tagName).toBe('B');
+      expect(parentElement.childNodes[8].textContent).toBe('this');
+      expect(parentElement.childNodes[9].textContent).toBe(' is bold');
     });
 
     describe('when the parentElement has a noparse attribute', function() {
