@@ -59,13 +59,24 @@ describe('processTextNode()', function() {
     });
 
     describe('when the parentElement has a noparse attribute', function() {
-      it('parses the html, converts it to text and inserts it', function() {
+      it('inserts the html as text', function() {
         var div = parentElement.appendChild(document.createElement('div'));
         div.setAttribute('noparse', '');
         div.textContent = '{{getInnerDiv}}';
         var viewInterface = { getInnerDiv: '<div class="example"><p>hello <b>world</b></p><input></div>' };
         processTextNode(div.childNodes[0], [viewInterface], []);
-        expect(parentElement.childNodes[9].textContent).toBe('<div class="example"><p>hello <b>world</b></p><input></div>');
+        expect(div.textContent).toBe('<div class="example"><p>hello <b>world</b></p><input></div>');
+      });
+
+      describe('when the html string contains an interpolator', function() {
+        it('does not process it', function() {
+          var div = parentElement.appendChild(document.createElement('div'));
+          div.setAttribute('noparse', '');
+          div.textContent = '{{getInnerDiv}}';
+          var viewInterface = { getInnerDiv: '<div>{{getInnerDiv}}</div>' };
+          processTextNode(div.childNodes[0], [viewInterface], []);
+          expect(div.textContent).toBe('<div>{{getInnerDiv}}</div>');
+        });
       });
     });
   });

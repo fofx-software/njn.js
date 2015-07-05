@@ -198,15 +198,17 @@ function processTextNode(textNode, lookupChain, indices) {
     if(processed && njn.isString(processed)) {
       newNode.textContent += processed;
     } else if(njn.isHTMLElement(processed)) {
-      var element = processHTML(processed, lookupChain, indices);
       if(parentElement.hasAttribute('noparse')) {
-        newNode.textContent += unescapeHTML(element.outerHTML);
-        element = null;
-      } else if(newNode.textContent) {
-        parentElement.insertBefore(newNode, nextSibling);
-        newNode = document.createTextNode('');
+        newNode.textContent += unescapeHTML(processed.outerHTML);
+      } else {
+        if(newNode.textContent) {
+          parentElement.insertBefore(newNode, nextSibling);
+          newNode = document.createTextNode('');
+        }
+        var element = processHTML(processed, lookupChain, indices)
+        parentElement.insertBefore(element, nextSibling);
       }
-      if(element) parentElement.insertBefore(element, nextSibling);
+
     }
   });
   if(newNode.textContent) parentElement.insertBefore(newNode, nextSibling);

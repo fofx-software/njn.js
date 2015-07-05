@@ -127,7 +127,7 @@ describe('parseHTML()', function() {
     });
   });
 
-  describe('when an outer element has a noparse attribute and an escapable character appears within a child element', function() {
+  describe('when an outer element has a noparse attribute and an ampersand appears within a child element', function() {
     it('unescapes it', function() {
       var div = parseHTML('<div noparse><div>&</div></div>')[0];
       expect(div.textContent).toBe('<div>&</div>');
@@ -138,6 +138,13 @@ describe('parseHTML()', function() {
     it('unescapes it', function() {
       var div = parseHTML('<div noparse><div>&lt;&gt;</div></div>')[0];
       expect(div.textContent).toBe('<div><></div>');
+    });
+  });
+
+  describe('to display a literal escape sequence', function() {
+    it('you need to use &amp;', function() {
+      var div = parseHTML('<div noparse><div>&amp;lt;</div></div>')[0];
+      expect(div.textContent).toBe('<div>&lt;</div>');
     });
   });
 });
