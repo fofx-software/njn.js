@@ -115,11 +115,4 @@ describe('processText()', function() {
       expect(willThrow).toThrowError(/text.replace is not a function/);
     });
   });
-
-  describe('when the string contains an interpolator that resolves to an html string', function() {
-    it('parses the html and returns the resulting elements', function() {
-      var processed = processText('{{getDiv}}',[{ getDiv: '<div></div>' }], [], document.createElement('div'));
-      expect(processed.tagName).toBe('DIV');
-    });
-  });
 });

@@ -76,17 +76,6 @@ describe('processTextNode()', function() {
         processTextNode(div.childNodes[0], [viewInterface], []);
         expect(div.textContent).toBe('<div class="example"><p>hello <b>world</b></p><input></div>');
       });
-
-      describe('when the html string contains an interpolator', function() {
-        it('does not process it', function() {
-          var div = parentElement.appendChild(document.createElement('div'));
-          div.setAttribute('noparse', '');
-          div.textContent = '{{getInnerDiv}}';
-          var viewInterface = { getInnerDiv: '<div>{{getInnerDiv}}</div>' };
-          processTextNode(div.childNodes[0], [viewInterface], []);
-          expect(div.textContent).toBe('<div>{{getInnerDiv}}</div>');
-        });
-      });
     });
   });
 });
