@@ -67,4 +67,32 @@ describe('processTextNode()', function() {
       expect(parentElement.childNodes[9].textContent).toBe(' is bold');
     });
   });
+
+  describe('when the textNode contains inline html', function() {
+    it('parses the html in place', function() {
+      var node = parentElement.appendChild(document.createTextNode('before text<div><p>inner <b>text</b></p>after p</div>after text'));
+      processTextNode(node, [], []);
+      expect(parentElement.childNodes[10].textContent).toBe('before text');
+      expect(parentElement.childNodes[11].children[0].childNodes[0].textContent).toBe('inner ');
+      expect(parentElement.childNodes[11].children[0].childNodes[1].textContent).toBe('text');
+      expect(parentElement.childNodes[11].childNodes[1].textContent).toBe('after p');
+      expect(parentElement.childNodes[12].textContent).toBe('after text');
+    });
+  });
+
+  describe('when the textNode contains escaped html or double braces', function() {
+    it('does not parse them, but unescapes them before rendering', function() {
+      var node = parentElement.appendChild(document.createTextNode('&lt;div&gt;&#123;&#123;interpolator&#125;&#125;&lt;/div&gt;'));
+      processTextNode(node, [], []);
+      expect(parentElement.childNodes[13].textContent).toBe('<div>{{interpolator}}</div>');
+    });
+  });
+
+  describe('when the textNode contains an interpolator that resolves to escaped html or double braces', function() {
+    it('does not parse them, but unescapes them before rendering', function() {
+      var node = parentElement.appendChild(document.createTextNode('insert {{html}} here'));
+      processTextNode(node, [{ html: '&lt;div&gt;&#123;&#123;html&#125;&#125;&lt;/div&gt;' }], []);
+      expect(parentElement.childNodes[14].textContent).toBe('insert <div>{{html}}</div> here');
+    });
+  });
 });

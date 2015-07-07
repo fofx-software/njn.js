@@ -40,11 +40,11 @@ NJNController.unescapeHTML = function(html) {
 }
 
 NJNController.escapeHTML = function(html) {
-  return html.replace('<', /&lt;/g)
-             .replace('>', /&gt;/g)
-             .replace('&', /&amp;/g)
-             .replace('{', /&#123;/g)
-             .replace('}', /&#125;/g);
+  return html.replace(/</g, '&lt;')
+             .replace(/>/g, '&gt;')
+             .replace(/&/g, '&amp;')
+             .replace(/{/g, '&#123;')
+             .replace(/}/g, '&#125;');
 }
 
 NJNController.prototype.loadTemplate = function(templateElement) {
