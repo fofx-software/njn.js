@@ -56,11 +56,12 @@ NJNController.prototype.refreshView = function(oldElement) {
   this.liveElement = this.template.cloneNode(true);
 
   this.liveElement.removeAttribute('njn-controller');
-  processHTML(this.liveElement, [this.viewInterface], []);
 
   if(oldElement.parentElement) {
     oldElement.parentElement.replaceChild(this.liveElement, oldElement);
   }
+
+  processHTML(this.liveElement, [this.viewInterface], []);
 
   return this.liveElement;
 }
@@ -194,8 +195,8 @@ function repeatElement(element, lookupChain, indices) {
 
   lookupChain[0].forEach(function(item, listIndex) {
     var cloneElement = element.cloneNode(true);
-    processHTML(cloneElement, [item].concat(lookupChain), [listIndex].concat(indices));
     elementParent.insertBefore(cloneElement, nextSibling);
+    processHTML(cloneElement, [item].concat(lookupChain), [listIndex].concat(indices));
   });
 }
 

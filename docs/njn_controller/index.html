@@ -9,23 +9,35 @@
   <link rel="stylesheet" href="../prism.css">
   <link rel="stylesheet" href="index.css">
 </head>
-<body njn-controller="body-controller">
-  <h1 class="section-break">njn.Controller</h1>
-  <div class="section-wrapper">
-    <h3>A module for building interactive web apps and DRYing your HTML with powerful templating.</h3>
-  </div>
+<body>
+  <div njn-controller="body-controller">
+    <div id="left-panel">
+      <div njn-foreach="chapters">
+        <a href="javascript:void(0)" njn-on="click:scrollTo">{{title}}</a>
+        <div njn-foreach="sections">
+          <a href="javascript:void(0)" njn-on="click:scrollTo">----{{title}}</a>
+        </div>
+      </div>
+    </div>
 
-  <div njn-foreach="chapters">
-    <h1 class="section-break">{{title}}</h1>
+    <div id="main-body">
+      <h1 class="section-break">njn.Controller</h1>
+      <div class="section-wrapper">
+        <h3 class="section-title">A module for building interactive web apps and DRYing your HTML with powerful templating.</h3>
+      </div>
 
-    <div class="section-wrapper" njn-foreach="sections">
-      <div><a class="section-number" href=""><h2></h2></a><h2>{{title}}</h2></div>
-      <div class="section-body">
-        {{sectionBody}}
+      <div njn-foreach="chapters">
+        <h1 class="section-break">{{title}}</h1>
+        <div class="section-wrapper" njn-foreach="sections" njn-data-scroll="{{offsetTop}}">
+          <div><a class="section-number" href=""><h2></h2></a><h2 class="section-title">{{title}}:</h2></div>
+          <div class="section-body">
+            {{sectionBody}}
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <script type="text/javascript" src="../prism.js"></script>
   <script type="text/javascript" src="index.js"></script>
+  <script type="text/javascript" src="../prism.js"></script>
 </body>
 </html>

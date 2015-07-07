@@ -2,17 +2,25 @@ var codeBlock = '<pre njn-class="language-{{preLanguage}}"><code>{{code}}</code>
 var subsections = '<div>' +
                     '<div njn-foreach="subsections">' +
                       '<h3><a class="section-number" href=""></a>{{title}}</h3>' +
-                      '{{content}}'
+                      '{{content}}' +
                     '</div>' +
                   '</div>';
 
 njn.controller('body-controller', {
+  scrollY: function() {
+    return this.currElement.offsetTop;
+  },
+  scrollTo: function() {
+console.log([].join.call(arguments));
+    //var element = 
+    //window.scrollTo(0, 
+  },
   chapters: [
       {
         title: 'Quick Start',
         sections: [
             {
-              title: 'Download the code:',
+              title: 'Download the code',
               subsections: [
                 {
                   title: '<a target="_blank" href="http://github.com/fofx-software/njn.js/blob/master/njn.js">njn.js</a>',
@@ -26,7 +34,7 @@ njn.controller('body-controller', {
               sectionBody: subsections
             },
             {
-              title: 'Put it in your HTML:',
+              title: 'Put it in your HTML',
               preLanguage: 'markup',
               code: njn.Controller.escapeHTML(
                 '<head>\n' +
@@ -37,7 +45,7 @@ njn.controller('body-controller', {
               sectionBody: '<div>' + codeBlock + '<i>syntax highlighting courtesy of <a href="http://prismjs.com" target="_blank">Prism</a></i></div>'
             },
             {
-              title: 'Put it to work:',
+              title: 'Put it to work',
               preLanguage: 'markup',
               code: njn.Controller.escapeHTML(
                 '<body>\n' +
@@ -59,7 +67,7 @@ njn.controller('body-controller', {
         title: 'Usage',
         sections: [
             {
-              title: 'Initialize the njn.controller:',
+              title: 'Initialize the njn.controller',
               viewInterfaceCode: '<code class="language-javascript">viewInterface</code>',
               preLanguage: 'javascript',
               content: codeBlock,
@@ -88,19 +96,19 @@ njn.controller('body-controller', {
                   }
               ],
               sectionBody: subsections
-            }
-        ]
-      },
-      {
-        title: 'Reference the njn.controller',
-        sections: [
+            },
             {
-              sectionBody: subsections,
+              title: 'Reference the njn.controller',
               sections: [
-                
-              ],
-              sectionBody: 'Reference the njn.controller by its name in an <code class="language-markup">njn-controller</code> HTML attribute: {{code}}'
-              //<div fx-controller="example-controller"&gt;&lt;/div&gt;
+                  {
+                    sectionBody: subsections,
+                    sections: [
+                      
+                    ],
+                    sectionBody: 'Reference the njn.controller by its name in an <code class="language-markup">njn-controller</code> HTML attribute: {{code}}'
+                    //<div fx-controller="example-controller"&gt;&lt;/div&gt;
+                  }
+              ]
             }
         ]
       }

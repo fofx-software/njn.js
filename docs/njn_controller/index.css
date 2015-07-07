@@ -1,6 +1,18 @@
 body {
   color: rgb(47,79,79);
 }
+#left-panel {
+  position: fixed;
+  float: left;
+  width: 20%;
+  height: 100%;
+  overflow-y: auto;
+}
+#main-body {
+  padding-left: 1%;
+  float: right;
+  width: 79%;
+}
 .section-break {
   counter-reset: section;
   padding: 10px;
@@ -10,7 +22,7 @@ body {
 .section-wrapper {
   box-shadow: -5px 5px 5px gray;
   padding: 0px 5px 5px 5px;
-  margin: 0 10% 10px 10%;
+  margin: 0 0 10px 0;
   background: rgba(47,79,79,0.15);
 }
 @media (max-width: 500px) {
