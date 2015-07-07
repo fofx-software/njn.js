@@ -66,16 +66,5 @@ describe('processTextNode()', function() {
       expect(parentElement.childNodes[8].textContent).toBe('this');
       expect(parentElement.childNodes[9].textContent).toBe(' is bold');
     });
-
-    describe('when the parentElement has a noparse attribute', function() {
-      it('inserts the html as text', function() {
-        var div = parentElement.appendChild(document.createElement('div'));
-        div.setAttribute('noparse', '');
-        div.textContent = '{{getInnerDiv}}';
-        var viewInterface = { getInnerDiv: '<div class="example"><p>hello <b>world</b></p><input></div>' };
-        processTextNode(div.childNodes[0], [viewInterface], []);
-        expect(div.textContent).toBe('<div class="example"><p>hello <b>world</b></p><input></div>');
-      });
-    });
   });
 });

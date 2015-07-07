@@ -110,41 +110,12 @@ describe('parseHTML()', function() {
         expect(div.children[1].tagName).toBe('DIV');
       });
     });
-
-    describe('when an outer element has a noparse attribute', function() {
-      it('does not parse inner html', function() {
-        var html = '<pre><code noparse>text<div class="example-div"><div></div></div></code></pre>';
-        var pre = parseHTML(html)[0];
-        expect(pre.children[0].textContent).toBe('text<div class="example-div"><div></div></div>');
-      });
-    });
   });
 
   describe('when an html string contains a comment', function() {
     it('treats it as text', function() {
       var div = parseHTML('<div>hello sir <!-- comment --></div>')[0];
       expect(div.textContent).toBe('hello sir <!-- comment -->');
-    });
-  });
-
-  describe('when an outer element has a noparse attribute and an ampersand appears within a child element', function() {
-    it('unescapes it', function() {
-      var div = parseHTML('<div noparse><div>&</div></div>')[0];
-      expect(div.textContent).toBe('<div>&</div>');
-    });
-  });
-
-  describe('when an outer element has a noparse attribute and an escaped character appears within a child element', function() {
-    it('unescapes it', function() {
-      var div = parseHTML('<div noparse><div>&lt;&gt;</div></div>')[0];
-      expect(div.textContent).toBe('<div><></div>');
-    });
-  });
-
-  describe('to display a literal escape sequence', function() {
-    it('you need to use &amp;', function() {
-      var div = parseHTML('<div noparse><div>&amp;lt;</div></div>')[0];
-      expect(div.textContent).toBe('<div>&lt;</div>');
     });
   });
 });

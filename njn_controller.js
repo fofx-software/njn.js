@@ -31,6 +31,22 @@ njn.controller = function(controllerName, viewInterface, watching) {
   return controller;
 }
 
+NJNController.unescapeHTML = function(html) {
+  return html.replace(/&lt;/g,   '<')
+             .replace(/&gt;/g,   '>')
+             .replace(/&amp;/g,  '&')
+             .replace(/&#123;/g, '{')
+             .replace(/&#125;/g, '}');
+}
+
+NJNController.escapeHTML = function(html) {
+  return html.replace('<', /&lt;/g)
+             .replace('>', /&gt;/g)
+             .replace('&', /&amp;/g)
+             .replace('{', /&#123;/g)
+             .replace('}', /&#125;/g);
+}
+
 NJNController.prototype.loadTemplate = function(templateElement) {
   this.template = templateElement;
   if(this.template) this.refreshView(this.template);
@@ -71,9 +87,6 @@ function processHTML(element, lookupChain, indices) {
       }
     });
   }
-
-  // in case noparse attribute was used in processTextNode, it can safely be removed now:
-  element.removeAttribute('noparse');
 
   return element;
 }
@@ -192,14 +205,11 @@ function processTextNode(textNode, lookupChain, indices) {
   var nextSibling = textNode.nextSibling;
   parentElement.removeChild(textNode);
 
-  var noparse = parentElement.hasAttribute('noparse');
   var textContent = textNode.textContent;
-  var nextProcess = noparse ? '{{' : '{{|<';
   var newNode = document.createTextNode('');
 
-  while(textContent.match(nextProcess)) {
-    var upToRegExp = new RegExp('^([^{<]|\{(?!\{)|\n)+(?=' + nextProcess + ')');
-    if(noparse) upToRegExp = new RegExp('^([^{]|\{(?!\{)|\n)+(?=' + nextProcess + ')');
+  while(textContent.match(/{{|</)) {
+    var upToRegExp = new RegExp('^([^{<]|\{(?!\{)|\n)+(?={{|<)');
     var upTo = textContent.match(upToRegExp);
     if(upTo) {
       newNode.textContent += upTo[0];
@@ -211,8 +221,7 @@ function processTextNode(textNode, lookupChain, indices) {
       var processed = processText(interpolator[0], lookupChain, indices, parentElement);
       if(njn.isHTMLElement(processed)) {
         if(newNode.textContent) {
-// test this:
-          newNode.textContent = unescapeHTML(newNode.textContent);
+          newNode.textContent = NJNController.unescapeHTML(newNode.textContent);
           parentElement.insertBefore(newNode, nextSibling);
           newNode = document.createTextNode('');
         }
@@ -222,10 +231,9 @@ function processTextNode(textNode, lookupChain, indices) {
       } else {
         textContent = textContent.replace(interpolatorRegExp, processed);
       }
-    } else if(!noparse && textContent.match(/^</)) {
+    } else if(textContent.match(/^</)) {
       if(newNode.textContent) {
-// test this:
-        newNode.textContent = unescapeHTML(newNode.textContent);
+        newNode.textContent = NJNController.unescapeHTML(newNode.textContent);
         parentElement.insertBefore(newNode, nextSibling);
         newNode = document.createTextNode('');
       }
@@ -237,8 +245,7 @@ function processTextNode(textNode, lookupChain, indices) {
   }
   if(textContent) {
     newNode.textContent += textContent;
-// test this:
-    newNode.textContent = unescapeHTML(newNode.textContent);
+    newNode.textContent = NJNController.unescapeHTML(newNode.textContent);
     parentElement.insertBefore(newNode, nextSibling);
   }
 }
@@ -275,30 +282,17 @@ function parseHTML(html) {
     var closingTag = new RegExp('^</' + tagName + '>');
     while(!tagName.match(/^(img|br|input)$/) && html && !html.match(closingTag)) {
       var processed = parseHTML(html);
-      if(element.hasAttribute('noparse')) {
-// refactor this:
-        var outerHTML = processed[0].outerHTML;
-        if(outerHTML) processed[0] = document.createTextNode(unescapeHTML(outerHTML));
-      }
       element.appendChild(processed[0]);
       html = processed[1];
     }
     html = html.replace(closingTag, '');
   } else {
     var textPart = /^([^<]|<(?=!--))+/;
-    var unescaped = unescapeHTML(html.match(textPart)[0]);
+    var unescaped = NJNController.unescapeHTML(html.match(textPart)[0]);
     element = document.createTextNode(unescaped);
     html = html.replace(textPart,'');
   }
   return [element, html];
-}
-
-function unescapeHTML(html) {
-  return html.replace(/&lt;/g,'<')
-             .replace(/&gt;/g,'>')
-             .replace(/&amp;/g, '&')
-             .replace(/&#123;/g,'{')
-             .replace(/&#125;/g,'}');
 }
 
 function configureAttribute(element, attr, lookupChain, indices) {
