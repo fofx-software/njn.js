@@ -31,6 +31,22 @@ njn.controller = function(controllerName, viewInterface, watching) {
   return controller;
 }
 
+NJNController.unescapeHTML = function(html) {
+  return html.replace(/&lt;/g,   '<')
+             .replace(/&gt;/g,   '>')
+             .replace(/&amp;/g,  '&')
+             .replace(/&#123;/g, '{')
+             .replace(/&#125;/g, '}');
+}
+
+NJNController.escapeHTML = function(html) {
+  return html.replace(/</g, '&lt;')
+             .replace(/>/g, '&gt;')
+             .replace(/&/g, '&amp;')
+             .replace(/{/g, '&#123;')
+             .replace(/}/g, '&#125;');
+}
+
 NJNController.prototype.loadTemplate = function(templateElement) {
   this.template = templateElement;
   if(this.template) this.refreshView(this.template);
@@ -71,9 +87,6 @@ function processHTML(element, lookupChain, indices) {
       }
     });
   }
-
-  // in case noparse attribute was used in processTextNode, it can safely be removed now:
-  element.removeAttribute('noparse');
 
   return element;
 }
@@ -191,34 +204,49 @@ function processTextNode(textNode, lookupChain, indices) {
   var parentElement = textNode.parentElement;
   var nextSibling = textNode.nextSibling;
   parentElement.removeChild(textNode);
-  var noparse = parentElement.hasAttribute('noparse');
-  var interpolator = /({{!?\w+\??}})/;
+
+  var textContent = textNode.textContent;
   var newNode = document.createTextNode('');
-  njn.String.keepSplit(textNode.textContent, interpolator).forEach(function(part) {
-    var processed = processText(part, lookupChain, indices, parentElement);
-    if(processed && njn.isString(processed)) {
-      newNode.textContent += processed;
-    } else if(njn.isHTMLElement(processed)) {
-      if(noparse) {
-        newNode.textContent += unescapeHTML(processed.outerHTML);
-      } else {
+
+  while(textContent.match(/{{|</)) {
+    var upToRegExp = new RegExp('^([^{<]|\{(?!\{)|\n)+(?={{|<)');
+    var upTo = textContent.match(upToRegExp);
+    if(upTo) {
+      newNode.textContent += upTo[0];
+      textContent = textContent.replace(upTo[0], '');
+    }
+    var interpolatorRegExp = /^\{\{([^}]|\}(?!\}))+\}\}/;
+    var interpolator = textContent.match(interpolatorRegExp);
+    if(interpolator) {
+      var processed = processText(interpolator[0], lookupChain, indices, parentElement);
+      if(njn.isHTMLElement(processed)) {
         if(newNode.textContent) {
+          newNode.textContent = NJNController.unescapeHTML(newNode.textContent);
           parentElement.insertBefore(newNode, nextSibling);
-          if(newNode.textContent.match(/{{.+}}/) && !noparse) {
-            processTextNode(newNode, lookupChain, indices);
-          }
           newNode = document.createTextNode('');
         }
-        var element = processHTML(processed, lookupChain, indices)
+        var element = processHTML(processed, lookupChain, indices);
         parentElement.insertBefore(element, nextSibling);
+        textContent = textContent.replace(interpolatorRegExp,'');
+      } else {
+        textContent = textContent.replace(interpolatorRegExp, processed);
       }
+    } else if(textContent.match(/^</)) {
+      if(newNode.textContent) {
+        newNode.textContent = NJNController.unescapeHTML(newNode.textContent);
+        parentElement.insertBefore(newNode, nextSibling);
+        newNode = document.createTextNode('');
+      }
+      var processed = parseHTML(textContent);
+      var element = processHTML(processed[0], lookupChain, indices);
+      parentElement.insertBefore(element, nextSibling);
+      textContent = processed[1];
     }
-  });
-  if(newNode.textContent) {
+  }
+  if(textContent) {
+    newNode.textContent += textContent;
+    newNode.textContent = NJNController.unescapeHTML(newNode.textContent);
     parentElement.insertBefore(newNode, nextSibling);
-    if(newNode.textContent.match(/{{.+}}/) && !noparse) {
-      processTextNode(newNode, lookupChain, indices);
-    }
   }
 }
 
@@ -229,9 +257,6 @@ function processText(text, lookupChain, indices, element) {
     var innerMatch = match.match(/\w+\??/)[0];
     var replacement = resolveFromLookupChain(innerMatch, lookupChain, indices, element);
     if(negate) { replacement = !replacement; }
-    if(njn.isString(replacement) && /^</.test(replacement)) {
-      replacement = parseHTML(replacement)[0];
-    }
     if(njn.isHTMLElement(replacement)) {
       text = replacement;
     } else {
@@ -244,7 +269,7 @@ function processText(text, lookupChain, indices, element) {
 function parseHTML(html) {
   var element;
   if(html.match(/^<(?!!--)/)) {
-    var openTagRegExp = /^<([^<]+)>/;
+    var openTagRegExp = /^<([^>]+)>/;
     var openingTag = html.match(openTagRegExp)[1].split(' ');
     var tagName = openingTag.shift();
     element = document.createElement(tagName);
@@ -257,25 +282,17 @@ function parseHTML(html) {
     var closingTag = new RegExp('^</' + tagName + '>');
     while(!tagName.match(/^(img|br|input)$/) && html && !html.match(closingTag)) {
       var processed = parseHTML(html);
-      if(element.hasAttribute('noparse')) {
-        var outerHTML = processed[0].outerHTML;
-        if(outerHTML) processed[0] = document.createTextNode(unescapeHTML(outerHTML));
-      }
       element.appendChild(processed[0]);
       html = processed[1];
     }
     html = html.replace(closingTag, '');
   } else {
     var textPart = /^([^<]|<(?=!--))+/;
-    var unescaped = unescapeHTML(html.match(textPart)[0]);
+    var unescaped = NJNController.unescapeHTML(html.match(textPart)[0]);
     element = document.createTextNode(unescaped);
     html = html.replace(textPart,'');
   }
   return [element, html];
-}
-
-function unescapeHTML(html) {
-  return html.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g, '&').replace(/&quot;/,'"');
 }
 
 function configureAttribute(element, attr, lookupChain, indices) {

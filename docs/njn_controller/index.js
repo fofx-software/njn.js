@@ -1,4 +1,4 @@
-var codeBlock = '<pre njn-class="language-{{preLanguage}}"><code noparse>{{code}}</code></pre>';
+var codeBlock = '<pre njn-class="language-{{preLanguage}}"><code>{{code}}</code></pre>';
 var subsections = '<div>' +
                     '<div njn-foreach="subsections">' +
                       '<h3><a class="section-number" href=""></a>{{title}}</h3>' +
