@@ -41,7 +41,7 @@ njn.controller('body-controller', {
               preLanguage: 'markup',
               code: njn.Controller.escapeHTML(
                 '<body>\n' +
-                '  <div njn-controller="example-controller>\n' +
+                '  <div njn-controller="example-controller">\n' +
                 '    {{exampleText}} <!-- will be processed as \'hello world\' -->\n' +
                 '  </div>\n' +
                 '  <script>\n' +
@@ -95,12 +95,11 @@ njn.controller('body-controller', {
         title: 'Reference the njn.controller',
         sections: [
             {
-              njnControllerAttr: '<code class="language-markup">njn-controller</code>',
               sectionBody: subsections,
               sections: [
                 
               ],
-              sectionBody: 'Reference the njn.controller by its name in an {{njnControllerAttr}} HTML attribute: {{code}}'
+              sectionBody: 'Reference the njn.controller by its name in an <code class="language-markup">njn-controller</code> HTML attribute: {{code}}'
               //<div fx-controller="example-controller"&gt;&lt;/div&gt;
             }
         ]

@@ -42,7 +42,6 @@ NJNController.unescapeHTML = function(html) {
 NJNController.escapeHTML = function(html) {
   return html.replace(/</g, '&lt;')
              .replace(/>/g, '&gt;')
-             .replace(/&/g, '&amp;')
              .replace(/{/g, '&#123;')
              .replace(/}/g, '&#125;');
 }
