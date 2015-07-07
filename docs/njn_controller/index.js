@@ -28,17 +28,18 @@ njn.controller('body-controller', {
             {
               title: 'Put it in your HTML:',
               preLanguage: 'markup',
-              code: 
+              code: njn.Controller.escapeHTML(
                 '<head>\n' +
                 '  <script src="njn.js"></script> <!-- run this first! -->\n' +
                 '  <script src="njn_controller.js"></script>\n' +
-                '</head>',
+                '</head>'
+              ),
               sectionBody: '<div>' + codeBlock + '<i>syntax highlighting courtesy of <a href="http://prismjs.com" target="_blank">Prism</a></i></div>'
             },
             {
               title: 'Put it to work:',
               preLanguage: 'markup',
-              code:
+              code: njn.Controller.escapeHTML(
                 '<body>\n' +
                 '  <div njn-controller="example-controller>\n' +
                 '    {{exampleText}} <!-- will be processed as \'hello world\' -->\n' +
@@ -48,7 +49,8 @@ njn.controller('body-controller', {
                 '      exampleText: \'hello world\'\n' +
                 '    });\n' +
                 '  </script>\n' +
-                '</body>',
+                '</body>'
+              ),
               sectionBody: codeBlock
             }
         ]
