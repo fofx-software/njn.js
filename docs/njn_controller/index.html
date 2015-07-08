@@ -14,9 +14,9 @@
   <div njn-controller="body-controller">
     <div id="left-panel">
       <div njn-foreach="chapters">
-        <a njn-href="#{{sectionId}}">{{title}}</a>
-        <div njn-foreach="sections">
-          <a njn-href="#{{sectionId}}">----{{title}}</a>
+        <h2><a njn-href="#{{sectionId}}">{{title}}</a></h2>
+        <div njn-foreach="sections" class="navlink">
+          <a njn-href="#{{sectionId}}">{{title}}</a>
         </div>
       </div>
     </div>

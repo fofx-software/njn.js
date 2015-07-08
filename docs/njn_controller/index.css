@@ -5,12 +5,22 @@ body {
   position: fixed;
   float: left;
   width: 20%;
-  height: 100%;
+  height: 98%;
   overflow-y: auto;
 }
 #left-panel a {
+  display: block;
+  width: 98%;
+  padding: 2% 1% 2% 1%;
   color: rgb(47,79,79);
   text-decoration: none;
+}
+#left-panel a:hover {
+  color: white;
+  background-color: rgb(47,79,79);
+}
+#left-panel h2 {
+  padding: 0px;
 }
 #main-body {
   padding-left: 1%;
