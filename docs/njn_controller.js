@@ -105,7 +105,7 @@ function resolveFromLookupChain(propertyName, lookupChain, indices, currElement,
     if(njn.isFunction(resolved)) {
       viewInterface.currElement = currElement;
       var lookupArg = [];
-      if(found === viewInterface) lookupArg = lookupChain.slice(0,-1).concat(indices);
+      if(found === viewInterface) lookupArg = [lookupChain.slice(0,-1)].concat([indices]);
       if(found === viewInterface && eventArg) lookupArg.unshift(eventArg);
       resolved = resolved.apply(found, lookupArg);
       delete viewInterface.currElement;

@@ -5,15 +5,15 @@ var subsections = '<div>' +
                       '{{content}}' +
                     '</div>' +
                   '</div>';
+var scrollLink = '<a href="javascript:void(0)" njn-on="click:scrollTo">';
 
 njn.controller('body-controller', {
-  scrollY: function() {
-    return this.currElement.offsetTop;
-  },
-  scrollTo: function() {
-console.log([].join.call(arguments));
-    //var element = 
-    //window.scrollTo(0, 
+  scrollTo: function(e, lookupChain, indices) {
+    var element = document.getElementsByClassName('chapter')[indices.slice(-1)[0]];
+    if(indices.length === 2) {
+      element = element.getElementsByClassName('section-wrapper')[indices[0]];
+    }
+    window.scrollTo(0, element.offsetTop - 5);
   },
   chapters: [
       {
@@ -42,7 +42,7 @@ console.log([].join.call(arguments));
                 '  <script src="njn_controller.js"></script>\n' +
                 '</head>'
               ),
-              sectionBody: '<div>' + codeBlock + '<i>syntax highlighting courtesy of <a href="http://prismjs.com" target="_blank">Prism</a></i></div>'
+              sectionBody: codeBlock + '<i>syntax highlighting courtesy of <a href="http://prismjs.com" target="_blank">Prism</a></i>'
             },
             {
               title: 'Put it to work',
@@ -95,7 +95,10 @@ console.log([].join.call(arguments));
                       '});'
                   }
               ],
-              sectionBody: subsections
+              sectionBody: subsections + '<i>Note: while all the above constructions are valid, the only one that will permit you to do anything ' +
+                                         'in a typical HTML document is construction 1.3, with a name + a viewInterface.  You need a name so you ' +
+                                         'have a way to ' + scrollLink + 'reference the njn.controller in your HTML</a>, and you need a viewInterface ' +
+                                         'or else there\'s not much to interact with.</i>'
             },
             {
               title: 'Reference the njn.controller',

@@ -8,6 +8,10 @@ body {
   height: 100%;
   overflow-y: auto;
 }
+#left-panel a {
+  color: rgb(47,79,79);
+  text-decoration: none;
+}
 #main-body {
   padding-left: 1%;
   float: right;

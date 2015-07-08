@@ -21,15 +21,10 @@
     </div>
 
     <div id="main-body">
-      <h1 class="section-break">njn.Controller</h1>
-      <div class="section-wrapper">
-        <h3 class="section-title">A module for building interactive web apps and DRYing your HTML with powerful templating.</h3>
-      </div>
-
-      <div njn-foreach="chapters">
+      <div njn-foreach="chapters" class="chapter">
         <h1 class="section-break">{{title}}</h1>
-        <div class="section-wrapper" njn-foreach="sections" njn-data-scroll="{{offsetTop}}">
-          <div><a class="section-number" href=""><h2></h2></a><h2 class="section-title">{{title}}:</h2></div>
+        <div class="section-wrapper" njn-foreach="sections">
+          <div><a class="section-number" href="javascript:void(0)" njn-on="click:scrollTo"><h2></h2></a><h2 class="section-title">{{title}}:</h2></div>
           <div class="section-body">
             {{sectionBody}}
           </div>
