@@ -5,15 +5,17 @@ var subsections = '<div>' +
                       '{{content}}' +
                     '</div>' +
                   '</div>';
-var scrollLink = '<a href="javascript:void(0)" njn-on="click:scrollTo">';
 
 njn.controller('body-controller', {
-  scrollTo: function(e, lookupChain, indices) {
-    var element = document.getElementsByClassName('chapter')[indices.slice(-1)[0]];
+  sectionId: function(lookupChain, indices) {
+    var hyphenize = function(str) { return str.replace(':', '').replace('.', ' ').toLowerCase().split(' ').join('-'); }
+    var chapter = this.chapters[indices.slice(-1)[0]];
     if(indices.length === 2) {
-      element = element.getElementsByClassName('section-wrapper')[indices[0]];
+      var section = chapter.sections[indices[0]];
+      return hyphenize(section.title);
+    } else {
+      return hyphenize(chapter.title);
     }
-    window.scrollTo(0, element.offsetTop - 5);
   },
   chapters: [
       {
@@ -97,8 +99,8 @@ njn.controller('body-controller', {
               ],
               sectionBody: subsections + '<i>Note: while all the above constructions are valid, the only one that will permit you to do anything ' +
                                          'in a typical HTML document is construction 1.3, with a name + a viewInterface.  You need a name so you ' +
-                                         'have a way to ' + scrollLink + 'reference the njn.controller in your HTML</a>, and you need a viewInterface ' +
-                                         'or else there\'s not much to interact with.</i>'
+                                         'have a way to <a href="#reference-the-njn-controller">reference the njn.controller in your HTML</a>, and ' +
+                                         'you need a viewInterface or else there\'s not much to interact with.</i>'
             },
             {
               title: 'Reference the njn.controller',

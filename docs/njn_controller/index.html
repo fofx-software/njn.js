@@ -4,6 +4,7 @@
   <title>njn.Controller API Documentation</title>
   <script type="text/javascript" src="../njn.js"></script>
   <script type="text/javascript" src="../njn_controller.js"></script>
+  <script type="text/javascript" src="../njn_router.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="utf-8">
   <link rel="stylesheet" href="../prism.css">
@@ -13,18 +14,21 @@
   <div njn-controller="body-controller">
     <div id="left-panel">
       <div njn-foreach="chapters">
-        <a href="javascript:void(0)" njn-on="click:scrollTo">{{title}}</a>
+        <a njn-href="#{{sectionId}}">{{title}}</a>
         <div njn-foreach="sections">
-          <a href="javascript:void(0)" njn-on="click:scrollTo">----{{title}}</a>
+          <a njn-href="#{{sectionId}}">----{{title}}</a>
         </div>
       </div>
     </div>
 
     <div id="main-body">
-      <div njn-foreach="chapters" class="chapter">
+      <div njn-foreach="chapters" class="chapter" njn-id="{{sectionId}}">
         <h1 class="section-break">{{title}}</h1>
-        <div class="section-wrapper" njn-foreach="sections">
-          <div><a class="section-number" href="javascript:void(0)" njn-on="click:scrollTo"><h2></h2></a><h2 class="section-title">{{title}}:</h2></div>
+        <div class="section-wrapper" njn-id="{{sectionId}}" njn-foreach="sections">
+          <div>
+            <a class="section-number" njn-href="#{{sectionId}}"><h2></h2></a>
+            <h2 class="section-title">{{title}}:</h2>
+          </div>
           <div class="section-body">
             {{sectionBody}}
           </div>
