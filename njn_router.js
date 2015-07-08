@@ -5,8 +5,6 @@ var NJNRouter = { routes: {} };
 njn.router = NJNRouter;
 
 njn.route = function() {
-  var routes;
-
   if(arguments.length === 1) {
     var paramsObject = arguments[0];
     Object.keys(paramsObject).forEach(function(routeName) {
@@ -23,9 +21,9 @@ NJNRouter.parseLocation = function() {
   var hash = location.hash.replace(/^#\//,'');
   if(NJNRouter.routes[hash]) {
     NJNRouter.routes[hash]();
-    njn.registeredControllers.watching(NJNRouter).forEach(function(controller) {
-      controller.refreshView();
-    });
+    //njn.registeredControllers.watching(NJNRouter).forEach(function(controller) {
+    //  controller.refreshView();
+    //});
     NJNRouter.currentLocation = hash;
   } else {
     var matchingPattern = Object.keys(NJNRouter.routes).find(function(routeName) {
