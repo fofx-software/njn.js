@@ -58,4 +58,10 @@ describe('njn-foreach on child element', function() {
   });
 });
 
+describe('the liveElement', function() {
+  it('is inserted before being processed, so properties like scrollTop are already computed', function() {
+    expect(parseInt([].slice.call(liveElement.childNodes, -1)[0].textContent)).toBeGreaterThan(1);
+  });
+});
+
 });

@@ -8,7 +8,10 @@ njn.controller('acceptance-controller', {
     { subArr: [1,2] },
     { subArr: [1,2] }
   ],
-  getID: function(subEl, subArr, arrEl, arrArr, subInd, arrInd) {
-    return subInd.toString() + arrInd;
+  getID: function(lookupChain, indices) {
+    return indices[0].toString() + indices[1];
+  },
+  getOffsetTop: function() {
+    return this.currElement.offsetTop;
   }
 });

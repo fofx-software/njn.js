@@ -2,7 +2,11 @@ describe('resolveFromLookupChain()', function() {
   var viewInterface = {
     a: 1,
     getVal: function() { return this.a; },
-    checkArgs: function() { return [].join.call(arguments,''); },
+    checkArgs: function() {
+      return [].map.call(arguments, function(member) {
+        return njn.isArray(member) ? '[' + member.join('') + ']' : member;
+      }).join('');
+    },
     currEl: function() { return this.currElement; }
   };
 
@@ -78,9 +82,9 @@ describe('resolveFromLookupChain()', function() {
         });
 
         describe('if other members of lookupChain are provided', function() {
-          it('applies the other members to the function', function() {
+          it('applies the other members to the function as an array, but not the viewInterface', function() {
             var resolved = resolveFromLookupChain('checkArgs', ['a', 'b', 'c', viewInterface]);
-            expect(resolved).toBe('abc');
+            expect(resolved).toBe('[abc]');
           });
 
           it('searches the other members for the property before the viewInterface', function() {
@@ -90,23 +94,23 @@ describe('resolveFromLookupChain()', function() {
         });
 
         describe('if indices array is provided', function() {
-          it('applies the indices array to the function', function() {
+          it('applies the lookupChain except for the viewInterface and the indices array to the function', function() {
             var resolved = resolveFromLookupChain('checkArgs', [viewInterface], [1, 2, 3]);
-            expect(resolved).toBe('123');
+            expect(resolved).toBe('[][123]');
           });
         });
 
         describe('if lookupChain and indices array are both provided', function() {
-          it('applies the lookupChain and then the indices array', function() {
+          it('applies the lookupChain and then the indices array to the function', function() {
             var resolved = resolveFromLookupChain('checkArgs', ['a', 'b', 'c', viewInterface], [1, 2, 3]);
-            expect(resolved).toBe('abc123');
+            expect(resolved).toBe('[abc][123]');
           });
         });
 
         describe('if eventArg is provided', function() {
           it('is passed as the first argument to the function', function() {
             var resolved = resolveFromLookupChain('checkArgs', [1,2,viewInterface], [0,1], null, 'fakeEvent');
-            expect(resolved).toBe('fakeEvent1201');
+            expect(resolved).toBe('fakeEvent[12][01]');
           });
         });
       });
