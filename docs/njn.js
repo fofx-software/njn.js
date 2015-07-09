@@ -136,55 +136,16 @@ njn.isBlank = function(string) {
   return emptyString || whiteSpace;
 }
 
-!function defineNJNArray() {
-
-  function NJNArray(array) {
-    this.array = array;
-  }
-  
-  njn.array = function(array) {
-    return(new NJNArray(array || []));
-  }
-  
-  NJNArray.prototype.find = function(fn, thisArg) {
-    if(this.array.find) { return this.array.find(fn, thisArg); }
-    for(var i = 0; i < this.array.length; i++) {
-      if(fn.call(thisArg, this.array[i], i, this.array)) {
-        return this.array[i];
+njn.Array = {
+  find: function(array, fn, thisArg) {
+    if(array.find) return array.find(fn, thisArg);
+    for(var i = 0; i < array.length; i++) {
+      if(fn.call(thisArg, array[i], i, array)) {
+        return array[i];
       }
     }
   }
-
-  ![
-    'concat',
-    'every',
-    'filter',
-    'forEach',
-    'indexOf',
-    'join',
-    'lastIndexOf',
-    'map',
-    'pop',
-    'push',
-    'reduce',
-    'reduceRight',
-    'reverse',
-    'shift',
-    'slice',
-    'some',
-    'sort',
-    'splice',
-    'toLocaleString',
-    'toString',
-    'unshift'
-  ].forEach(function(method) {
-    NJNArray.prototype[method] = function() {
-      var retVal = this.array[method].apply(this.array, arguments);
-      return njn.isArray(retVal) ? njn.array(retVal) : retVal;
-    }
-  });
-
-}();
+}
 
 njn.String = {
   keepSplit: function(str, delim) {

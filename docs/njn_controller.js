@@ -61,7 +61,7 @@ NJNController.prototype.refreshView = function(oldElement) {
     oldElement.parentElement.replaceChild(this.liveElement, oldElement);
   }
 
-  processHTML(this.liveElement, njn.array([this.viewInterface]), njn.array());
+  processHTML(this.liveElement, [this.viewInterface], []);
 
   return this.liveElement;
 }
@@ -92,7 +92,7 @@ function processHTML(element, lookupChain, indices) {
 }
 
 function findInLookupChain(propertyName, lookupChain) {
-  return njn.array(lookupChain).find(function(member) {
+  return njn.Array.find(lookupChain, function(member) {
     return njn.hasProperty(member, propertyName);
   });
 }
