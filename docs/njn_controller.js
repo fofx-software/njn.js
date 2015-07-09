@@ -61,7 +61,7 @@ NJNController.prototype.refreshView = function(oldElement) {
     oldElement.parentElement.replaceChild(this.liveElement, oldElement);
   }
 
-  processHTML(this.liveElement, [this.viewInterface], []);
+  processHTML(this.liveElement, njn.array([this.viewInterface]), njn.array());
 
   return this.liveElement;
 }
