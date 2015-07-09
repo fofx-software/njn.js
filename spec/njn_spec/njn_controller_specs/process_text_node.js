@@ -95,4 +95,12 @@ describe('processTextNode()', function() {
       expect(parentElement.childNodes[14].textContent).toBe('insert <div>{{html}}</div> here');
     });
   });
+
+  describe('when the textNode contains escaped html within inline html', function() {
+    it('does not parse the escaped html', function() {
+      var node = parentElement.appendChild(document.createTextNode('<div>&#123;&#123;noProcess&#125;&#125;</div>'));
+      processTextNode(node, [], []);
+      expect(parentElement.childNodes[15].textContent).toBe('{{noProcess}}');
+    });
+  });
 });

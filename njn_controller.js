@@ -288,8 +288,7 @@ function parseHTML(html) {
     html = html.replace(closingTag, '');
   } else {
     var textPart = /^([^<]|<(?=!--))+/;
-    var unescaped = NJNController.unescapeHTML(html.match(textPart)[0]);
-    element = document.createTextNode(unescaped);
+    element = document.createTextNode(html.match(textPart)[0]);
     html = html.replace(textPart,'');
   }
   return [element, html];
