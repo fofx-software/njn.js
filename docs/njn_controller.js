@@ -92,7 +92,7 @@ function processHTML(element, lookupChain, indices) {
 }
 
 function findInLookupChain(propertyName, lookupChain) {
-  return lookupChain.find(function(member) {
+  return njn.array(lookupChain).find(function(member) {
     return njn.hasProperty(member, propertyName);
   });
 }
