@@ -1,25 +1,3 @@
-  <div class="section-wrapper">
-    <div><a class="section-number" href=""><h2></h2></a><h2>Access the viewInterface:</h2></div>
-    <div class="section-body">
-      The properties of the <code class="language-javascript">viewInterface</code> can be accessed from the HTML:
-<!----><pre class="language-markup"><code>
-<!---->&lt;div fx-controller="example-controller"&gt;{{exampleText}}&lt;/div&gt;
-<!---->&lt;script&gt;fofx.controller('example-controller', { exampleText: 'hello world!' });&lt;/script&gt;
-<!----></code></pre>
-      <h3><a class="section-number" href=""></a>Referencing a method in the viewInterface</h3>
-      <div class="subsection">
-        When the property is a function, in normal cases it is called without any arguments:
-<!--  --><pre class="language-markup"><code>
-<!--  -->&lt;div fx-controller="example-controller"&gt;
-<!--  -->  {{getText}} &lt;!--processes to 'my text'--&gt;
-<!--  -->&lt;/div&gt;
-<!--  -->&lt;script&gt;
-<!--  -->  fofx.controller('example-controller', {
-<!--  -->    getText: function(arg1) { if(typeof arg1 === 'undefined') return 'my text'; }
-<!--  -->  });
-<!--  -->&lt;/script&gt;
-<!--  --></code></pre>
-      </div>
       <h3><a class="section-number" href=""></a>Referencing an object in the viewInterface</h3>
       <div class="subsection">
 <!--  --><pre class="language-markup"><code>
