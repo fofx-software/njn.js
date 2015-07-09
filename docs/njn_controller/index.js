@@ -1,7 +1,7 @@
 var codeBlock = function(codeName) { return '<pre njn-class="language-{{preLanguage}}"><code>{{' + codeName + '}}</code></pre>'; }
 var subsections = '<div>' +
                     '<div njn-foreach="subsections">' +
-                      '<h3><span class="section-number"></span>{{title}}</h3>' +
+                      '<h3><a class="section-number" njn-href="#{{sectionId}}" njn-id="{{sectionId}}"></a>{{title}}</h3>' +
                       '{{content}}' +
                     '</div>' +
                   '</div>';
@@ -44,7 +44,7 @@ var chapter1 = {
         code: escapeHTML(
           '<body>\n' +
           '  <div njn-controller="example-controller">\n' +
-          '    {{exampleText}} <!-- will be processed as \'hello world\' -->\n' +
+          '    {{exampleText}} <!-- will resolve to "hello world" -->\n' +
           '  </div>\n' +
           '  <script>\n' +
           '    njn.controller(\'example-controller\', {\n' +
@@ -114,11 +114,10 @@ var chapter2Section3 = {
   preLanguage: 'markup',
   subsections: [
       {
-        title: 'The properties of the njn.controller\'s <b>viewInterface</b> can be accessed directly from within any element with the ' +
-               inlineHTML('njn-controller') + ' attribute (or its children):',
+        title: 'The properties of the njn.controller\'s <b>viewInterface</b> can be accessed directly from within the element with the ' + inlineHTML('njn-controller') + ' attribute (or its children):',
         code: escapeHTML(
           '<div njn-controller="example-controller">\n' +
-          '  {{exampleText}}\n' +
+          '  {{exampleText}} <!--will resolve to "hello world"-->\n' +
           '</div>\n' +
           '<script>\n' +
           '  njn.controller(\'example-controller\', { exampleText: \'hello world!\' });\n' +
@@ -129,7 +128,7 @@ var chapter2Section3 = {
         title: 'If the accessed property is a function, it is called on the <b>viewInterface</b>, in simple cases without any arguments:',
         code: escapeHTML(
           '<div njn-controller="example-controller">\n' +
-          '  {{getText}} <!--processes to "my text"-->\n' +
+          '  {{getText}} <!--will resolve to "my text"-->\n' +
           '</div>\n' +
           '<script>\n' +
           '  njn.controller(\'example-controller\', {\n' +
@@ -145,16 +144,29 @@ var chapter2Section3 = {
 };
 
 // section 3 end //
-// section 4 begin //
 
-var chapter2Section4 = {
-  title: 'Resolving property references',
+var chapter2 = {
+  title: 'Basic Usage',
+  content: codeBlock('code'),
+  sectionBody: subsections,
+  sections: [
+    chapter2Section1,
+    chapter2Section2,
+    chapter2Section3
+  ]
+};
+
+// chapter 2 end //
+// chapter 3 begin //
+// section 1 begin //
+
+var chapter3Section1 = {
+  title: 'Overview',
   preLanguage: 'markup',
-  sectionBody: 'A <b>property reference</b> is denoted in the HTML by curly braces: <b>' + escapeHTML('{{propertyReference}}') + '</b>.  When ' +
-               'one is found, it is <b>resolved</b> by searching through an array of objects called the <b>lookupChain</b>, and the first object ' +
-               'that has the property is the one that is used to retrieve the value.  Initially, the <b>lookupChain</b> only contains the <b>viewInterface</b>, ' +
-               'so the <b>viewInterface</b> is the only object that is checked for the property reference.  However, there are two ways of adding objects ' +
-               'to the <b>lookupChain</b>:' + subsections,
+  sectionBody: '<p>A <b>property reference</b> is denoted in the HTML by curly braces: <b>' + escapeHTML('{{propertyReference}}') + '</b>.  When one is found, it is <b>resolved</b> by searching through an array of objects called the <b>lookupChain</b>, and the first object that has the referenced property is the one that is used to retrieve the value.  A qualified <b>owner</b> of a property can have the property either as an <b>ownProperty</b> or as a property in its prototype chain &mdash; njn.Controller does not distinguish.</p><p>Initially, the <b>lookupChain</b> only contains the <b>viewInterface</b>, so the <b>viewInterface</b> is the only object that is checked for the property reference. Below we will see how objects other than the <b>viewInterface</b> can be added to the <b>lookupChain</b> when you need them.</p><p>A <b>property reference</b> can refer to any data type, but when it refers to a function, the function is automatically called. In simple cases, as described <a href="#access-the-njn-controllers-viewinterface">above</a>, the function is called on its owner with no arguments. Below we will examine situations in which functions may be passed arguments.</p>'
+};
+
+/*
   subsections: [
       {
         title: inlineHTML('njn-context', 'markup') + ' HTML attribute:',
@@ -190,22 +202,20 @@ var chapter2Section4 = {
       }
   ]
 };
+*/
 
 // section 4 end //
 
-var chapter2 = {
-  title: 'Usage',
+var chapter3 = {
+  title: 'Property References and the lookupChain',
   content: codeBlock('code'),
   sectionBody: subsections,
   sections: [
-    chapter2Section1,
-    chapter2Section2,
-    chapter2Section3,
-    chapter2Section4
+    chapter3Section1
   ]
 };
 
-// chapter 2 end //
+// chapter 3 end //
 
 njn.controller('body-controller', {
   sectionId: function(lookupChain, indices) {
@@ -213,15 +223,19 @@ njn.controller('body-controller', {
       return str.replace(/:/g, '').replace(/\./g, ' ').replace(/<[^>]+>/g, '').replace(/'/g, '').toLowerCase().split(' ').join('-');
     }
     var chapter = this.chapters[indices.slice(-1)[0]];
+    var section = chapter.sections[indices.slice(-2)[0]];
     if(indices.length === 2) {
-      var section = chapter.sections[indices[0]];
       return hyphenize(section.title);
-    } else {
-      return hyphenize(chapter.title);
     }
+    if(indices.length === 3) {
+      var subsection = section.subsections[indices[0]];
+      return hyphenize(subsection.title);
+    }
+    return hyphenize(chapter.title);
   },
   chapters: [
     chapter1,
-    chapter2
+    chapter2,
+    chapter3
   ]
 });

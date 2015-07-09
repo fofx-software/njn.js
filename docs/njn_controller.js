@@ -32,11 +32,14 @@ njn.controller = function(controllerName, viewInterface, watching) {
 }
 
 NJNController.unescapeHTML = function(html) {
-  return html.replace(/&lt;/g,   '<')
-             .replace(/&gt;/g,   '>')
-             .replace(/&amp;/g,  '&')
-             .replace(/&#123;/g, '{')
-             .replace(/&#125;/g, '}');
+  var span = document.createElement('span');
+  span.innerHTML = html;
+  return span.textContent;
+  //return html.replace(/&lt;/g,   '<')
+  //           .replace(/&gt;/g,   '>')
+  //           .replace(/&amp;/g,  '&')
+  //           .replace(/&#123;/g, '{')
+  //           .replace(/&#125;/g, '}');
 }
 
 NJNController.escapeHTML = function(html) {
@@ -288,8 +291,7 @@ function parseHTML(html) {
     html = html.replace(closingTag, '');
   } else {
     var textPart = /^([^<]|<(?=!--))+/;
-    var unescaped = html.match(textPart)[0];//NJNController.unescapeHTML(html.match(textPart)[0]);
-    element = document.createTextNode(unescaped);
+    element = document.createTextNode(html.match(textPart)[0]);
     html = html.replace(textPart,'');
   }
   return [element, html];
