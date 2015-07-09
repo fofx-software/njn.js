@@ -179,7 +179,8 @@ njn.isBlank = function(string) {
     'unshift'
   ].forEach(function(method) {
     NJNArray.prototype[method] = function() {
-      return this.array[method].apply(this.array, arguments);
+      var retVal = this.array[method].apply(this.array, arguments);
+      return njn.isArray(retVal) ? njn.array(retVal) : retVal;
     }
   });
 
