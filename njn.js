@@ -136,6 +136,17 @@ njn.isBlank = function(string) {
   return emptyString || whiteSpace;
 }
 
+njn.Array = {
+  find: function(array, fn, thisArg) {
+    if(array.find) return array.find(fn, thisArg);
+    for(var i = 0; i < array.length; i++) {
+      if(fn.call(thisArg, array[i], i, array)) {
+        return array[i];
+      }
+    }
+  }
+}
+
 njn.String = {
   keepSplit: function(str, delim) {
     if('-'.split(/(-)/).length === 3) return str.split(delim);
