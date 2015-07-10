@@ -31,17 +31,6 @@ njn.controller = function(controllerName, viewInterface, watching) {
   return controller;
 }
 
-NJNController.unescapeHTML = function(html) {
-  var span = document.createElement('span');
-  span.innerHTML = html;
-  return span.textContent;
-  //return html.replace(/&lt;/g,   '<')
-  //           .replace(/&gt;/g,   '>')
-  //           .replace(/&amp;/g,  '&')
-  //           .replace(/&#123;/g, '{')
-  //           .replace(/&#125;/g, '}');
-}
-
 NJNController.escapeHTML = function(html) {
   return html.replace(/</g, '&lt;')
              .replace(/>/g, '&gt;')
@@ -206,95 +195,50 @@ function repeatElement(element, lookupChain, indices) {
 function processTextNode(textNode, lookupChain, indices) {
   var parentElement = textNode.parentElement;
   var nextSibling = textNode.nextSibling;
-  parentElement.removeChild(textNode);
+  var previousSibling = textNode.previousSibling;
 
-  var textContent = textNode.textContent;
-  var newNode = document.createTextNode('');
+  var interpolator = /^([^\[]|\[(?!\[))*\{\{.+\}\}/;
 
-  while(textContent.match(/{{|</)) {
-    var upToRegExp = new RegExp('^([^{<]|\{(?!\{)|\n)+(?={{|<)');
-    var upTo = textContent.match(upToRegExp);
-    if(upTo) {
-      newNode.textContent += upTo[0];
-      textContent = textContent.replace(upTo[0], '');
+  var span = document.createElement('span');
+  parentElement.replaceChild(span, textNode);
+  span.outerHTML = processText(textNode.textContent, lookupChain, indices, parentElement);
+
+  var currentSibling = previousSibling ? previousSibling.nextSibling : parentElement.firstChild;
+
+  while(currentSibling !== nextSibling) {
+    if(currentSibling.nodeType === 1) {
+      processHTML(currentSibling, lookupChain, indices);
+    } else if(currentSibling.textContent.match(interpolator)) {
+      processTextNode(currentSibling, lookupChain, indices);
+    } else if(currentSibling.textContent.match(/\[\[/)) {
+      currentSibling.textContent = currentSibling.textContent.replace(/(\[\[|\]\])/g, '');
     }
-    var interpolatorRegExp = /^\{\{([^}]|\}(?!\}))+\}\}/;
-    var interpolator = textContent.match(interpolatorRegExp);
-    if(interpolator) {
-      var processed = processText(interpolator[0], lookupChain, indices, parentElement);
-      if(njn.isHTMLElement(processed)) {
-        if(newNode.textContent) {
-          newNode.textContent = NJNController.unescapeHTML(newNode.textContent);
-          parentElement.insertBefore(newNode, nextSibling);
-          newNode = document.createTextNode('');
-        }
-        var element = processHTML(processed, lookupChain, indices);
-        parentElement.insertBefore(element, nextSibling);
-        textContent = textContent.replace(interpolatorRegExp,'');
-      } else {
-        textContent = textContent.replace(interpolatorRegExp, processed);
-      }
-    } else if(textContent.match(/^</)) {
-      if(newNode.textContent) {
-        newNode.textContent = NJNController.unescapeHTML(newNode.textContent);
-        parentElement.insertBefore(newNode, nextSibling);
-        newNode = document.createTextNode('');
-      }
-      var processed = parseHTML(textContent);
-      var element = processHTML(processed[0], lookupChain, indices);
-      parentElement.insertBefore(element, nextSibling);
-      textContent = processed[1];
-    }
-  }
-  if(textContent) {
-    newNode.textContent += textContent;
-    newNode.textContent = NJNController.unescapeHTML(newNode.textContent);
-    parentElement.insertBefore(newNode, nextSibling);
+    currentSibling = currentSibling.nextSibling;
   }
 }
 
 function processText(text, lookupChain, indices, element) {
-  var interpolator = /{{!?\w+\??}}/g;
+  var interpolator = /(\[\[([^]|\n)+\]\]|\{\{!?\w+\??\}\})/g;
   (text.match(interpolator) || []).forEach(function(match) {
-    var negate = /^{{!/.test(match);
-    var innerMatch = match.match(/\w+\??/)[0];
-    var replacement = resolveFromLookupChain(innerMatch, lookupChain, indices, element);
-    if(negate) { replacement = !replacement; }
-    if(njn.isHTMLElement(replacement)) {
-      text = replacement;
+    var replacement;
+    if(/^\{\{/.test(match)) {
+      var negate = /^{{!/.test(match);
+      var innerMatch = match.match(/\w+\??/)[0];
+      replacement = resolveFromLookupChain(innerMatch, lookupChain, indices, element);
+      if(negate) { replacement = !replacement; }
+      if(njn.isHTMLElement(replacement)) {
+        replacement = replacement.outerHTML;
+      } else if(njn.isString(replacement)) {
+        replacement = replacement.replace(/\[\[([^]|\n)+\]\]/g, function(match) {
+          return NJNController.escapeHTML(match);
+        });
+      }
     } else {
-      text = text.replace(match, replacement);
+      replacement = NJNController.escapeHTML(match);
     }
+    text = text.replace(match, replacement);
   });
   return text;
-}
-
-function parseHTML(html) {
-  var element;
-  if(html.match(/^<(?!!--)/)) {
-    var openTagRegExp = /^<([^>]+)>/;
-    var openingTag = html.match(openTagRegExp)[1].split(' ');
-    var tagName = openingTag.shift();
-    element = document.createElement(tagName);
-    openingTag.forEach(function(attrVal) {
-      var attr = attrVal.split('=')[0];
-      var valu = attrVal.split('=')[1] || '';
-      element.setAttribute(attr, (valu.match(/[^"']+/) || [''])[0]);
-    });
-    html = html.replace(openTagRegExp, '');
-    var closingTag = new RegExp('^</' + tagName + '>');
-    while(!tagName.match(/^(img|br|input)$/) && html && !html.match(closingTag)) {
-      var processed = parseHTML(html);
-      element.appendChild(processed[0]);
-      html = processed[1];
-    }
-    html = html.replace(closingTag, '');
-  } else {
-    var textPart = /^([^<]|<(?=!--))+/;
-    element = document.createTextNode(html.match(textPart)[0]);
-    html = html.replace(textPart,'');
-  }
-  return [element, html];
 }
 
 function configureAttribute(element, attr, lookupChain, indices) {
@@ -403,7 +347,6 @@ if(window['testing'])
     repeatElement: repeatElement,
     processTextNode: processTextNode,
     processText: processText,
-    parseHTML: parseHTML,
     configureAttribute: configureAttribute,
     toggleClasses: toggleClasses,
     toggleDisplay: toggleDisplay,
