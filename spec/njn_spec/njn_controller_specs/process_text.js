@@ -96,23 +96,30 @@ describe('processText()', function() {
   });
 
   describe('when the string consists wholly of an interpolator which resolves to an HTMLElement', function() {
-    it('returns the HTMLElement', function() {
+    it('returns the outerHTML of the element', function() {
       var processed = processText('{{getEl}}', [{ getEl: document.createElement('div') }]);
-      expect(processed.tagName).toBe('DIV');
+      expect(processed).toBe('<div></div>');
     });
   });
 
   describe('when the string consists of some text and then an interpolator which resolves to an HTMLElement', function() {
-    it('returns only the HTMLElement', function() {
+    it('inserts the outerHTMl of the element in place of the interpolator', function() {
       var processed = processText('hello {{name}} {{getEl}}', [{ name: 'Joe', getEl: document.createElement('div') }]);
-      expect(processed.tagName).toBe('DIV');
+      expect(processed).toBe('hello Joe <div></div>');
     });
   });
 
-  describe('when the string has any text following an interpolator which resolves to an HTMLElement', function() {
-    it('raises an exception', function() {
-      var willThrow = function() { processText('{{getEl}} hello {{name}}', [{ name: 'Joe', getEl: document.createElement('div') }]); }
-      expect(willThrow).toThrowError(/text.replace is not a function/);
+  describe('when html appears between double brackets', function() {
+    it('escapes the html', function() {
+      var processed = processText('hello [[<div>sir</div>]]', []);
+      expect(processed).toBe('hello [[&lt;div&gt;sir&lt;/div&gt;]]');
+    });
+  });
+
+  describe('when an interpolator appears between double brackets', function() {
+    it('escapes the double braces', function() {
+      var processed = processText('hello [[{{name}}]]', []);
+      expect(processed).toBe('hello [[&#123;&#123;name&#125;&#125;]]');
     });
   });
 });
