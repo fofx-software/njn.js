@@ -217,7 +217,7 @@ function processTextNode(textNode, lookupChain, indices) {
 }
 
 function processText(text, lookupChain, indices, element) {
-  var interpolator = /(\[\[.+\]\]|\{\{!?\w+\??\}\})/g;
+  var interpolator = /(\[\[([^\]]|\](?!\])|\n)+\]\]|\{\{!?\w+\??\}\})/g;
   (text.match(interpolator) || []).forEach(function(match) {
     var replacement;
     if(/^\{\{/.test(match)) {

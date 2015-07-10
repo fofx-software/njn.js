@@ -91,4 +91,12 @@ describe('processTextNode()', function() {
       expect(parentElement.childNodes[12].textContent).toBe('{{noProcess}}');
     });
   });
+
+  describe('when escaped html has multiple newlines', function() {
+    it('correctly escapes and renders the html within the double brackets', function() {
+      var node = parentElement.appendChild(document.createTextNode('[[<div>\n  textContent\n</div>]]'));
+      processTextNode(node, [], []);
+      expect(parentElement.childNodes[13].textContent).toBe('<div>\n  textContent\n</div>');
+    });
+  });
 });
