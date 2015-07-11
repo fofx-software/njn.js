@@ -23,38 +23,20 @@ describe('processText()', function() {
   });
 
   describe('when an interpolator has leading white space', function() {
-    it('does not interpolate', function() {
-      expect(processText('{{ name}}', [viewInterface])).toBe('{{ name}}');
+    it('resolves the property reference', function() {
+      expect(processText('{{ name}}', [viewInterface])).toBe('John');
     });
   });
 
   describe('when an interpolator has trailing white space', function() {
-    it('does not interpolate', function() {
-      expect(processText('{{name }}', [viewInterface])).toBe('{{name }}');
+    it('resolves the property reference', function() {
+      expect(processText('{{name }}', [viewInterface])).toBe('John');
     });
   });
 
   describe('when an interpolator has inner white space', function() {
-    it('does not interpolate', function() {
-      expect(processText('{{name name}}', [viewInterface])).toBe('{{name name}}');
-    });
-  });
-
-  describe('when an interpolator is only a bang', function() {
-    it('does not interpolate', function() {
-      expect(processText('{{!}}', [viewInterface])).toBe('{{!}}');
-    });
-  });
-
-  describe('when an interpolator is only a question mark', function() {
-    it('does not interpolate', function() {
-      expect(processText('{{?}}', [viewInterface])).toBe('{{?}}');
-    });
-  });
-
-  describe('when an interpolator is only a bang and a question mark', function() {
-    it('does not interpolate', function() {
-      expect(processText('{{!?}}', [viewInterface])).toBe('{{!?}}');
+    it('resolves the first property reference', function() {
+      expect(processText('{{name name}}', [viewInterface])).toBe('John');
     });
   });
 
@@ -117,9 +99,9 @@ describe('processText()', function() {
   });
 
   describe('when an interpolator appears between double brackets', function() {
-    it('escapes the double braces', function() {
+    it('does not resolve the property reference', function() {
       var processed = processText('hello [[{{name}}]]', []);
-      expect(processed).toBe('hello [[&#123;&#123;name&#125;&#125;]]');
+      expect(processed).toBe('hello [[{{name}}]]');
     });
   });
 });
