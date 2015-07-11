@@ -6,9 +6,8 @@ describe('njn.controller()', function() {
       expect(newController).toEqual(jasmine.any(njn.Controller));
     });
 
-    it('does not set the new controller\'s name, template or watching', function() {
+    it('does not set the new controller\'s name or template', function() {
       expect(newController.name).toBeUndefined();
-      expect(newController.watching).toBeUndefined();
       expect(newController.template).toBeUndefined();
     });
 
@@ -32,12 +31,10 @@ describe('njn.controller()', function() {
       expect(newController.viewInterface).toEqual({});
     });
 
-    it('does not set the new controller\'s watching', function() {
-      expect(newController.watching).toBeUndefined();
-    });
-
-    it('gives the new controller a null template', function() {
-      expect(newController.template).toBeNull();
+    describe('if no element is bound to the controller', function() {
+      it('does not set the controller\'s template', function() {
+        expect(newController.template).toBeUndefined();
+      });
     });
   });
 
@@ -48,9 +45,8 @@ describe('njn.controller()', function() {
       expect(newController.viewInterface).toEqual({ a: 1 });
     });
 
-    it('does not set the controller\'s name, template or watching', function() {
+    it('does not set the controller\'s name or template', function() {
       expect(newController.name).toBeUndefined();
-      expect(newController.watching).toBeUndefined();
       expect(newController.template).toBeUndefined();
     });
   });
@@ -63,20 +59,10 @@ describe('njn.controller()', function() {
       expect(newController.viewInterface).toEqual({ a: 1 });
     });
 
-    it('does not set the controller\'s watching', function() {
-      expect(newController.watching).toBeUndefined();
-    });
-
-    it('gives the new controller a template', function() {
-      expect(newController.template).toBeNull();
-    });
-  });
-
-  describe('when given a third argument', function() {
-    var newController = njn.controller('with-watching', { a: 1 }, [1,2,3]);
-
-    it('sets the controller\'s \'watching\' property to the third argument', function() {
-      expect(newController.watching).toEqual([1,2,3]);
+    describe('if no element is bound to the controller', function() {
+      it('does not set the controller\'s template', function() {
+        expect(newController.template).toBeUndefined();
+      });
     });
   });
 });
