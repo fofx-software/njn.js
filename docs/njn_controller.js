@@ -210,7 +210,8 @@ function processTextNode(textNode, lookupChain, indices) {
       processHTML(currentSibling, lookupChain, indices);
     } else if(currentSibling.textContent.match(interpolator)) {
       processTextNode(currentSibling, lookupChain, indices);
-    } else if(currentSibling.textContent.match(/\[\[/)) {
+    }
+    if(currentSibling.nodeType === 3) {
       currentSibling.textContent = currentSibling.textContent.replace(/(\[\[|\]\])/g, '');
     }
     currentSibling = currentSibling.nextSibling;
@@ -218,25 +219,21 @@ function processTextNode(textNode, lookupChain, indices) {
 }
 
 function processText(text, lookupChain, indices, element) {
-  var interpolator = /(\[\[([^]|\n)+\]\]|\{\{!?\w+\??\}\})/g;
-  (text.match(interpolator) || []).forEach(function(match) {
-    var replacement;
-    if(/^\{\{/.test(match)) {
-      var negate = /^{{!/.test(match);
-      var innerMatch = match.match(/\w+\??/)[0];
-      replacement = resolveFromLookupChain(innerMatch, lookupChain, indices, element);
-      if(negate) { replacement = !replacement; }
-      if(njn.isHTMLElement(replacement)) {
-        replacement = replacement.outerHTML;
-      } else if(njn.isString(replacement)) {
-        replacement = replacement.replace(/\[\[([^]|\n)+\]\]/g, function(match) {
-          return NJNController.escapeHTML(match);
-        });
-      }
-    } else {
-      replacement = NJNController.escapeHTML(match);
+  var interpolator = /(\[\[|\{\{)([^\}\]]|\}(?!\})|\](?!\])|\n)+(\}\}|\]\])/g;
+  text = text.replace(interpolator, function(match) {
+    if(match.match(/^\[\[/)) return match;
+    var negate = /^\{\{!/.test(match);
+    var innerMatch = match.match(/\w+\??/)[0];
+    var replacement = resolveFromLookupChain(innerMatch, lookupChain, indices, element);
+    if(negate) { replacement = !replacement; }
+    if(njn.isHTMLElement(replacement)) {
+      replacement = replacement.outerHTML;
     }
-    text = text.replace(match, replacement);
+    return replacement;
+  });
+  var escapedRegExp = /\[\[([^\]]|\](?!\])|\n)+\]\]/g;
+  text = text.replace(escapedRegExp, function(match) {
+    return match.replace(/</g, '&lt;').replace(/>/g, '&gt;');
   });
   return text;
 }
