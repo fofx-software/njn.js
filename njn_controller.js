@@ -37,7 +37,7 @@ njn.Controller.prototype.processHTML = function(elementOrHTML, resolveIn, postPr
   var container = document.createElement('div');
   container.innerHTML = elementOrHTML.outerHTML || elementOrHTML;
   while(container.innerHTML.search(interpolatorRE) > -1) {
-    container.innerHTML = processText(container.innerHTML, resolveIn || this.viewInterface);
+    container.innerHTML = processText(container.innerHTML, [resolveIn, this.viewInterface]);
   }
   if(!resolveIn || postProcess) {
     return stripBracketsAndTripleBraces(container.innerHTML);
@@ -65,8 +65,15 @@ function processText(text, resolveIn) {
 }
 
 function resolveValue(propertyName, resolveIn) {
-  var value = resolveIn[propertyName];
-  return value.call ? value.call(resolveIn) : value;
+  var splitProperty = propertyName.split('.');
+  var firstProperty = splitProperty.shift();
+  var owner = njn.hasProperty(resolveIn[0], firstProperty) ? resolveIn[0] : resolveIn[1];
+  var value = owner[firstProperty].call ? owner[firstProperty].call(owner) : owner[firstProperty];
+  while(splitProperty.length) {
+    subValue = value[splitProperty.shift()];
+    value = subValue.call ? subValue.call(value) : subValue;
+  }
+  return value;
 }
 
 function stripBracketsAndTripleBraces(html) {
