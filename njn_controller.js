@@ -6,6 +6,7 @@ njn.controller = function(controllerName, viewInterface) {
   var controller = new njn.Controller;
 
   controller.viewInterface = viewInterface || (njn.isObject(controllerName) ? controllerName : {});
+  controller.viewInterface.controller = controller;
 
   if(njn.isString(controllerName)) {
     controller.name = controllerName;
@@ -28,17 +29,21 @@ njn.Controller.prototype.loadTemplate = function(template) {
 }
 
 njn.Controller.prototype.refreshView = function() {
-  this.liveElement().outerHTML = this.processHTML(this.template, this.viewInterface);
+  this.liveElement().outerHTML = this.processHTML(this.template);
   return this.liveElement();
 }
 
-njn.Controller.prototype.processHTML = function(elementOrHTML, resolveIn) {
+njn.Controller.prototype.processHTML = function(elementOrHTML, resolveIn, postProcess) {
   var container = document.createElement('div');
   container.innerHTML = elementOrHTML.outerHTML || elementOrHTML;
   while(container.innerHTML.search(interpolatorRE) > -1) {
-    container.innerHTML = processText(container.innerHTML, resolveIn);
+    container.innerHTML = processText(container.innerHTML, resolveIn || this.viewInterface);
   }
-  return stripBracketsAndTripleBraces(container.innerHTML);
+  if(!resolveIn || postProcess) {
+    return stripBracketsAndTripleBraces(container.innerHTML);
+  } else {
+    return container.innerHTML;
+  }
 }
 
 var interpolatorRE = /\{\{!?\w+\??\}\}(?!\})/g;
@@ -70,11 +75,13 @@ function stripBracketsAndTripleBraces(html) {
   }).replace(/\{\{\{/g, '{{').replace(/\}\}\}/g, '}}');
 }
 
-njn.Controller.prototype.mapHTML = function(list, elementOrHTML, join) {
-  var mapped = list.map(function(member) {
-    return this.processHTML(elementOrHTML, member);
-  }, this);
-  return njn.isDefined(join) ? mapped.join(join) : mapped;
+njn.Controller.mapHTML = function(list, elementOrHTML, join) {
+  return function() {
+    var mapped = list.map(function(member) {
+      return this.controller.processHTML(elementOrHTML, member);
+    }, this);
+    return mapped.join(join || '');
+  }
 }
 
 if(window['testing'])

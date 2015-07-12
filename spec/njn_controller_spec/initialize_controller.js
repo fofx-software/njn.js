@@ -11,8 +11,8 @@ describe('njn.controller()', function() {
       expect(newController.template).toBeUndefined();
     });
 
-    it('sets the controller\'s viewInterface to an empty object', function() {
-      expect(newController.viewInterface).toEqual({});
+    it('sets the controller\'s viewInterface to an object whose only property is "controller"', function() {
+      expect(newController.viewInterface.controller).toEqual(newController);
     });
   });
 
@@ -27,8 +27,8 @@ describe('njn.controller()', function() {
       expect(njn.registeredControllers.newController).toBe(newController);
     });
 
-    it('sets the controller\'s viewInterface to an empty object', function() {
-      expect(newController.viewInterface).toEqual({});
+    it('sets the controller\'s viewInterface to an object whose only property is "controller"', function() {
+      expect(newController.viewInterface.controller).toEqual(newController);
     });
 
     describe('if no element is bound to the controller', function() {
@@ -42,7 +42,7 @@ describe('njn.controller()', function() {
     var newController = njn.controller({ a: 1 });
 
     it('makes the object the controller\'s viewInterface', function() {
-      expect(newController.viewInterface).toEqual({ a: 1 });
+      expect(newController.viewInterface.a).toBe(1);
     });
 
     it('does not set the controller\'s name or template', function() {
@@ -56,7 +56,7 @@ describe('njn.controller()', function() {
 
     it('makes the string the name of the controller and the object its viewInterface', function() {
       expect(newController.name).toBe('string-and-object');
-      expect(newController.viewInterface).toEqual({ a: 1 });
+      expect(newController.viewInterface.a).toBe(1);
     });
 
     describe('if no element is bound to the controller', function() {
