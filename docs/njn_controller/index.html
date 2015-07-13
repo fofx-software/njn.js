@@ -11,11 +11,23 @@
 </head>
 <body>
   <div id="left-panel">
-    {{chapterLinks}}
+    <div data-njnrepeat="chapters">
+      <h2><a href="#{{+id}}">{{+title}}</a></h2>
+      <div class="navlink" data-njnrepeat="+sections">
+        <a class="link-to-section" href="#{{++id}}">{{++title}}</a>
+      </div>
+    </div>
   </div>
-
   <div id="main-body">
-    {{chapterDivs}}
+    <div class="chapter" data-njnrepeat="chapters" id="{{+id}}">
+      <h1 class="chapter-title">{{+title}}</h1>
+      <div class="section-wrapper" data-njnrepeat="+sections" id="{{++id}}">
+        <a class="section-title" href="#{{++id}}"><h2>{{++title}}:</h2></a>
+        <div class="section-body">
+          {{++sectionBody}}
+        </div>
+      </div>
+    </div>
   </div>
   <script type="text/javascript" src="index.js"></script>
   <script type="text/javascript" src="../prism.js"></script>
